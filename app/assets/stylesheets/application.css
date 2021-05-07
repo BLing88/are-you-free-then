@@ -19,6 +19,7 @@ body {
     font-size: 18px;
     line-height: 1.3;
     padding: 0 25%;
+    box-sizing: border-box;
 }
 
 button {
@@ -30,3 +31,8 @@ button {
 button:hover {
     cursor: pointer;
 } 
+
+.debug_dump {
+    font-size: 15px;
+    margin-top: 45px;
+}
