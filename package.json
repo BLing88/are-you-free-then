@@ -2,6 +2,7 @@
   "name": "are-you-free-then",
   "private": true,
   "dependencies": {
+    "@babel/core": "^7.14.0",
     "@babel/preset-react": "^7.13.13",
     "@babel/preset-typescript": "^7.13.0",
     "@rails/actioncable": "^6.0.0",
@@ -10,6 +11,7 @@
     "@rails/webpacker": "5.3.0",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.3",
+    "babel-plugin-macros": "^3.1.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "prop-types": "^15.7.2",
