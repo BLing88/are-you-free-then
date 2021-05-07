@@ -39,6 +39,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@babel/core", "npm:7.14.0"],
             ["@babel/plugin-syntax-dynamic-import", "virtual:af1f27f39768e0ac1d6c1766b9769cd272508150d9f26416c6b0e70cd66b0fa9777110f36ac6fb12702e069537ef43e13249dc051b0424a8d17f09b04515495c#npm:7.8.3"],
+            ["@babel/plugin-transform-destructuring", "virtual:af1f27f39768e0ac1d6c1766b9769cd272508150d9f26416c6b0e70cd66b0fa9777110f36ac6fb12702e069537ef43e13249dc051b0424a8d17f09b04515495c#npm:7.13.17"],
             ["@babel/preset-react", "virtual:f192a293508b44f9f51a1a1113c124b01a435263d65423fe30c943fe3b6ed1ccb700ee3f4061c6319fa88d7d3309ab17e509400d2f37f488ca6966dd6cb57d81#npm:7.13.13"],
             ["@babel/preset-typescript", "virtual:f192a293508b44f9f51a1a1113c124b01a435263d65423fe30c943fe3b6ed1ccb700ee3f4061c6319fa88d7d3309ab17e509400d2f37f488ca6966dd6cb57d81#npm:7.13.0"],
             ["@rails/actioncable", "npm:6.1.3"],
@@ -3310,6 +3311,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["are-you-free-then", "workspace:."],
             ["@babel/core", "npm:7.14.0"],
             ["@babel/plugin-syntax-dynamic-import", "virtual:af1f27f39768e0ac1d6c1766b9769cd272508150d9f26416c6b0e70cd66b0fa9777110f36ac6fb12702e069537ef43e13249dc051b0424a8d17f09b04515495c#npm:7.8.3"],
+            ["@babel/plugin-transform-destructuring", "virtual:af1f27f39768e0ac1d6c1766b9769cd272508150d9f26416c6b0e70cd66b0fa9777110f36ac6fb12702e069537ef43e13249dc051b0424a8d17f09b04515495c#npm:7.13.17"],
             ["@babel/preset-react", "virtual:f192a293508b44f9f51a1a1113c124b01a435263d65423fe30c943fe3b6ed1ccb700ee3f4061c6319fa88d7d3309ab17e509400d2f37f488ca6966dd6cb57d81#npm:7.13.13"],
             ["@babel/preset-typescript", "virtual:f192a293508b44f9f51a1a1113c124b01a435263d65423fe30c943fe3b6ed1ccb700ee3f4061c6319fa88d7d3309ab17e509400d2f37f488ca6966dd6cb57d81#npm:7.13.0"],
             ["@rails/actioncable", "npm:6.1.3"],
