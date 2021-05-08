@@ -13,4 +13,19 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: /Sign up/i
     assert_select "div", text: /form contains \d+? errors./i
   end
+
+  test "valid signup information" do
+    get signup_path
+    assert flash.empty?
+    name = "Example User"
+    assert_difference 'User.count', 1 do
+      post signup_path, params: { user: { name: name,
+                                          email: "user@example.com",
+                                          password: "user_password",
+                                          password_confirmation: "user_password" } }
+    end
+    follow_redirect!
+    assert_select 'div', text: /#{name}/i
+    assert_not flash.empty?
+  end
 end
