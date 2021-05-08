@@ -10,6 +10,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
                                          password_confirmation: "bar"
                                         } }
     end
-    assert_select "h1", /Sign up/i
+    assert_select "h1", text: /Sign up/i
+    assert_select "div", text: /form contains \d+? errors./i
   end
 end
