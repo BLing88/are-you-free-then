@@ -35,4 +35,14 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", logout_path
     assert_select "a[href=?]", user_path(@user)
   end
+
+  test "log in with valid email/invalid password" do
+    get login_path
+    post login_path, params: { session: { email: @user.email,
+                                          password: "invalid" } }
+    assert_select 'h1', /log in/i
+    assert_not flash.empty?
+    get root_path
+    assert flash.empty?
+  end
 end
