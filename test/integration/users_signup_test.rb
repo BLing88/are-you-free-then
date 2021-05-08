@@ -25,6 +25,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
                                           password_confirmation: "user_password" } }
     end
     follow_redirect!
+    assert is_logged_in?
     assert_select 'div', text: /#{name}/i
     assert_not flash.empty?
   end
