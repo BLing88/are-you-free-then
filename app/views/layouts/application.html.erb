@@ -12,7 +12,7 @@
 
   <body>
     <%= flash.each do |message_type, message| %>
-      <div><%= message %></div>
+      <%= content_tag :div, message %>
     <% end %>
     <%= yield %>
     <%= debug(params) if Rails.env.development? %>
