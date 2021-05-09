@@ -67,9 +67,11 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert BCrypt::Password.new(@user.password_digest).is_password?(password)
   end
   
-  test "successful edit without password" do
-    log_in_as(@user)
+  test "successful edit without password with friendly forwarding" do
     get edit_user_path(@user)
+    log_in_as(@user)
+    assert_redirected_to edit_user_url(@user)
+    follow_redirect!
     assert_select 'h1', /update your profile/i
     name = "Dog Cat"
     email = "bob@foo.com"
@@ -84,5 +86,10 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     @user.reload
     assert_equal name, @user.name
     assert_equal email, @user.email
+    # Check that forwarding url is reset 
+    delete logout_path
+    get login_path
+    log_in_as(@user)
+    assert_redirected_to @user
   end
 end
