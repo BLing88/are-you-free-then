@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:edit, :update]
+  before_action :logged_in_user, only: [:edit, :update, :destroy]
   before_action :correct_user, only: [:edit, :update]
   
   def new
@@ -33,6 +33,18 @@ class UsersController < ApplicationController
       redirect_to @user
     else
       render 'edit'
+    end
+  end
+
+  def destroy
+    user = User.find(params[:id])
+    if current_user?(user)
+      delete_account(user)
+      flash[:success] = "Account deleted"
+      redirect_to root_url
+    else 
+      flash[:danger] = "Permission denied."
+      redirect_to root_url
     end
   end
 
