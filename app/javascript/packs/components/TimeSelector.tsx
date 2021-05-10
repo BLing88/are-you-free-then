@@ -19,10 +19,12 @@ const Cell = ({ startDateTime, endDateTime }: CellProps) => {
   );
 };
 
+type Page = 0 | 1 | 2;
+
 interface TimeInputState {
   pointerDown: boolean;
   cellsToHighlight: Map<string, boolean>;
-  page: 0 | 1 | 2;
+  page: Page;
   initialDateTimeDown: string | null;
 }
 
@@ -50,10 +52,17 @@ interface PointerUpAction {
   type: typeof POINTER_UP;
 }
 
+const MOVE_FORWARD = "MOVE_FORWARD";
+const MOVE_BACK = "MOVE_BACK";
+interface ChangePageAction {
+  type: typeof MOVE_FORWARD | typeof MOVE_BACK;
+}
+
 type TimeInputReducerAction =
   | PointerDownAction
   | EnterCellAction
-  | PointerUpAction;
+  | PointerUpAction
+  | ChangePageAction;
 const reducer = (
   state: TimeInputState,
   action: TimeInputReducerAction
@@ -91,6 +100,16 @@ const reducer = (
         pointerDown: false,
         initialDateTimeDown: null,
       };
+    case MOVE_FORWARD:
+      return {
+        ...state,
+        page: state.page === 2 ? 2 : ((state.page + 1) as Page),
+      };
+    case MOVE_BACK:
+      return {
+        ...state,
+        page: state.page > 0 ? ((state.page - 1) as Page) : 0,
+      };
     default:
       return state;
   }
@@ -118,42 +137,53 @@ const TimeInput = ({ date }: TimeInputProps) => {
     0
   );
   return (
-    <div onPointerLeave={() => dispatch({ type: POINTER_UP })}>
-      {times.map((time, i) => {
-        const shouldHighlight = !!state.cellsToHighlight.get(
-          time.toISOString()
-        );
-        return (
-          //<Cell
-          // key={time.getTime()}
-          //  startDateTime={time}
-          //   endDateTime={i < times.length - 1 ? times[i + 1] : midnightNextDay}
-          // />
-          <div
-            key={time.getTime()}
-            className={`time-input-cell ${
-              shouldHighlight ? "highlight-cell" : ""
-            }`}
-            onPointerDown={() =>
-              dispatch({ type: POINTER_DOWN, dateTime: time.toISOString() })
-            }
-            onPointerEnter={() =>
-              dispatch({ type: ON_ENTER_CELL, dateTime: time.toISOString() })
-            }
-            onPointerUp={() => dispatch({ type: POINTER_UP })}
-            onPointerCancel={() => dispatch({ type: POINTER_UP })}
-          >
-            <span className="hour-string">
-              {time.getMinutes() === 0 &&
-                time.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-            </span>
-          </div>
-        );
-      })}
-    </div>
+    <>
+      <div
+        className="time-selector-input"
+        onPointerLeave={() => dispatch({ type: POINTER_UP })}
+      >
+        {times.slice(state.page * 32, state.page * 32 + 32).map((time, i) => {
+          const shouldHighlight = !!state.cellsToHighlight.get(
+            time.toISOString()
+          );
+          return (
+            //<Cell
+            // key={time.getTime()}
+            //  startDateTime={time}
+            //   endDateTime={i < times.length - 1 ? times[i + 1] : midnightNextDay}
+            // />
+            <div
+              key={time.getTime()}
+              className={`time-input-cell ${
+                shouldHighlight ? "highlight-cell" : ""
+              }`}
+              onPointerDown={() =>
+                dispatch({ type: POINTER_DOWN, dateTime: time.toISOString() })
+              }
+              onPointerEnter={() =>
+                dispatch({ type: ON_ENTER_CELL, dateTime: time.toISOString() })
+              }
+              onPointerUp={() => dispatch({ type: POINTER_UP })}
+              onPointerCancel={() => dispatch({ type: POINTER_UP })}
+            >
+              <span className="hour-string">
+                {time.getMinutes() === 0 &&
+                  time.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <button type="button" onClick={() => dispatch({ type: MOVE_BACK })}>
+        Back
+      </button>
+      <button type="button" onClick={() => dispatch({ type: MOVE_FORWARD })}>
+        Forward
+      </button>
+    </>
   );
 };
 

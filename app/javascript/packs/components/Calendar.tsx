@@ -327,12 +327,19 @@ const Calendar = (): JSX.Element => {
       {!state.selectDates && hasSelectedDates && (
         <TimeSelector dates={selectedDates} />
       )}
-      <button type="button" onClick={() => dispatch({ type: MOVE_BACK })}>
-        Back
-      </button>
-      <button type="button" onClick={() => dispatch({ type: MOVE_FORWARD })}>
-        Forward
-      </button>
+      {state.selectDates && (
+        <>
+          <button type="button" onClick={() => dispatch({ type: MOVE_BACK })}>
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={() => dispatch({ type: MOVE_FORWARD })}
+          >
+            Forward
+          </button>
+        </>
+      )}
       {state.selectDates ? (
         <button type="button" onClick={() => dispatch({ type: SELECT_TIMES })}>
           Select times
