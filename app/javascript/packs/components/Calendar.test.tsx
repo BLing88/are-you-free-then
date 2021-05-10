@@ -3,6 +3,34 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Calendar } from "./Calendar";
 
+function selectDates() {
+  const queries = render(<Calendar />);
+  const today = new Date();
+  const todaysDate = today.getDate();
+  const todayCell = screen.getByText(`${todaysDate}`);
+  const nextWeek = new Date(today.getTime() + 7 * 86400000);
+  const nextWeekCell = screen.getByText(`${nextWeek.getDate()}`);
+
+  const todayRegex = new RegExp(
+    `${today.getFullYear()}-${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`
+  );
+  const nextWeekRegex = new RegExp(
+    `${nextWeek.getFullYear()}-${(nextWeek.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${nextWeek.getDate().toString().padStart(2, "0")}`
+  );
+
+  expect(screen.queryByDisplayValue(todayRegex)).not.toBeInTheDocument();
+  expect(screen.queryByDisplayValue(nextWeekRegex)).not.toBeInTheDocument();
+
+  userEvent.click(todayCell);
+  userEvent.click(nextWeekCell);
+
+  return queries;
+}
+
 test("shows calendar", () => {
   const { getByText, getByRole } = render(<Calendar />);
 
@@ -61,4 +89,14 @@ test("clicking creates inputs", async () => {
 
   expect(screen.getByDisplayValue(todayRegex)).toBeInTheDocument();
   expect(screen.getByDisplayValue(nextWeekRegex)).toBeInTheDocument();
+});
+
+test("can select times for dates", () => {
+  selectDates();
+
+  userEvent.click(screen.getByRole("button", { name: /select times/i }));
+  expect(
+    screen.getByRole("button", { name: /select dates/i })
+  ).toBeInTheDocument();
+  expect(screen.getByText(/select times for/i)).toBeInTheDocument();
 });

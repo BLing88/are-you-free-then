@@ -12,7 +12,7 @@
  *
  * NOTE: reversed the precedence of this application-wide stylesheet to lowest
  *= require_self
- *= require_tree 
+ *= require_tree .
  */
 
 .container {

@@ -1,4 +1,5 @@
 import React, { useReducer, useMemo } from "react";
+import { TimeSelector } from "./TimeSelector";
 
 interface RowProps {
   dates: Date[];
@@ -49,6 +50,7 @@ const Row = ({
 const dayInMilliseconds = 86400000;
 
 interface CalendarState {
+  selectDates: boolean;
   cellsToHighlight: Map<Date, boolean>;
   cellDown: Date | null;
   fromDate: Date | null;
@@ -81,11 +83,23 @@ interface PaginateAction {
   type: typeof MOVE_FORWARD | typeof MOVE_BACK;
 }
 
+const SELECT_TIMES = "SELECT_TIMES";
+interface SelectTimesAction {
+  type: typeof SELECT_TIMES;
+}
+
+const SELECT_DATES = "SELECT_DATES";
+interface SelectDatesAction {
+  type: typeof SELECT_DATES;
+}
+
 type ReducerAction =
   | ChangeSelectionAction
   | EnterCellAction
   | PointerUpAction
-  | PaginateAction;
+  | PaginateAction
+  | SelectTimesAction
+  | SelectDatesAction;
 
 type NumberOfWeeks = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
@@ -214,12 +228,23 @@ const reducer = (
         ...state,
         page: (state.page > 0 ? state.page - 1 : 0) as NumberOfWeeks,
       };
+    case SELECT_TIMES:
+      return {
+        ...state,
+        selectDates: false,
+      };
+    case SELECT_DATES:
+      return {
+        ...state,
+        selectDates: true,
+      };
     default:
       return state;
   }
 };
 
 const initialState = {
+  selectDates: true,
   cellsToHighlight: new Map<Date, boolean>(),
   cellDown: null as Date | null,
   fromDate: null,
@@ -253,58 +278,79 @@ const Calendar = (): JSX.Element => {
   const todaysDate = new Date().getDay();
   // eslint-disable-next-line
   const dateRows = useMemo(() => getRowsOfDates(), [todaysDate]);
+  const selectedDates = Array.from(state.cellsToHighlight.entries())
+    .filter(([_, isSelected]) => isSelected)
+    .map(([date, _]) => date);
+  const hasSelectedDates = selectedDates.length > 0;
+
   return (
     <>
-      <div
-        className="calendar"
-        onPointerLeave={() => dispatch({ type: CELL_UP })}
-      >
-        <span />
-        <span>Sun</span>
-        <span>Mon</span>
-        <span>Tue</span>
-        <span>Wed</span>
-        <span>Thu</span>
-        <span>Fri</span>
-        <span>Sat</span>
-        <span />
-        {dateRows
-          .slice(0 + 4 * state.page, 4 + 4 * state.page)
-          .map((row, rowIndex) => (
-            <Row
-              key={row[0].getTime()}
-              dates={row}
-              rowIndex={rowIndex}
-              cellsToHighlight={state.cellsToHighlight}
-              onPointerDown={(date: Date) => {
-                dispatch({ type: SET_CELL_DOWN, date });
-              }}
-              onPointerEnter={(date: Date) =>
-                dispatch({ type: ON_ENTER_CELL, date, dateRows })
-              }
-              onPointerUp={() => {
-                dispatch({ type: CELL_UP });
-              }}
-              onPointerLeave={(date: Date) =>
-                dispatch({ type: ON_POINTER_LEAVE, date })
-              }
-            />
-          ))}
-        {Array.from(state.cellsToHighlight.entries()).map(
-          ([date, isSelected]) =>
-            isSelected && (
-              <input
-                key={date.getTime()}
-                type="hidden"
-                name={"date[]"}
-                value={date.toISOString()}
+      {state.selectDates && (
+        <div
+          className="calendar"
+          onPointerLeave={() => dispatch({ type: CELL_UP })}
+        >
+          <span />
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+          <span />
+          {dateRows
+            .slice(0 + 4 * state.page, 4 + 4 * state.page)
+            .map((row, rowIndex) => (
+              <Row
+                key={row[0].getTime()}
+                dates={row}
+                rowIndex={rowIndex}
+                cellsToHighlight={state.cellsToHighlight}
+                onPointerDown={(date: Date) => {
+                  dispatch({ type: SET_CELL_DOWN, date });
+                }}
+                onPointerEnter={(date: Date) =>
+                  dispatch({ type: ON_ENTER_CELL, date, dateRows })
+                }
+                onPointerUp={() => {
+                  dispatch({ type: CELL_UP });
+                }}
+                onPointerLeave={(date: Date) =>
+                  dispatch({ type: ON_POINTER_LEAVE, date })
+                }
               />
-            )
-        )}
-      </div>
-      <button onClick={() => dispatch({ type: MOVE_BACK })}>Back</button>
-      <button onClick={() => dispatch({ type: MOVE_FORWARD })}>Forward</button>
-      <button>Select times</button>
+            ))}
+        </div>
+      )}
+
+      {!state.selectDates && hasSelectedDates && (
+        <TimeSelector dates={selectedDates} />
+      )}
+      <button type="button" onClick={() => dispatch({ type: MOVE_BACK })}>
+        Back
+      </button>
+      <button type="button" onClick={() => dispatch({ type: MOVE_FORWARD })}>
+        Forward
+      </button>
+      {state.selectDates ? (
+        <button type="button" onClick={() => dispatch({ type: SELECT_TIMES })}>
+          Select times
+        </button>
+      ) : (
+        <button type="button" onClick={() => dispatch({ type: SELECT_DATES })}>
+          Select dates
+        </button>
+      )}
+      {hasSelectedDates &&
+        selectedDates.map((date) => (
+          <input
+            key={date.getTime()}
+            type="hidden"
+            name={"date[]"}
+            value={date.toISOString()}
+          />
+        ))}
     </>
   );
 };
