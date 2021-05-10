@@ -1,0 +1,21 @@
+.calendar {
+    width: 350px;
+    height: 250px;
+    overflow: clip;
+    user-select: none;
+    display: grid;
+    grid-template-columns: auto repeat(7, 1fr) auto;
+    justify-items: center;
+    align-items: center;
+    margin: 0 auto;
+    border: 1px black solid;
+    padding: 3px;
+}
+
+.calendar-cell {
+    width: 30px;
+    height: 30px;
+    display: inline-grid;
+    align-content: center;
+    justify-content: center;
+}
