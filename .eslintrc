@@ -1,12 +1,14 @@
 {
     "root": true,
     "parser": "@typescript-eslint/parser",
-        "plugins": ["@typescript-eslint", "jest-dom"],
+        "plugins": ["@typescript-eslint", "jest-dom", "react"],
         "extends": [
             "eslint:recommended",
         "plugin:react/recommended",
         "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "react-app",
+        "react-app/jest"
         ],
         "settings": {
             "react": {
