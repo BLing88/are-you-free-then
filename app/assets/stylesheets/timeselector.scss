@@ -10,7 +10,7 @@
 }
 
 .time-selector-input {
-    width: min(100%, 300px);
+    width: Min(100%, 300px);
     background-color: white;
     grid-area: input-start / input-start / input-end / input-end;
     border-top: solid 1px black;
@@ -19,7 +19,7 @@
 }
 
 .time-selector {
-    width: min(100%, 300px);
+    width: Min(100%, 300px);
     grid-area: input-start / input-start / input-end / input-end;
 }
 

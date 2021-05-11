@@ -1,7 +1,6 @@
 .calendar-container {
     display: grid;
     justify-items: center;
-    background-color: white;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto 1fr;
     grid-template-areas: "input input input"
