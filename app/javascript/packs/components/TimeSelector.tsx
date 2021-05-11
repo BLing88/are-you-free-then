@@ -1,127 +1,36 @@
-import React, { useReducer } from "react";
+import React from "react";
 
-interface CellProps {
-  startDateTime: Date;
-  endDateTime: Date;
-}
-
-const Cell = ({ startDateTime, endDateTime }: CellProps) => {
-  return (
-    <div className="time-input-cell">
-      <span className="hour-string">
-        {startDateTime.getMinutes() === 0 &&
-          startDateTime.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-      </span>
-    </div>
-  );
-};
-
-type Page = 0 | 1 | 2;
+type TimeInputPage = 0 | 1 | 2;
 
 interface TimeInputState {
   pointerDown: boolean;
   cellsToHighlight: Map<string, boolean>;
-  page: Page;
+  timeInputPage: TimeInputPage;
   initialDateTimeDown: string | null;
 }
 
-const initialTimeInputState: TimeInputState = {
-  pointerDown: false,
-  cellsToHighlight: new Map<string, boolean>(),
-  page: 1,
-  initialDateTimeDown: null,
-};
+const TIME_INPUT_POINTER_DOWN = "TIME_INPUT_POINTER_DOWN";
 
-const POINTER_DOWN = "POINTER_DOWN";
-interface PointerDownAction {
-  type: typeof POINTER_DOWN;
-  dateTime: string;
-}
+const TIME_INPUT_ON_ENTER_CELL = "TIME_INPUT_ON_ENTER_CELL";
 
-const ON_ENTER_CELL = "ON_ENTER_CELL";
-interface EnterCellAction {
-  type: typeof ON_ENTER_CELL;
-  dateTime: string;
-}
+const TIME_INPUT_POINTER_UP = "TIME_INPUT_POINTER_UP";
 
-const POINTER_UP = "POINTER_UP";
-interface PointerUpAction {
-  type: typeof POINTER_UP;
-}
+const TIME_INPUT_MOVE_FORWARD = "TIME_INPUT_MOVE_FORWARD";
+const TIME_INPUT_MOVE_BACK = "TIME_INPUT_MOVE_BACK";
 
-const MOVE_FORWARD = "MOVE_FORWARD";
-const MOVE_BACK = "MOVE_BACK";
-interface ChangePageAction {
-  type: typeof MOVE_FORWARD | typeof MOVE_BACK;
-}
-
-type TimeInputReducerAction =
-  | PointerDownAction
-  | EnterCellAction
-  | PointerUpAction
-  | ChangePageAction;
-const reducer = (
-  state: TimeInputState,
-  action: TimeInputReducerAction
-): TimeInputState => {
-  switch (action.type) {
-    case POINTER_DOWN: {
-      const oldHighlight = state.cellsToHighlight.get(action.dateTime);
-      const newHighlight = oldHighlight === undefined ? true : !oldHighlight;
-      const newCellsToHighlight = new Map(state.cellsToHighlight);
-      newCellsToHighlight.set(action.dateTime, newHighlight);
-      return {
-        ...state,
-        pointerDown: true,
-        cellsToHighlight: newCellsToHighlight,
-        initialDateTimeDown: action.dateTime,
-      };
-    }
-    case ON_ENTER_CELL: {
-      if (!state.pointerDown) return { ...state };
-
-      const newHighlight = !!state.cellsToHighlight.get(
-        state.initialDateTimeDown
-      );
-
-      const newCellsToHighlight = new Map(state.cellsToHighlight);
-      newCellsToHighlight.set(action.dateTime, newHighlight);
-      return {
-        ...state,
-        cellsToHighlight: newCellsToHighlight,
-      };
-    }
-    case POINTER_UP:
-      return {
-        ...state,
-        pointerDown: false,
-        initialDateTimeDown: null,
-      };
-    case MOVE_FORWARD:
-      return {
-        ...state,
-        page: state.page === 2 ? 2 : ((state.page + 1) as Page),
-      };
-    case MOVE_BACK:
-      return {
-        ...state,
-        page: state.page > 0 ? ((state.page - 1) as Page) : 0,
-      };
-    default:
-      return state;
-  }
-};
-
-interface TimeInputProps {
+interface TimeSelectorProps {
   date: Date;
+  state: TimeInputState;
+  dispatch: any;
 }
 
 const numFifteenMinsInADay = 1440;
-const TimeInput = ({ date }: TimeInputProps) => {
-  const [state, dispatch] = useReducer(reducer, initialTimeInputState);
+const TimeSelector = ({
+  date,
+  state,
+  dispatch,
+}: TimeSelectorProps): JSX.Element => {
+  // const [state, dispatch] = useReducer(reducer, initialTimeInputState);
   const times = [] as Date[];
 
   for (let i = 0; i < numFifteenMinsInADay; i += 15) {
@@ -140,66 +49,91 @@ const TimeInput = ({ date }: TimeInputProps) => {
     <>
       <div
         className="time-selector-input"
-        onPointerLeave={() => dispatch({ type: POINTER_UP })}
+        onPointerLeave={() => dispatch({ type: TIME_INPUT_POINTER_UP })}
       >
-        {times.slice(state.page * 32, state.page * 32 + 32).map((time, i) => {
-          const shouldHighlight = !!state.cellsToHighlight.get(
-            time.toISOString()
-          );
-          return (
-            //<Cell
-            // key={time.getTime()}
-            //  startDateTime={time}
-            //   endDateTime={i < times.length - 1 ? times[i + 1] : midnightNextDay}
-            // />
-            <div
-              key={time.getTime()}
-              className={`time-input-cell ${
-                shouldHighlight ? "highlight-cell" : ""
-              }`}
-              onPointerDown={() =>
-                dispatch({ type: POINTER_DOWN, dateTime: time.toISOString() })
-              }
-              onPointerEnter={() =>
-                dispatch({ type: ON_ENTER_CELL, dateTime: time.toISOString() })
-              }
-              onPointerUp={() => dispatch({ type: POINTER_UP })}
-              onPointerCancel={() => dispatch({ type: POINTER_UP })}
-            >
-              <span className="hour-string">
-                {time.getMinutes() === 0 &&
-                  time.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-              </span>
-            </div>
-          );
-        })}
+        <h2>Select times for {date.toDateString()}</h2>
+        {times
+          .slice(state.timeInputPage * 32, state.timeInputPage * 32 + 32)
+          .map((time, i) => {
+            const shouldHighlight = !!state.cellsToHighlight.get(
+              time.toISOString()
+            );
+            return (
+              //<Cell
+              // key={time.getTime()}
+              //  startDateTime={time}
+              //   endDateTime={i < times.length - 1 ? times[i + 1] : midnightNextDay}
+              // />
+              <div
+                key={time.getTime()}
+                className={`time-input-cell ${
+                  shouldHighlight ? "highlight-cell" : ""
+                }`}
+                onPointerDown={() =>
+                  dispatch({
+                    type: TIME_INPUT_POINTER_DOWN,
+                    dateTime: time.toISOString(),
+                  })
+                }
+                onPointerEnter={() =>
+                  dispatch({
+                    type: TIME_INPUT_ON_ENTER_CELL,
+                    dateTime: time.toISOString(),
+                  })
+                }
+                onPointerUp={() => dispatch({ type: TIME_INPUT_POINTER_UP })}
+                onPointerCancel={() =>
+                  dispatch({ type: TIME_INPUT_POINTER_UP })
+                }
+              >
+                <span className="hour-string">
+                  {time.getMinutes() === 0 &&
+                    time.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                </span>
+              </div>
+            );
+          })}
       </div>
-      <button type="button" onClick={() => dispatch({ type: MOVE_BACK })}>
+      <button
+        type="button"
+        className="back-btn"
+        onClick={() => dispatch({ type: TIME_INPUT_MOVE_BACK })}
+      >
         Back
       </button>
-      <button type="button" onClick={() => dispatch({ type: MOVE_FORWARD })}>
+      <button
+        type="button"
+        className="forward-btn"
+        onClick={() => dispatch({ type: TIME_INPUT_MOVE_FORWARD })}
+      >
         Forward
       </button>
     </>
   );
 };
 
-interface TimeSelectorProps {
-  dates: Date[];
-}
+//interface TimeSelectorProps {
+//  date: Date;
+//  state: any;
+//  dispatch: any;
+//}
 
-const TimeSelector = ({ dates }: TimeSelectorProps): JSX.Element => {
-  return (
-    <div>
-      <h2>Select times for {dates[0].toDateString()}</h2>
-      <div className="time-selector">
-        <TimeInput date={dates[0]} />
-      </div>
-    </div>
-  );
-};
+//const TimeSelector = ({
+//  date,
+//  state,
+//  dispatch,
+//}: TimeSelectorProps): JSX.Element => {
+//  return (
+//    <div>
+//     <h2>Select times for {date.toDateString()}</h2>
+//     <div className="time-selector">
+//        <TimeInput date={date} state={state} dispatch={dispatch} />
+//     </div>
+//  </div>
+// );
+//};
 
 export { TimeSelector };

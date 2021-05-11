@@ -1,4 +1,15 @@
+.calendar-container {
+    display: grid;
+    justify-items: center;
+    background-color: white;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "input input input"
+      "back select forward";
+}
+
 .calendar {
+    grid-area: input;
     width: 350px;
     height: 250px;
     overflow: clip;
@@ -18,4 +29,16 @@
     display: inline-grid;
     align-content: center;
     justify-content: center;
+}
+
+.back-btn {
+    grid-area: back;
+}
+
+.forward-button {
+    grid-area: forward;
+}
+
+.select-btn {
+    grid-area: select;
 }
