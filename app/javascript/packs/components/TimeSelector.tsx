@@ -1,4 +1,5 @@
 import React from "react";
+import { ReducerAction } from "./Calendar";
 
 type TimeInputPage = 0 | 1 | 2;
 
@@ -21,7 +22,7 @@ const TIME_INPUT_MOVE_BACK = "TIME_INPUT_MOVE_BACK";
 interface TimeSelectorProps {
   date: Date;
   state: TimeInputState;
-  dispatch: any;
+  dispatch: React.Dispatch<ReducerAction>;
 }
 
 const numFifteenMinsInADay = 1440;
@@ -30,7 +31,6 @@ const TimeSelector = ({
   state,
   dispatch,
 }: TimeSelectorProps): JSX.Element => {
-  // const [state, dispatch] = useReducer(reducer, initialTimeInputState);
   const times = [] as Date[];
 
   for (let i = 0; i < numFifteenMinsInADay; i += 15) {
@@ -38,13 +38,7 @@ const TimeSelector = ({
     date.setMinutes(i % 60);
     times.push(new Date(date.getTime()));
   }
-  const midnightNextDay = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate() + 1,
-    0,
-    0
-  );
+
   return (
     <>
       <div
@@ -54,16 +48,11 @@ const TimeSelector = ({
         <h2>Select times for {date.toDateString()}</h2>
         {times
           .slice(state.timeInputPage * 32, state.timeInputPage * 32 + 32)
-          .map((time, i) => {
+          .map((time) => {
             const shouldHighlight = !!state.cellsToHighlight.get(
               time.toISOString()
             );
             return (
-              //<Cell
-              // key={time.getTime()}
-              //  startDateTime={time}
-              //   endDateTime={i < times.length - 1 ? times[i + 1] : midnightNextDay}
-              // />
               <div
                 key={time.getTime()}
                 className={`time-input-cell ${
@@ -114,26 +103,5 @@ const TimeSelector = ({
     </>
   );
 };
-
-//interface TimeSelectorProps {
-//  date: Date;
-//  state: any;
-//  dispatch: any;
-//}
-
-//const TimeSelector = ({
-//  date,
-//  state,
-//  dispatch,
-//}: TimeSelectorProps): JSX.Element => {
-//  return (
-//    <div>
-//     <h2>Select times for {date.toDateString()}</h2>
-//     <div className="time-selector">
-//        <TimeInput date={date} state={state} dispatch={dispatch} />
-//     </div>
-//  </div>
-// );
-//};
 
 export { TimeSelector };

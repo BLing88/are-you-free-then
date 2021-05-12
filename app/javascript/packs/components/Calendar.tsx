@@ -1,5 +1,6 @@
 import React, { useReducer, useMemo } from "react";
 import { TimeSelector } from "./TimeSelector";
+import { mergedIntervals } from "../util/time-intervals";
 
 interface RowProps {
   dates: Date[];
@@ -103,16 +104,9 @@ type TimeInputPage = 0 | 1 | 2;
 interface TimeInputState {
   pointerDown: boolean;
   cellsToHighlight: Map<string, boolean>;
-  page: TimeInputPage;
+  timeInputPage: TimeInputPage;
   initialDateTimeDown: string | null;
 }
-
-const initialTimeInputState: TimeInputState = {
-  pointerDown: false,
-  cellsToHighlight: new Map<string, boolean>(),
-  page: 1,
-  initialDateTimeDown: null,
-};
 
 const TIME_INPUT_POINTER_DOWN = "TIME_INPUT_POINTER_DOWN";
 interface TimeInputPointerDownAction {
@@ -137,7 +131,7 @@ interface ChangeTimeInputPageAction {
   type: typeof TIME_INPUT_MOVE_FORWARD | typeof TIME_INPUT_MOVE_BACK;
 }
 
-type ReducerAction =
+export type ReducerAction =
   | ChangeSelectionAction
   | EnterCellAction
   | PointerUpAction
@@ -414,6 +408,19 @@ const Calendar = (): JSX.Element => {
     .map(([date, _]) => date);
   const hasSelectedDates = selectedDates.length > 0;
 
+  const selectedTimes = [];
+  for (const date of selectedDates) {
+    if (state.timeInputCellsToHighlight.get(date) !== undefined) {
+      const times = state.timeInputCellsToHighlight.get(date);
+      for (const [time, isSelected] of times.entries()) {
+        if (isSelected) {
+          selectedTimes.push(time);
+        }
+      }
+    }
+  }
+
+  const selectedTimeIntervals = mergedIntervals(selectedTimes);
   return (
     <div className="calendar-container">
       {
@@ -458,14 +465,16 @@ const Calendar = (): JSX.Element => {
       {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
         <TimeSelector
           date={state.dateSelected}
-          state={{
-            pointerDown: state.pointerDown,
-            cellsToHighlight: state.timeInputCellsToHighlight.get(
-              state.dateSelected
-            ),
-            timeInputPage: state.timeInputPage,
-            initialDateTimeDown: state.initialDateTimeDown,
-          }}
+          state={
+            {
+              pointerDown: state.pointerDown,
+              cellsToHighlight: state.timeInputCellsToHighlight.get(
+                state.dateSelected
+              ),
+              timeInputPage: state.timeInputPage,
+              initialDateTimeDown: state.initialDateTimeDown,
+            } as TimeInputState
+          }
           dispatch={dispatch}
         />
       )}
@@ -518,12 +527,13 @@ const Calendar = (): JSX.Element => {
         <p>Choose a date to select times for</p>
       )}
       {hasSelectedDates &&
-        selectedDates.map((date) => (
+        selectedTimeIntervals.length > 0 &&
+        selectedTimeIntervals.map(([start, end]) => (
           <input
-            key={date.getTime()}
+            key={`${start}-${end}`}
             type="hidden"
             name={"date[]"}
-            value={date.toISOString()}
+            value={`${start}-${end}`}
           />
         ))}
     </div>
