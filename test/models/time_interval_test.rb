@@ -2,7 +2,7 @@ require "test_helper"
 
 class TimeIntervalTest < ActiveSupport::TestCase
   def setup
-    @interval = TimeInterval.new(start_time: Time.now, end_time: '2021-05-12T10:45:00', user_count: 1, event_count: 0)
+    @interval = TimeInterval.new(start_time: '2021-05-11T04:15:00.000Z', end_time: '2021-05-12T10:45:00', user_count: 1, event_count: 0)
   end
     
   test "start time, end time required" do
@@ -27,6 +27,7 @@ class TimeIntervalTest < ActiveSupport::TestCase
   test "event and user counts can't both be zero" do
     new_interval = TimeInterval.new(start_time: '2021-05-29T03:15:00.000Z', end_time: '2021-06-05T05:00:00.000Z')
     assert_not new_interval.valid?
+    assert_equal 1, new_interval.errors.count
 
     new_interval.user_count = 1
     assert new_interval.valid?
@@ -48,27 +49,52 @@ class TimeIntervalTest < ActiveSupport::TestCase
     assert_not @interval.valid?
   end
 
-  test "start_time and end_time have simplified ISO 8601 format" do
-  end
+  test "start_time and end_time have correct format" do
+    @interval.start_time = "42j5l245"
+    assert_not @interval.valid?
+    
+    @interval.start_time = 20
+    assert_not @interval.valid?
 
-  test "seconds and milliseconds should be zero" do
-  end
-
-  test "minutes are a multiple of 15 (mod 60)" do
+    @interval.start_time = '2021-04-22T17:30:00.000Z'
+    @interval.end_time = '2021-3'
+    assert_not @interval.valid?
   end
 
   test "start_time should be before end_time" do
+    @interval.start_time = '2021-09-18T19:45:00.000Z'
+    @interval.end_time = '2021-08-19T20:45:00.000Z'
+    assert_not @interval.valid?
   end 
 
   test "invalid dates rejected" do
-  end
+    @interval.start_time = "20223-05-01T15:00:00.000Z"
+    assert_not @interval.valid?
+    @interval.start_time = "2021-05-01T15:00:00.000Z"
+    assert @interval.valid?
 
-  test "valid dates accepted" do
-  end
+    @interval.end_time = "2021-13-01T15:00:00.000Z"
+    assert_not @interval.valid?
+    @interval.end_time = "2021-12-01T15:00:00.000Z"
+    assert @interval.valid?
 
-  test "user and event counts can't be less than zero" do
+    @interval.start_time = "2021-02-32T02:30:00.000Z"
+    assert_not @interval.valid?
+    @interval.start_time = "2021-02-20T02:30:00.000Z"
+    assert @interval.valid?
+
+    @interval.end_time = '2021-06-09T25:45:00.000Z'
+    assert_not @interval.valid?
+
+    @interval.end_time = '2021-06-09T23:60:00.000Z'
+    assert_not @interval.valid?
   end
 
   test "time intervals should be unique" do
+    dup_interval = @interval.dup
+    assert dup_interval.valid?
+
+    @interval.save
+    assert_not dup_interval.valid?
   end
 end
