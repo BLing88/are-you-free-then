@@ -1,0 +1,2 @@
+class TimeIntervalsController < ApplicationController
+end

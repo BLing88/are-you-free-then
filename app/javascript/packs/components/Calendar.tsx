@@ -422,7 +422,7 @@ const Calendar = (): JSX.Element => {
 
   const selectedTimeIntervals = mergedIntervals(selectedTimes);
   return (
-    <div className="calendar-container">
+    <>
       {
         <div
           className="calendar"
@@ -530,13 +530,13 @@ const Calendar = (): JSX.Element => {
         selectedTimeIntervals.length > 0 &&
         selectedTimeIntervals.map(([start, end]) => (
           <input
-            key={`${start}-${end}`}
+            key={`${start}_${end}`}
             type="hidden"
-            name={"date[]"}
-            value={`${start}-${end}`}
+            name={"create_intervals[]"}
+            value={`${start}_${end}`}
           />
         ))}
-    </div>
+    </>
   );
 };
 

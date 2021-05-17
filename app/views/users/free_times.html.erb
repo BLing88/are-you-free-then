@@ -1,0 +1,9 @@
+<div><%= @user.name %></div>
+
+<%= form_with url: free_times_path, id: 'calendar-container' do |f| %>
+
+    <%= f.submit "Submit" %>
+  <div id="react-calendar-input" />
+
+<% end %>
+

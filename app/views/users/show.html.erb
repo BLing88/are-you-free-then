@@ -1,2 +1,2 @@
-<div><%= @user.name %></div>
-<div id="react-calendar-input" />
+<div><%= current_user.name %></div>
+<%= link_to "My free times", free_times_user_path(current_user) %>
