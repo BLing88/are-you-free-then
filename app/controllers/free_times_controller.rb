@@ -23,7 +23,7 @@ class FreeTimesController < ApplicationController
           if (!FreeTime.find_by(user_id: current_user.id, 
                                        time_interval_id: interval.id))
             free_time = FreeTime.create!(user_id: current_user.id,
-                                         time_interval_id: current_user.id)
+                                         time_interval_id: interval.id)
           end
 
         end
@@ -32,7 +32,6 @@ class FreeTimesController < ApplicationController
       redirect_to free_times_user_path(current_user)
     rescue => e
       # send error, try again
-      puts e
       flash[:danger] = "There was an error. Try again."
       redirect_to free_times_user_path(current_user)
     end
