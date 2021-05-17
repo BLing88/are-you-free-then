@@ -1,9 +1,6 @@
 require "test_helper"
 
 class TimeIntervalsControllerTest < ActionDispatch::IntegrationTest
-  test "return error if input start_time and end_time not in simplified ISO 8601 format" do
-   post  
-  end
 
   test "seconds and milliseconds should be zero" do 
   end

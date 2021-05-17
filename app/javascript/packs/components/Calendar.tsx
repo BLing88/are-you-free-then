@@ -421,6 +421,10 @@ const Calendar = (): JSX.Element => {
   }
 
   const selectedTimeIntervals = mergedIntervals(selectedTimes);
+
+  const initialFreeTimes = JSON.parse(
+    document.getElementById("react-calendar-input").dataset.free_times
+  );
   return (
     <>
       {

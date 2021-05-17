@@ -1,9 +1,23 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  user: one
-  time_interval: one
+  user: alice
+  time_interval: morning
 
-two:
-  user: two
-  time_interval: two
+two: 
+  user: alice
+  time_interval: afternoon
+
+three:
+  user: alice
+  time_interval: evening
+
+four:
+  user: bob
+  time_interval: breakfast
+
+five:
+  user: bob
+  time_interval: lunch
+
+

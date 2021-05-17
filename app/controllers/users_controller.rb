@@ -50,8 +50,17 @@ class UsersController < ApplicationController
 
   def free_times
     @user = User.find(params[:id])
+    @free_times = @user.time_intervals
   end
 
+  def free_times_json
+    user = User.find(params[:id])
+    if current_user?(user)
+      render json: user.time_intervals
+    else
+      render status: :unauthorized, json: { error: { message: "Not authenticated"} }
+    end
+  end
 
   private
 

@@ -6,18 +6,10 @@ class FreeTimesControllerTest < ActionDispatch::IntegrationTest
     @other_user = users(:bob)
   end
 
-  test 'redirects to login if not logged in' do
-    assert_no_difference 'FreeTimes.count', do
-      post free_times_path
-  end
-
-  test "return error if input start_time or end_time not in simplified ISO 8601 format" do
+  test "return JSON free times for a user" do
     log_in_as(@user)
-    assert_difference 'FreeTimes.count', 2 do 
-      post free_times_path, params: { 
-                                      create_intervals[]: "2021-05-17T18:30:00.000Z_2021-05-17T19:30:00.000Z",
-                                      create_intervals[]: "2021-05-17T20:15:00.000Z_2021-05-17T21:15:00.000Z" }
-    end
+    get free_times_json_user_path(@user)
+    assert_match /application\/json/, response.content_type
   end
 
   test "seconds and milliseconds should be zero" do
@@ -27,5 +19,8 @@ class FreeTimesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "change user_count accordingly" do
+  end
+
+  test "merges overlapping intervals" do
   end
 end

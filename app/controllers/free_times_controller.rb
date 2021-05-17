@@ -9,7 +9,6 @@ class FreeTimesController < ApplicationController
           start_time, end_time = start_and_end_times(interval)
           interval = TimeInterval.find_by(start_time: start_time,
                                           end_time: end_time)
-          logger.debug(interval.inspect)
           if !interval.nil?
             interval.update_attribute(user_count, interval.user_count + 1) unless FreeTime.find_by(user_id: current_user.id, time_interval_id: interval.id)
           else
