@@ -445,8 +445,7 @@ const getDatesAndRowsOfDates = (): [Date[], Date[][]] => {
   ];
 };
 
-const numFifteenMinsInADay = 1440;
-
+const fifteenMinsInMilliseconds = 900000;
 const initializeState = ({
   initialFreeTimes,
   dates,
@@ -467,27 +466,44 @@ const initializeState = ({
     initialDateTimeDown: null,
   } as CalendarState;
 
-  //    for (let {start_time, end_time} of initialFreeTimes) {
-  // find date with same day
-  //     if (start_time.getTime() > dates[dates.length - 1].getTime() || end_time.getTime() < dates[0].getTime()) { continue }
-  //  if (start_time.getTime() < dates[0].getTime()) { start_time = dates[0] }
-  //  if (end_time.getTime() > dates[dates.length - 1].getTime()) {end_time = dates[dates.length - 1]}
-  //  const numDaysInBetween = Math.floor((end_time.getTime() - start_time.getTime()) / dayInMilliseconds)
-  //  for (let i = 0; i < numDaysInBetween; i++) {
-  //      for (let j = 0; j < numFifteenMinsInADay; j += 15) {
-  //      }
-  //  }
-  // }
+  for (let { start_time, end_time } of initialFreeTimes) {
+    if (
+      start_time.getTime() > dates[dates.length - 1].getTime() ||
+      end_time.getTime() < dates[0].getTime()
+    ) {
+      continue;
+    }
+    if (start_time.getTime() < dates[0].getTime()) {
+      start_time = dates[0];
+    }
+    if (end_time.getTime() > dates[dates.length - 1].getTime()) {
+      end_time = dates[dates.length - 1];
+    }
+    let date = new Date(start_time);
+    while (date < end_time) {
+      const formattedDate = formatDate(date);
+      if (!initialState.cellsToHighlight.has(formattedDate)) {
+        initialState.cellsToHighlight.set(formattedDate, true);
+        initialState.timeInputCellsToHighlight.set(formattedDate, new Map());
+      }
+      initialState.timeInputCellsToHighlight
+        .get(formattedDate)
+        .set(date.toISOString(), true);
+      date = new Date(date.getTime() + fifteenMinsInMilliseconds);
+    }
+  }
   return initialState;
 };
 
 const Calendar = (): JSX.Element => {
   const initialFreeTimes = JSON.parse(
     document.getElementById("react-calendar-input").dataset.free_times
-  ).map((start_time: string, end_time: string) => ({
-    start_time: new Date(start_time),
-    end_time: new Date(end_time),
-  }));
+  ).map(
+    ({ start_time, end_time }: { start_time: string; end_time: string }) => ({
+      start_time: new Date(start_time),
+      end_time: new Date(end_time),
+    })
+  );
   const todaysDate = new Date().getDay();
   // eslint-disable-next-line
   const [dates, dateRows] = useMemo(() => getDatesAndRowsOfDates(), [
