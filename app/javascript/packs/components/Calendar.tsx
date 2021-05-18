@@ -2,14 +2,55 @@ import React, { useReducer, useMemo } from "react";
 import { TimeSelector } from "./TimeSelector";
 import { mergedIntervals } from "../util/time-intervals";
 
+function getDateFromDateString(str: string): number {
+  return +str.slice(-2);
+}
+
+const dayFromDateMemo = new Map();
+function getDayFromDate(str: string): number {
+  if (dayFromDateMemo.has(str)) {
+    return dayFromDateMemo.get(str);
+  }
+
+  dayFromDateMemo.set(
+    str,
+    new Date(+str.slice(0, 4), +str.slice(5, 7) - 1, +str.slice(-2)).getDay()
+  );
+  return dayFromDateMemo.get(str);
+}
+
+function getMonthFromDate(str: string): number {
+  return +str.slice(5, 7) - 1;
+}
+
+function getYearFromDate(str: string): number {
+  return +str.slice(0, 4);
+}
+
+const timeFromDateMemo = new Map();
+function getTimeFromDate(str: string): number {
+  if (timeFromDateMemo.has(str)) return timeFromDateMemo.get(str);
+
+  const date = new Date(+str.slice(0, 4), +str.slice(5, 7) - 1, +str.slice(-2));
+  date.setHours(3, 0, 0);
+  timeFromDateMemo.set(str, date.getTime());
+
+  return timeFromDateMemo.get(str);
+}
+
+const formatDate = (date: Date) =>
+  `${date.getFullYear()}-${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+
 interface RowProps {
   dates: Date[];
   rowIndex: number;
-  cellsToHighlight: Map<Date, boolean>;
-  onPointerDown: (date: Date) => void;
+  cellsToHighlight: Map<string, boolean>;
+  onPointerDown: (date: string) => void;
   onPointerUp: () => void;
-  onPointerEnter: (date: Date) => void;
-  onPointerLeave: (date: Date) => void;
+  onPointerEnter: (date: string) => void;
+  onPointerLeave: (date: string) => void;
 }
 
 const Row = ({
@@ -26,15 +67,16 @@ const Row = ({
     <>
       <span className="calendar-month">{month}</span>
       {dates.map((date) => {
-        const highlight = !!cellsToHighlight.get(date);
+        const formattedDate = formatDate(date);
+        const highlight = cellsToHighlight.get(formattedDate);
         return (
           <span
             className="calendar-cell"
             key={date.getTime()}
-            onPointerDown={() => onPointerDown(date)}
+            onPointerDown={() => onPointerDown(formattedDate)}
             onPointerUp={onPointerUp}
-            onPointerEnter={() => onPointerEnter(date)}
-            onPointerLeave={() => onPointerLeave(date)}
+            onPointerEnter={() => onPointerEnter(formattedDate)}
+            onPointerLeave={() => onPointerLeave(formattedDate)}
             style={
               highlight ? { color: "green", backgroundColor: "lightblue" } : {}
             }
@@ -52,14 +94,14 @@ const dayInMilliseconds = 86400000;
 
 interface CalendarState {
   selectDates: boolean;
-  cellsToHighlight: Map<Date, boolean>;
-  cellDown: Date | null;
-  fromDate: Date | null;
+  cellsToHighlight: Map<string, boolean>;
+  cellDown: string | null;
+  fromDate: string | null;
   page: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   timeInputPage: TimeInputPage;
-  dateSelected: Date | null;
+  dateSelected: string | null;
   pointerDown: boolean;
-  timeInputCellsToHighlight: Map<Date, Map<string, boolean>>;
+  timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
   initialDateTimeDown: string | null;
 }
 
@@ -69,13 +111,13 @@ const ON_ENTER_CELL = "ON_ENTER_CELL";
 const ON_POINTER_LEAVE = "ON_POINTER_LEAVE";
 interface ChangeSelectionAction {
   type: typeof SET_CELL_DOWN | typeof ON_POINTER_LEAVE;
-  date: Date;
+  date: string;
 }
 
 interface EnterCellAction {
   type: typeof ON_ENTER_CELL;
-  date: Date;
-  dateRows: Date[][];
+  date: string;
+  dates: Date[];
 }
 
 interface PointerUpAction {
@@ -178,8 +220,14 @@ const reducer = (
         const newMap = new Map(state.cellsToHighlight);
         const today = new Date();
         // set to 3 AM for comparison to avoid issues with DST
-        today.setHours(3, 0, 0, 0);
-        if (action.date >= today) {
+        //today.setHours(3, 0, 0, 0);
+        if (
+          getYearFromDate(action.date) > today.getFullYear() ||
+          (getYearFromDate(action.date) === today.getFullYear() &&
+            (getMonthFromDate(action.date) > today.getMonth() ||
+              (getMonthFromDate(action.date) === today.getMonth() &&
+                getDateFromDateString(action.date) >= today.getDate())))
+        ) {
           newMap.set(action.date, newHighlight);
         }
         return {
@@ -217,54 +265,60 @@ const reducer = (
         // on cellDown, then only need to toggle the change (the symmetric difference of the final and initial rectangular selections)
 
         const earlierInitialDate =
-          state.cellDown > state.fromDate ? state.fromDate : state.cellDown;
+          getTimeFromDate(state.cellDown) > getTimeFromDate(state.fromDate)
+            ? state.fromDate
+            : state.cellDown;
         const laterInitialDate =
-          state.cellDown > state.fromDate ? state.cellDown : state.fromDate;
+          getTimeFromDate(state.cellDown) > getTimeFromDate(state.fromDate)
+            ? state.cellDown
+            : state.fromDate;
         const earlierFinalDate =
-          state.cellDown > action.date ? action.date : state.cellDown;
+          getTimeFromDate(state.cellDown) > getTimeFromDate(action.date)
+            ? action.date
+            : state.cellDown;
         const laterFinalDate =
-          state.cellDown > action.date ? state.cellDown : action.date;
+          getTimeFromDate(state.cellDown) > getTimeFromDate(action.date)
+            ? state.cellDown
+            : action.date;
 
         const firstInitialDayOfWeek = Math.min(
-          earlierInitialDate.getDay(),
-          laterInitialDate.getDay()
+          getDayFromDate(earlierInitialDate), // earlierInitialDate.getDay(),
+          getDayFromDate(laterInitialDate) // laterInitialDate.getDay()
         );
         const lastInitialDayOfWeek = Math.max(
-          earlierInitialDate.getDay(),
-          laterInitialDate.getDay()
+          getDayFromDate(earlierInitialDate), // earlierInitialDate.getDay(),
+          getDayFromDate(laterInitialDate) // laterInitialDate.getDay()
         );
 
         const firstFinalDayOfWeek = Math.min(
-          earlierFinalDate.getDay(),
-          laterFinalDate.getDay()
+          getDayFromDate(earlierFinalDate), // earlierFinalDate.getDay(),
+          getDayFromDate(laterFinalDate) // laterFinalDate.getDay()
         );
         const lastFinalDayOfWeek = Math.max(
-          earlierFinalDate.getDay(),
-          laterFinalDate.getDay()
+          getDayFromDate(earlierFinalDate), // earlierFinalDate.getDay(),
+          getDayFromDate(laterFinalDate) // laterFinalDate.getDay()
         );
 
-        const symmetricDiff = action.dateRows.reduce((dates, dateRow) => {
-          for (const date of dateRow) {
-            const dayOfWeek = date.getDay();
-            const initialIsWithinDays =
-              firstInitialDayOfWeek <= dayOfWeek &&
-              dayOfWeek <= lastInitialDayOfWeek;
-            const initialIsWithinWeeks =
-              earlierInitialDate.getTime() <= date.getTime() &&
-              date.getTime() <= laterInitialDate.getTime();
-            const finalIsWithinDays =
-              firstFinalDayOfWeek <= dayOfWeek &&
-              dayOfWeek <= lastFinalDayOfWeek;
-            const finalIsWithinWeeks =
-              earlierFinalDate.getTime() <= date.getTime() &&
-              date.getTime() <= laterFinalDate.getTime();
-            if (
-              (initialIsWithinDays && initialIsWithinWeeks) !==
-              (finalIsWithinDays && finalIsWithinWeeks)
-            ) {
-              dates.push(date);
-            }
+        const symmetricDiff = action.dates.reduce((dates, date) => {
+          const dayOfWeek = date.getDay();
+          const initialIsWithinDays =
+            firstInitialDayOfWeek <= dayOfWeek &&
+            dayOfWeek <= lastInitialDayOfWeek;
+          const initialIsWithinWeeks =
+            getTimeFromDate(earlierInitialDate) <= date.getTime() &&
+            date.getTime() <= getTimeFromDate(laterInitialDate);
+          const finalIsWithinDays =
+            firstFinalDayOfWeek <= dayOfWeek && dayOfWeek <= lastFinalDayOfWeek;
+          const finalIsWithinWeeks =
+            getTimeFromDate(earlierFinalDate) <= date.getTime() &&
+            date.getTime() <= getTimeFromDate(laterFinalDate);
+          if (
+            (initialIsWithinDays && initialIsWithinWeeks) !==
+            (finalIsWithinDays && finalIsWithinWeeks)
+          ) {
+            dates.push(date);
           }
+
           return dates;
         }, [] as Date[]);
 
@@ -273,7 +327,10 @@ const reducer = (
         today.setHours(3, 0, 0, 0);
         for (const date of symmetricDiff) {
           if (date >= today) {
-            newMap.set(date, !!state.cellsToHighlight.get(state.cellDown));
+            newMap.set(
+              formatDate(date),
+              state.cellsToHighlight.get(state.cellDown)
+            );
           }
         }
         return {
@@ -363,20 +420,7 @@ const reducer = (
   }
 };
 
-const initialState = {
-  selectDates: true,
-  cellsToHighlight: new Map<Date, boolean>(),
-  cellDown: null as Date | null,
-  fromDate: null,
-  page: 0,
-  timeInputPage: 1,
-  dateSelected: null,
-  timeInputCellsToHighlight: new Map<Date, Map<string, boolean>>(),
-  pointerDown: false,
-  initialDateTimeDown: null,
-} as CalendarState;
-
-const getRowsOfDates = () => {
+const getDatesAndRowsOfDates = (): [Date[], Date[][]] => {
   const today = new Date();
   today.setHours(3, 0, 0, 0);
   const dates = [today];
@@ -387,22 +431,73 @@ const getRowsOfDates = () => {
     dates.push(new Date(today.getTime() + i * dayInMilliseconds));
   }
 
-  return dates.reduce((result, date, index) => {
-    if (index % 7 === 0) {
-      result.push([date]);
-      return result;
-    } else {
-      result[result.length - 1].push(date);
-      return result;
-    }
-  }, [] as Date[][]);
+  return [
+    dates,
+    dates.reduce((result, date, index) => {
+      if (index % 7 === 0) {
+        result.push([date]);
+        return result;
+      } else {
+        result[result.length - 1].push(date);
+        return result;
+      }
+    }, [] as Date[][]),
+  ];
+};
+
+const numFifteenMinsInADay = 1440;
+
+const initializeState = ({
+  initialFreeTimes,
+  dates,
+}: {
+  initialFreeTimes: { start_time: Date; end_time: Date }[];
+  dates: Date[];
+}): CalendarState => {
+  const initialState = {
+    selectDates: true,
+    cellsToHighlight: new Map<string, boolean>(),
+    cellDown: null as string | null,
+    fromDate: null,
+    page: 0,
+    timeInputPage: 1,
+    dateSelected: null,
+    timeInputCellsToHighlight: new Map<string, Map<string, boolean>>(),
+    pointerDown: false,
+    initialDateTimeDown: null,
+  } as CalendarState;
+
+  //    for (let {start_time, end_time} of initialFreeTimes) {
+  // find date with same day
+  //     if (start_time.getTime() > dates[dates.length - 1].getTime() || end_time.getTime() < dates[0].getTime()) { continue }
+  //  if (start_time.getTime() < dates[0].getTime()) { start_time = dates[0] }
+  //  if (end_time.getTime() > dates[dates.length - 1].getTime()) {end_time = dates[dates.length - 1]}
+  //  const numDaysInBetween = Math.floor((end_time.getTime() - start_time.getTime()) / dayInMilliseconds)
+  //  for (let i = 0; i < numDaysInBetween; i++) {
+  //      for (let j = 0; j < numFifteenMinsInADay; j += 15) {
+  //      }
+  //  }
+  // }
+  return initialState;
 };
 
 const Calendar = (): JSX.Element => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const initialFreeTimes = JSON.parse(
+    document.getElementById("react-calendar-input").dataset.free_times
+  ).map((start_time: string, end_time: string) => ({
+    start_time: new Date(start_time),
+    end_time: new Date(end_time),
+  }));
   const todaysDate = new Date().getDay();
   // eslint-disable-next-line
-  const dateRows = useMemo(() => getRowsOfDates(), [todaysDate]);
+  const [dates, dateRows] = useMemo(() => getDatesAndRowsOfDates(), [
+    todaysDate,
+  ]);
+  const [state, dispatch] = useReducer(
+    reducer,
+    { initialFreeTimes, dates },
+    initializeState
+  );
   const selectedDates = Array.from(state.cellsToHighlight.entries())
     .filter(([_, isSelected]) => isSelected)
     .map(([date, _]) => date);
@@ -422,9 +517,6 @@ const Calendar = (): JSX.Element => {
 
   const selectedTimeIntervals = mergedIntervals(selectedTimes);
 
-  const initialFreeTimes = JSON.parse(
-    document.getElementById("react-calendar-input").dataset.free_times
-  );
   return (
     <>
       {
@@ -449,16 +541,16 @@ const Calendar = (): JSX.Element => {
                 dates={row}
                 rowIndex={rowIndex}
                 cellsToHighlight={state.cellsToHighlight}
-                onPointerDown={(date: Date) => {
+                onPointerDown={(date: string) => {
                   dispatch({ type: SET_CELL_DOWN, date });
                 }}
-                onPointerEnter={(date: Date) =>
-                  dispatch({ type: ON_ENTER_CELL, date, dateRows })
+                onPointerEnter={(date: string) =>
+                  dispatch({ type: ON_ENTER_CELL, date, dates })
                 }
                 onPointerUp={() => {
                   dispatch({ type: CELL_UP });
                 }}
-                onPointerLeave={(date: Date) =>
+                onPointerLeave={(date: string) =>
                   dispatch({ type: ON_POINTER_LEAVE, date })
                 }
               />

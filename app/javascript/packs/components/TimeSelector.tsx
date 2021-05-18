@@ -20,7 +20,7 @@ const TIME_INPUT_MOVE_FORWARD = "TIME_INPUT_MOVE_FORWARD";
 const TIME_INPUT_MOVE_BACK = "TIME_INPUT_MOVE_BACK";
 
 interface TimeSelectorProps {
-  date: Date;
+  date: string;
   state: TimeInputState;
   dispatch: React.Dispatch<ReducerAction>;
 }
@@ -32,11 +32,15 @@ const TimeSelector = ({
   dispatch,
 }: TimeSelectorProps): JSX.Element => {
   const times = [] as Date[];
-
+  const dateObj = new Date(
+    +date.slice(0, 4),
+    +date.slice(5, 7) - 1,
+    +date.slice(-2)
+  );
   for (let i = 0; i < numFifteenMinsInADay; i += 15) {
-    date.setHours(Math.floor(i / 60));
-    date.setMinutes(i % 60);
-    times.push(new Date(date.getTime()));
+    dateObj.setHours(Math.floor(i / 60));
+    dateObj.setMinutes(i % 60);
+    times.push(new Date(dateObj.getTime()));
   }
 
   return (
@@ -45,7 +49,7 @@ const TimeSelector = ({
         className="time-selector-input"
         onPointerLeave={() => dispatch({ type: TIME_INPUT_POINTER_UP })}
       >
-        <h2>Select times for {date.toDateString()}</h2>
+        <h2>Select times for {dateObj.toDateString()}</h2>
         {times
           .slice(state.timeInputPage * 32, state.timeInputPage * 32 + 32)
           .map((time) => {
