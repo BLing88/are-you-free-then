@@ -5,32 +5,51 @@ class FreeTimesController < ApplicationController
   def create
     begin
       TimeInterval.transaction do
-        params[:create_intervals].each do |interval|
-          start_time, end_time = start_and_end_times(interval)
-          interval = TimeInterval.find_by(start_time: start_time,
-                                          end_time: end_time)
-          if !interval.nil?
-            interval.update_attribute(user_count, interval.user_count + 1) unless FreeTime.find_by(user_id: current_user.id, time_interval_id: interval.id)
-          else
-            interval = TimeInterval.create!(
-              start_time: start_time,   
-              end_time: end_time,
-              user_count: 1,
-              event_count: 0)
-          end
+        if !params[:create_intervals].nil?
+          params[:create_intervals].each do |interval|
+            start_time, end_time = start_and_end_times(interval)
+            time_interval = TimeInterval.find_by(start_time: start_time,
+                                                 end_time: end_time)
+            if !time_interval.nil?
+              time_interval.update_attribute(:user_count, time_interval.user_count + 1) unless FreeTime.find_by(user_id: current_user.id, time_interval_id: time_interval.id)
+            else
+              time_interval = TimeInterval.create!(
+                start_time: start_time,   
+                end_time: end_time,
+                user_count: 1,
+                event_count: 0)
+            end
 
-          if (!FreeTime.find_by(user_id: current_user.id, 
-                                       time_interval_id: interval.id))
-            free_time = FreeTime.create!(user_id: current_user.id,
-                                         time_interval_id: interval.id)
-          end
 
+            if (!FreeTime.find_by(user_id: current_user.id, 
+                time_interval_id: time_interval.id))
+              FreeTime.create!(user_id: current_user.id,
+                               time_interval_id: time_interval.id)
+            end
+          end
+        end
+
+        if !params[:delete_intervals].nil?
+          params[:delete_intervals].each do |interval|
+            start_time, end_time = start_and_end_times(interval)
+            time_interval = TimeInterval.find_by(start_time: start_time, end_time: end_time)
+
+            FreeTime.find_by(user_id: current_user.id, time_interval_id: time_interval.id).destroy
+
+            new_user_count = time_interval.user_count - 1
+            if new_user_count == 0
+              time_interval.destroy
+            else
+              time_interval.update_attribute(:user_count, new_user_count)
+            end 
+          end
         end
       end
       flash[:success] = "Update successful!"
       redirect_to free_times_user_path(current_user)
     rescue => e
       # send error, try again
+      logger.debug(e)
       flash[:danger] = "There was an error. Try again."
       redirect_to free_times_user_path(current_user)
     end
@@ -39,7 +58,7 @@ class FreeTimesController < ApplicationController
   private
 
   def free_time_params
-    params.only("create_intervals[]")
+    params.permit("create_intervals[]", "delete_intervals[]")
   end
 
   def start_and_end_times(str)

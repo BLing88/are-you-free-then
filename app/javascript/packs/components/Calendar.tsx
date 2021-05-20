@@ -1,6 +1,6 @@
 import React, { useReducer, useMemo } from "react";
 import { TimeSelector } from "./TimeSelector";
-import { mergedIntervals } from "../util/time-intervals";
+import { mergedIntervals, intervalIsLessThan } from "../util/time-intervals";
 
 function getDateFromDateString(str: string): number {
   return +str.slice(-2);
@@ -496,13 +496,49 @@ const initializeState = ({
 };
 
 const Calendar = (): JSX.Element => {
-  const initialFreeTimes = JSON.parse(
-    document.getElementById("react-calendar-input").dataset.free_times
-  ).map(
-    ({ start_time, end_time }: { start_time: string; end_time: string }) => ({
-      start_time: new Date(start_time),
-      end_time: new Date(end_time),
-    })
+  const freeTimesDataset = document.getElementById("react-calendar-input")
+    .dataset.free_times;
+  const initialFreeTimes = useMemo(
+    () =>
+      JSON.parse(freeTimesDataset)
+        .map(
+          ({
+            start_time,
+            end_time,
+          }: {
+            start_time: string;
+            end_time: string;
+          }) => ({
+            start_time: new Date(start_time),
+            end_time: new Date(end_time),
+          })
+        )
+        .sort(
+          (
+            { start_time: startTimeA, end_time: endTimeA },
+            { start_time: startTimeB, end_time: endTimeB }
+          ) => {
+            if (startTimeA.toISOString() < startTimeB.toISOString()) {
+              return -1;
+            }
+            if (startTimeA.toISOString() > startTimeB.toISOString()) {
+              return 1;
+            }
+            if (
+              intervalIsLessThan(
+                startTimeA.toISOString(),
+                endTimeA.toISOString(),
+                startTimeB.toISOString(),
+                endTimeB.toISOString()
+              )
+            ) {
+              return -1;
+            } else {
+              return 1;
+            }
+          }
+        ),
+    [freeTimesDataset]
   );
   const todaysDate = new Date().getDay();
   // eslint-disable-next-line
@@ -532,6 +568,65 @@ const Calendar = (): JSX.Element => {
   }
 
   const selectedTimeIntervals = mergedIntervals(selectedTimes);
+
+  let deleteTimeIntervals = [];
+  let newTimeIntervals = [];
+  if (initialFreeTimes.length === 0) {
+    newTimeIntervals = selectedTimeIntervals.slice();
+  } else if (selectedTimeIntervals.length === 0) {
+    deleteTimeIntervals = initialFreeTimes.slice();
+  } else {
+    let newTimesPointer = 0;
+    let oldTimesPointer = 0;
+    while (
+      newTimesPointer < selectedTimeIntervals.length &&
+      oldTimesPointer < initialFreeTimes.length
+    ) {
+      const oldInterval = initialFreeTimes[oldTimesPointer];
+      const newInterval = selectedTimeIntervals[newTimesPointer];
+      if (
+        oldInterval.start_time.toISOString() !== newInterval[0] ||
+        oldInterval.end_time.toISOString() !== newInterval[1]
+      ) {
+        if (
+          intervalIsLessThan(
+            oldInterval.start_time.toISOString(),
+            oldInterval.end_time.toISOString(),
+            newInterval[0],
+            newInterval[1]
+          )
+        ) {
+          deleteTimeIntervals.push(oldInterval);
+          oldTimesPointer++;
+        } else {
+          newTimeIntervals.push(newInterval);
+          newTimesPointer++;
+        }
+      } else {
+        oldTimesPointer++;
+        newTimesPointer++;
+      }
+    }
+    if (
+      newTimesPointer === selectedTimeIntervals.length &&
+      oldTimesPointer < initialFreeTimes.length
+    ) {
+      deleteTimeIntervals.splice(
+        -1,
+        0,
+        ...initialFreeTimes.slice(oldTimesPointer)
+      );
+    } else if (
+      oldTimesPointer === initialFreeTimes.length &&
+      newTimesPointer < selectedTimeIntervals.length
+    ) {
+      newTimeIntervals.splice(
+        -1,
+        0,
+        ...selectedTimeIntervals.slice(newTimesPointer)
+      );
+    }
+  }
 
   return (
     <>
@@ -638,14 +733,22 @@ const Calendar = (): JSX.Element => {
       {!state.selectDates && state.dateSelected === null && (
         <p>Choose a date to select times for</p>
       )}
-      {hasSelectedDates &&
-        selectedTimeIntervals.length > 0 &&
-        selectedTimeIntervals.map(([start, end]) => (
+      {newTimeIntervals.length > 0 &&
+        newTimeIntervals.map(([start, end]) => (
           <input
             key={`${start}_${end}`}
             type="hidden"
             name={"create_intervals[]"}
             value={`${start}_${end}`}
+          />
+        ))}
+      {deleteTimeIntervals.length > 0 &&
+        deleteTimeIntervals.map(({ start_time: start, end_time: end }) => (
+          <input
+            key={`${start.toISOString()}_${end.toISOString()}`}
+            type="hidden"
+            name="delete_intervals[]"
+            value={`${start.toISOString()}_${end.toISOString()}`}
           />
         ))}
     </>

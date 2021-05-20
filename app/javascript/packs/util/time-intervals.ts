@@ -25,3 +25,23 @@ export const mergedIntervals = (intervalStartTimes: string[]): Interval[] => {
   }
   return intervals;
 };
+
+// times are in simplified ISO 8601 format
+export const intervalIsLessThan = (
+  startTimeA: string,
+  endTimeA: string,
+  startTimeB: string,
+  endTimeB: string
+): boolean => {
+  if (startTimeA < startTimeB) {
+    return true;
+  } else if (
+    startTimeA === startTimeB &&
+    new Date(endTimeA).getTime() - new Date(startTimeA).getTime() <
+      new Date(endTimeB).getTime() - new Date(startTimeB).getTime()
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
