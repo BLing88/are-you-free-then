@@ -9,3 +9,8 @@ bob:
   name: Bob Foo
   email: bob@foobar.com
   password_digest: <%= User.digest('example_password') %>
+
+eve:
+  name: Eve Dropper
+  email: another@example.com
+  password_digest: <%= User.digest('example_password') %>

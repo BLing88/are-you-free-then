@@ -12,6 +12,18 @@ class User < ApplicationRecord
   has_many :free_times, dependent: :destroy
   has_many :time_intervals, through: :free_times
 
+  has_many :relationships, ->(user) { unscope(:where).where(requestor_id: user.id).or(Relationship.where(requested_id: user.id)) }, dependent: :destroy
+
+  # note the unscope call to remove default relationship.user_id = user.id check, which doesn't exist
+  has_many :friendships, ->(user) { joins(:relationship_status).unscope(:where).where(relationship_statuses: { name: "Accepted" }).where(requestor_id: user.id).or(Relationship.where(relationship_statuses: { name: "Accepted" }).where(requested_id: user.id)) }, class_name: :Relationship
+  has_many :requested_friends, ->(user) { where.not(relationships: { requestor_id: user.id }) }, through: :friendships, source: :requestor
+  has_many :accepted_friends, ->(user) { where.not(relationships: { requested_id: user.id })  }, through: :friendships, source: :requested
+  has_many :sent_pending_friends, ->(user) { Relationship.joins(:relationship_status).unscope(:where).where(relationship_statuses: { name: "Pending" }).where(requestor_id: user.id) }, through: :relationships, source: :requested
+  has_many :received_pending_friends, ->(user) { Relationship.joins(:relationship_status).unscope(:where).where(relationship_statuses: { name: "Pending" }).where(requested_id: user.id) }, through: :relationships, source: :requestor
+
+  def friends
+    requested_friends + accepted_friends
+  end
   # Returns the hash digest of the given string
   def self.digest(string)
     cost = ActiveModel::SecurePassword.min_cost ? 
@@ -44,5 +56,9 @@ class User < ApplicationRecord
 
   def forget
     update_attribute(:remember_digest, nil)
+  end
+
+  def send_friend_request(other_user)
+    Relationship.create(requestor: self, requested: other_user) unless self == other_user
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_16_175316) do
+ActiveRecord::Schema.define(version: 2021_05_21_222253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,6 +22,24 @@ ActiveRecord::Schema.define(version: 2021_05_16_175316) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["time_interval_id"], name: "index_free_times_on_time_interval_id"
     t.index ["user_id"], name: "index_free_times_on_user_id"
+  end
+
+  create_table "relationship_statuses", force: :cascade do |t|
+    t.text "name"
+    t.bigint "relationship_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["relationship_id"], name: "index_relationship_statuses_on_relationship_id"
+  end
+
+  create_table "relationships", force: :cascade do |t|
+    t.integer "requestor_id"
+    t.integer "requested_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["requested_id"], name: "index_relationships_on_requested_id"
+    t.index ["requestor_id", "requested_id"], name: "index_relationships_on_requestor_id_and_requested_id", unique: true
+    t.index ["requestor_id"], name: "index_relationships_on_requestor_id"
   end
 
   create_table "time_intervals", force: :cascade do |t|
@@ -47,4 +65,5 @@ ActiveRecord::Schema.define(version: 2021_05_16_175316) do
 
   add_foreign_key "free_times", "time_intervals"
   add_foreign_key "free_times", "users"
+  add_foreign_key "relationship_statuses", "relationships"
 end

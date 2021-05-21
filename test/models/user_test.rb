@@ -81,4 +81,20 @@ class UserTest < ActiveSupport::TestCase
   test "authenticated? should return false for a user with a nil digest" do
     assert_not @user.authenticated?('')
   end
+
+  test "can befriend another user" do
+     first_user = users(:bob)
+     second_user = users(:eve)
+     assert_not first_user.sent_pending_friends.include?(second_user)
+
+     first_user.send_friend_request(second_user)
+     assert first_user.sent_pending_friends.include?(second_user)
+     
+  end
+
+  test "cannot befriend oneself" do
+    assert_not @user.friends.include?(@user)
+    @user.send_friend_request(@user)
+    assert_not @user.sent_pending_friends.include?(@user)
+  end
 end
