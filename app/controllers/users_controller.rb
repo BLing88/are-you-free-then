@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:edit, :update, :destroy, :free_times]
-  before_action :correct_user, only: [:edit, :update, :free_times]
+  before_action :logged_in_user, only: [:edit, :update, :destroy, :free_times, :friends]
+  before_action :correct_user, only: [:edit, :update, :free_times, :friends]
   
   def new
     @user = User.new
@@ -60,6 +60,10 @@ class UsersController < ApplicationController
     else
       render status: :unauthorized, json: { error: { message: "Not authenticated"} }
     end
+  end
+
+  def friends
+    @friends = @user.friends
   end
 
   private
