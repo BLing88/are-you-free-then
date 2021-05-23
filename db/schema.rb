@@ -10,10 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_21_222253) do
+ActiveRecord::Schema.define(version: 2021_05_23_221629) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "events", force: :cascade do |t|
+    t.bigint "host_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["host_id"], name: "index_events_on_host_id"
+  end
 
   create_table "free_times", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -63,6 +70,7 @@ ActiveRecord::Schema.define(version: 2021_05_21_222253) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "events", "users", column: "host_id"
   add_foreign_key "free_times", "time_intervals"
   add_foreign_key "free_times", "users"
   add_foreign_key "relationship_statuses", "relationships"

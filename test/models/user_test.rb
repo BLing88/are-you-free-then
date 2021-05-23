@@ -117,4 +117,11 @@ class UserTest < ActiveSupport::TestCase
     assert_not alices_pending_friends.include?(@bob)
     assert_not alices_pending_friends.include?(@greg)
   end
+
+  test "users have events they are the hosts of" do
+    event = Event.new(host: @alice)
+    assert_not @alice.hosting_events.include?(event)
+    event.save
+    assert @alice.hosting_events.include?(event)
+  end
 end
