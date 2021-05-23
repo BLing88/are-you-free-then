@@ -1,9 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+alice_bob:
   requestor: alice
   requested: bob
 
-two:
+alice_eve:
   requestor: alice
   requested: eve
+
+greg_alice:
+  requestor: greg
+  requested: alice
+
+bob_greg:
+  requestor: bob
+  requested: greg

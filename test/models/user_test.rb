@@ -6,6 +6,10 @@ class UserTest < ActiveSupport::TestCase
                      email: "foobar@example.com",
                      password: "foobarpass",
                      password_confirmation: "foobarpass")
+    @alice = users(:alice)
+    @bob = users(:bob)
+    @eve = users(:eve)
+    @greg = users(:greg)
   end
 
   test "user should have a name" do
@@ -96,5 +100,21 @@ class UserTest < ActiveSupport::TestCase
     assert_not @user.friends.include?(@user)
     @user.send_friend_request(@user)
     assert_not @user.sent_pending_friends.include?(@user)
+  end
+
+  test "users have friends" do
+    # see relationship test fixtures
+    alices_friends = @alice.friends
+    assert alices_friends.include?(@bob)
+    assert alices_friends.include?(@greg)
+    assert_not alices_friends.include?(@eve)
+  end
+
+  test "users have pending friends" do
+    # see relationship test fixtures
+    alices_pending_friends = @alice.sent_pending_friends
+    assert alices_pending_friends.include?(@eve)
+    assert_not alices_pending_friends.include?(@bob)
+    assert_not alices_pending_friends.include?(@greg)
   end
 end

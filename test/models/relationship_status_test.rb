@@ -2,7 +2,7 @@ require "test_helper"
 
 class RelationshipStatusTest < ActiveSupport::TestCase
   def setup
-    @status = RelationshipStatus.new(relationship: relationships(:one), name: "Pending")
+    @status = RelationshipStatus.new(relationship: relationships(:alice_bob), name: "Pending")
   end
 
   test "validates valid relationship status" do
