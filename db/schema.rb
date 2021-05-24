@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_23_221629) do
+ActiveRecord::Schema.define(version: 2021_05_24_183030) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2021_05_23_221629) do
     t.bigint "host_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "name", null: false
     t.index ["host_id"], name: "index_events_on_host_id"
   end
 
@@ -29,6 +30,16 @@ ActiveRecord::Schema.define(version: 2021_05_23_221629) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["time_interval_id"], name: "index_free_times_on_time_interval_id"
     t.index ["user_id"], name: "index_free_times_on_user_id"
+  end
+
+  create_table "participations", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id"], name: "index_participations_on_event_id"
+    t.index ["user_id", "event_id"], name: "index_participations_on_user_id_and_event_id", unique: true
+    t.index ["user_id"], name: "index_participations_on_user_id"
   end
 
   create_table "relationship_statuses", force: :cascade do |t|
@@ -73,5 +84,7 @@ ActiveRecord::Schema.define(version: 2021_05_23_221629) do
   add_foreign_key "events", "users", column: "host_id"
   add_foreign_key "free_times", "time_intervals"
   add_foreign_key "free_times", "users"
+  add_foreign_key "participations", "events"
+  add_foreign_key "participations", "users"
   add_foreign_key "relationship_statuses", "relationships"
 end

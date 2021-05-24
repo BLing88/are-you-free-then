@@ -1,9 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: Test Event One
-  host: alice
+  event: one
+  user: bob 
 
 two:
-  name: "Bob's Event"
-  host: bob
+  event: two
+  user: eve
+
+three:
+  event: one
+  user: greg

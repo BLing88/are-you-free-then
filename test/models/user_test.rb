@@ -119,9 +119,16 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "users have events they are the hosts of" do
-    event = Event.new(host: @alice)
+    event = Event.new(name: "Test Event", host: @alice)
     assert_not @alice.hosting_events.include?(event)
     event.save
     assert @alice.hosting_events.include?(event)
+  end
+
+  test "users have events they are participants of" do
+    # hosts are participants
+    event = Event.create(host: @bob, name: "Bob's event")
+    assert @bob.events.include?(events(:one))
+    assert @bob.events.include?(event)
   end
 end
