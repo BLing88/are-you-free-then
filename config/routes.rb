@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   post '/login', to: 'sessions#create'
   delete '/logout', to: 'sessions#destroy'
   resources :users, except: [:index, :create]
-  resources :free_times, only: [:create, :destroy]
+  resources :free_times, only: [:new, :create, :destroy]
   resources :users do 
     member do
     get :free_times
@@ -16,5 +16,6 @@ Rails.application.routes.draw do
     get :friends
     end
   end
+  resources :events, only: [:new, :create, :destroy]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
