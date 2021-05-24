@@ -4,7 +4,8 @@ class Event < ApplicationRecord
   has_many :participations, dependent: :destroy
   has_many :participants, through: :participations, source: :user
 
-  validates :name, presence: true, length: { maximum: 50 }
+  validates :name, presence: true, length: { maximum: 50 }, 
+            uniqueness: { scope: :host } 
 
 
   private
