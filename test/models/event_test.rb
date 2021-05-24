@@ -17,6 +17,11 @@ class EventTest < ActiveSupport::TestCase
     assert_not @event.valid?
   end
 
+  test "event names can't be too long" do
+    @event.name = "a" * 51
+    assert_not @event.valid?
+  end
+
   test "events have hosts" do
     @event.host = nil
     assert_not @event.valid? 
