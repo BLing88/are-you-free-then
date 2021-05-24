@@ -5,6 +5,18 @@ class ParticipationTest < ActiveSupport::TestCase
     @participation = participations(:one)
   end
 
+  test "participations have a user" do
+    assert @participation.valid?
+    @participation.user = nil
+    assert_not @participation.valid?
+  end
+
+  test "participations have an event" do
+    assert @participation.valid?
+    @participation.event = nil
+    assert_not @participation.valid?
+  end
+
   test 'participations are unique' do
     dup_participation = @participation.dup
     dup_participation.save
