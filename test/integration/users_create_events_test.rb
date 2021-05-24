@@ -37,5 +37,8 @@ class UsersCreateEventsTest < ActionDispatch::IntegrationTest
       post events_path, params: { event: { name: event_name } }
     end
     assert_redirected_to Event.find_by(name: event_name, host: @alice)
+    follow_redirect!
+    assert_select 'h1', text: event_name
+    assert_select 'title', text: full_title(event_name)
   end
 end

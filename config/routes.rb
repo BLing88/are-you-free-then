@@ -16,6 +16,6 @@ Rails.application.routes.draw do
     get :friends
     end
   end
-  resources :events, only: [:new, :create, :destroy]
+  resources :events, only: [:new, :show, :create, :destroy]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
