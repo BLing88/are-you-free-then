@@ -3,6 +3,8 @@ class Event < ApplicationRecord
   belongs_to :host, class_name: :User
   has_many :participations, dependent: :destroy
   has_many :participants, through: :participations, source: :user
+  has_many :suggested_event_times, dependent: :destroy
+  has_many :suggested_times, through: :suggested_event_times, source: :time_interval
 
   validates :name, presence: true, length: { maximum: 50 }, 
             uniqueness: { scope: :host } 

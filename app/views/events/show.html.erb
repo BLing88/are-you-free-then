@@ -5,3 +5,4 @@
     <li><%= participant.name %></li>
   <% end %>
 </ul>
+<%= tag.div id: "react-event-calendar", "data-free_times": @event.suggested_times.to_json(only: [:start_time, :end_time]) %>

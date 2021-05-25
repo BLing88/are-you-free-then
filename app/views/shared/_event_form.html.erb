@@ -4,6 +4,10 @@
   <%= f.text_field :name %>
 
   <%= f.hidden_field :host_id, value: current_user.id %>
+  <%= tag.div id: "react-calendar-input", "data-free_times" => @hosting_event.suggested_times.to_json(only: [:start_time, :end_time]) %>
 
+  <% if !@hosting_event.id.nil? %>
+    <%= f.hidden_field :event_id, value: @hosting_event.id %>
+  <% end %>
   <%= f.submit "Create event" %>
 <% end %>
