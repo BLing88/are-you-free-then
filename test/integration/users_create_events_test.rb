@@ -19,7 +19,7 @@ class UsersCreateEventsTest < ActionDispatch::IntegrationTest
     assert_select "title", text: /Create event/i
     assert_select "h1", text: /create a new event/i
     assert_select "input[name=?]", 'event[name]'
-    assert_select 'label', /name/i
+    assert_select 'label', /Event name/i
     assert_select "input[name=?]", 'event[host_id]'
   end
 
