@@ -1,2 +1,7 @@
 <% provide(:title, @event.name) %>
 <h1><%= @event.name %></h1>
+<ul>
+  <% @event.participants.each do |participant| %>
+    <li><%= participant.name %></li>
+  <% end %>
+</ul>
