@@ -1,35 +1,26 @@
-import React from "react";
-import { ReducerAction } from "./Calendar";
+import React, { useState } from "react";
 
 type TimeInputPage = 0 | 1 | 2;
 
-interface TimeInputState {
-  pointerDown: boolean;
-  cellsToHighlight: Map<string, boolean>;
-  timeInputPage: TimeInputPage;
-  initialDateTimeDown: string | null;
-}
-
-const TIME_INPUT_POINTER_DOWN = "TIME_INPUT_POINTER_DOWN";
-
-const TIME_INPUT_ON_ENTER_CELL = "TIME_INPUT_ON_ENTER_CELL";
-
-const TIME_INPUT_POINTER_UP = "TIME_INPUT_POINTER_UP";
-
-const TIME_INPUT_MOVE_FORWARD = "TIME_INPUT_MOVE_FORWARD";
-const TIME_INPUT_MOVE_BACK = "TIME_INPUT_MOVE_BACK";
-
 interface TimeSelectorProps {
   date: string;
-  state: TimeInputState;
-  dispatch: React.Dispatch<ReducerAction>;
+  cellsToHighlight: Map<string, boolean>;
+  onPointerDownHandler: ((time: string) => void) | null;
+  onPointerLeaveHandler: (() => void) | null;
+  onPointerEnterHandler: ((time: string) => void) | null;
+  onPointerUpHandler: (() => void) | null;
+  onPointerCancelHandler: (() => void) | null;
 }
 
 const numFifteenMinsInADay = 1440;
 const TimeSelector = ({
   date,
-  state,
-  dispatch,
+  cellsToHighlight,
+  onPointerDownHandler,
+  onPointerEnterHandler,
+  onPointerLeaveHandler,
+  onPointerUpHandler,
+  onPointerCancelHandler,
 }: TimeSelectorProps): JSX.Element => {
   const times = [] as Date[];
   const dateObj = new Date(
@@ -42,42 +33,29 @@ const TimeSelector = ({
     dateObj.setMinutes(i % 60);
     times.push(new Date(dateObj.getTime()));
   }
+  const [timeInputPage, setTimeInputPage] = useState<TimeInputPage>(1);
 
   return (
     <>
       <div
         className="time-selector-input"
-        onPointerLeave={() => dispatch({ type: TIME_INPUT_POINTER_UP })}
+        onPointerLeave={onPointerLeaveHandler}
       >
         <h2>Select times for {dateObj.toDateString()}</h2>
         {times
-          .slice(state.timeInputPage * 32, state.timeInputPage * 32 + 32)
+          .slice(timeInputPage * 32, timeInputPage * 32 + 32)
           .map((time) => {
-            const shouldHighlight = !!state.cellsToHighlight.get(
-              time.toISOString()
-            );
+            const shouldHighlight = !!cellsToHighlight.get(time.toISOString());
             return (
               <div
                 key={time.getTime()}
                 className={`time-input-cell ${
                   shouldHighlight ? "highlight-cell" : ""
                 }`}
-                onPointerDown={() =>
-                  dispatch({
-                    type: TIME_INPUT_POINTER_DOWN,
-                    dateTime: time.toISOString(),
-                  })
-                }
-                onPointerEnter={() =>
-                  dispatch({
-                    type: TIME_INPUT_ON_ENTER_CELL,
-                    dateTime: time.toISOString(),
-                  })
-                }
-                onPointerUp={() => dispatch({ type: TIME_INPUT_POINTER_UP })}
-                onPointerCancel={() =>
-                  dispatch({ type: TIME_INPUT_POINTER_UP })
-                }
+                onPointerDown={() => onPointerDownHandler(time.toISOString())}
+                onPointerEnter={() => onPointerEnterHandler(time.toISOString())}
+                onPointerUp={onPointerUpHandler}
+                onPointerCancel={onPointerCancelHandler}
               >
                 <span className="hour-string">
                   {time.getMinutes() === 0 &&
@@ -93,14 +71,22 @@ const TimeSelector = ({
       <button
         type="button"
         className="back-btn"
-        onClick={() => dispatch({ type: TIME_INPUT_MOVE_BACK })}
+        onClick={() =>
+          setTimeInputPage((page) =>
+            page > 0 ? ((page - 1) as TimeInputPage) : 0
+          )
+        }
       >
         Back
       </button>
       <button
         type="button"
         className="forward-btn"
-        onClick={() => dispatch({ type: TIME_INPUT_MOVE_FORWARD })}
+        onClick={() =>
+          setTimeInputPage((page) =>
+            page === 2 ? 2 : ((page + 1) as TimeInputPage)
+          )
+        }
       >
         Forward
       </button>

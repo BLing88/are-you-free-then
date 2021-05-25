@@ -1,6 +1,10 @@
 import React, { useReducer, useMemo } from "react";
 import { TimeSelector } from "./TimeSelector";
-import { mergedIntervals, intervalIsLessThan } from "../util/time-intervals";
+import {
+  mergedIntervals,
+  intervalIsLessThan,
+  getDatesAndRowsOfDates,
+} from "../util/time-intervals";
 
 function getDateFromDateString(str: string): number {
   return +str.slice(-2);
@@ -90,15 +94,12 @@ const Row = ({
   );
 };
 
-const dayInMilliseconds = 86400000;
-
 interface CalendarState {
   selectDates: boolean;
   cellsToHighlight: Map<string, boolean>;
   cellDown: string | null;
   fromDate: string | null;
   page: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-  timeInputPage: TimeInputPage;
   dateSelected: string | null;
   pointerDown: boolean;
   timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
@@ -141,15 +142,6 @@ interface SelectDatesAction {
   type: typeof SELECT_DATES;
 }
 
-type TimeInputPage = 0 | 1 | 2;
-
-interface TimeInputState {
-  pointerDown: boolean;
-  cellsToHighlight: Map<string, boolean>;
-  timeInputPage: TimeInputPage;
-  initialDateTimeDown: string | null;
-}
-
 const TIME_INPUT_POINTER_DOWN = "TIME_INPUT_POINTER_DOWN";
 interface TimeInputPointerDownAction {
   type: typeof TIME_INPUT_POINTER_DOWN;
@@ -167,12 +159,6 @@ interface TimeInputPointerUpAction {
   type: typeof TIME_INPUT_POINTER_UP;
 }
 
-const TIME_INPUT_MOVE_FORWARD = "TIME_INPUT_MOVE_FORWARD";
-const TIME_INPUT_MOVE_BACK = "TIME_INPUT_MOVE_BACK";
-interface ChangeTimeInputPageAction {
-  type: typeof TIME_INPUT_MOVE_FORWARD | typeof TIME_INPUT_MOVE_BACK;
-}
-
 export type ReducerAction =
   | ChangeSelectionAction
   | EnterCellAction
@@ -182,8 +168,7 @@ export type ReducerAction =
   | SelectDatesAction
   | TimeInputPointerDownAction
   | TimeInputEnterCellAction
-  | TimeInputPointerUpAction
-  | ChangeTimeInputPageAction;
+  | TimeInputPointerUpAction;
 
 type NumberOfWeeks = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
@@ -399,50 +384,9 @@ const reducer = (
         pointerDown: false,
         initialDateTimeDown: null,
       };
-    case TIME_INPUT_MOVE_FORWARD:
-      return {
-        ...state,
-        timeInputPage:
-          state.timeInputPage === 2
-            ? 2
-            : ((state.timeInputPage + 1) as TimeInputPage),
-      };
-    case TIME_INPUT_MOVE_BACK:
-      return {
-        ...state,
-        timeInputPage:
-          state.timeInputPage > 0
-            ? ((state.timeInputPage - 1) as TimeInputPage)
-            : 0,
-      };
     default:
       return state;
   }
-};
-
-const getDatesAndRowsOfDates = (): [Date[], Date[][]] => {
-  const today = new Date();
-  today.setHours(3, 0, 0, 0);
-  const dates = [today];
-  for (let i = 1; i <= today.getDay(); i++) {
-    dates.unshift(new Date(today.getTime() - i * dayInMilliseconds));
-  }
-  for (let i = 1; i < 365; i++) {
-    dates.push(new Date(today.getTime() + i * dayInMilliseconds));
-  }
-
-  return [
-    dates,
-    dates.reduce((result, date, index) => {
-      if (index % 7 === 0) {
-        result.push([date]);
-        return result;
-      } else {
-        result[result.length - 1].push(date);
-        return result;
-      }
-    }, [] as Date[][]),
-  ];
 };
 
 const fifteenMinsInMilliseconds = 900000;
@@ -459,7 +403,6 @@ const initializeState = ({
     cellDown: null as string | null,
     fromDate: null,
     page: 0,
-    timeInputPage: 1,
     dateSelected: null,
     timeInputCellsToHighlight: new Map<string, Map<string, boolean>>(),
     pointerDown: false,
@@ -550,6 +493,13 @@ const Calendar = (): JSX.Element => {
     { initialFreeTimes, dates },
     initializeState
   );
+  const onTimeInputPointerDownHandler = (time: string) =>
+    dispatch({ type: TIME_INPUT_POINTER_DOWN, dateTime: time });
+  const onTimeInputPointerEnterHandler = (time: string) =>
+    dispatch({ type: TIME_INPUT_ON_ENTER_CELL, dateTime: time });
+  const onTimeInputPointerUpOrLeaveHandler = () =>
+    dispatch({ type: TIME_INPUT_POINTER_UP });
+
   const selectedDates = Array.from(state.cellsToHighlight.entries())
     .filter(([_, isSelected]) => isSelected)
     .map(([date, _]) => date);
@@ -669,30 +619,30 @@ const Calendar = (): JSX.Element => {
         </div>
       }
 
-      {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
-        <TimeSelector
-          date={state.dateSelected}
-          state={
-            {
-              pointerDown: state.pointerDown,
-              cellsToHighlight: state.timeInputCellsToHighlight.get(
-                state.dateSelected
-              ),
-              timeInputPage: state.timeInputPage,
-              initialDateTimeDown: state.initialDateTimeDown,
-            } as TimeInputState
-          }
-          dispatch={dispatch}
-        />
-      )}
+      {!state.selectDates &&
+        hasSelectedDates &&
+        state.dateSelected !== null && (
+          <TimeSelector
+            date={state.dateSelected}
+            cellsToHighlight={state.timeInputCellsToHighlight.get(
+              state.dateSelected
+            )}
+            onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerDownHandler={onTimeInputPointerDownHandler}
+            onPointerEnterHandler={onTimeInputPointerEnterHandler}
+          />
+        )}
       {state.selectDates && (
         <>
+          {" "}
           <button
             type="button"
             className="back-btn"
             onClick={() =>
               dispatch({
-                type: state.selectDates ? MOVE_BACK : TIME_INPUT_MOVE_BACK,
+                type: MOVE_BACK,
               })
             }
           >
@@ -703,9 +653,7 @@ const Calendar = (): JSX.Element => {
             className="forward-btn"
             onClick={() =>
               dispatch({
-                type: state.selectDates
-                  ? MOVE_FORWARD
-                  : TIME_INPUT_MOVE_FORWARD,
+                type: MOVE_FORWARD,
               })
             }
           >

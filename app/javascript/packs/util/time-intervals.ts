@@ -1,3 +1,28 @@
+const dayInMilliseconds = 86400000;
+export const getDatesAndRowsOfDates = (): [Date[], Date[][]] => {
+  const today = new Date();
+  today.setHours(3, 0, 0, 0);
+  const dates = [today];
+  for (let i = 1; i <= today.getDay(); i++) {
+    dates.unshift(new Date(today.getTime() - i * dayInMilliseconds));
+  }
+  for (let i = 1; i < 365; i++) {
+    dates.push(new Date(today.getTime() + i * dayInMilliseconds));
+  }
+  return [
+    dates,
+    dates.reduce((result, date, index) => {
+      if (index % 7 === 0) {
+        result.push([date]);
+        return result;
+      } else {
+        result[result.length - 1].push(date);
+        return result;
+      }
+    }, [] as Date[][]),
+  ];
+};
+
 export const endOfInterval = (
   dateTime: string,
   intervalInMilliseconds: number
