@@ -1,6 +1,6 @@
 <%= form_with model: @hosting_event do |f|%>
   <%= render 'shared/error_messages', object: f.object %>
-  <%= f.label "Event name", :name %>
+  <%= f.label :name, "Event name"%>
   <%= f.text_field :name %>
 
   <%= f.hidden_field :host_id, value: current_user.id %>
