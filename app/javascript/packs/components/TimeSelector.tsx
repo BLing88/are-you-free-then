@@ -39,23 +39,28 @@ const TimeSelector = ({
     <>
       <div
         className="time-selector-input"
-        onPointerLeave={onPointerLeaveHandler}
+        {...(onPointerLeaveHandler
+          ? { onPointerLeave: onPointerLeaveHandler }
+          : {})}
       >
         <h2>Select times for {dateObj.toDateString()}</h2>
         {times
           .slice(timeInputPage * 32, timeInputPage * 32 + 32)
           .map((time) => {
             const shouldHighlight = !!cellsToHighlight.get(time.toISOString());
+            const onPointerHandlers = {
+              onPointerDown: () => onPointerDownHandler(time.toISOString()),
+              onPointerEnter: () => onPointerEnterHandler(time.toISOString()),
+              onPointerUp: onPointerUpHandler,
+              onPointerCancel: onPointerCancelHandler,
+            };
             return (
               <div
                 key={time.getTime()}
                 className={`time-input-cell ${
                   shouldHighlight ? "highlight-cell" : ""
                 }`}
-                onPointerDown={() => onPointerDownHandler(time.toISOString())}
-                onPointerEnter={() => onPointerEnterHandler(time.toISOString())}
-                onPointerUp={onPointerUpHandler}
-                onPointerCancel={onPointerCancelHandler}
+                {...(onPointerDownHandler !== null && onPointerHandlers)}
               >
                 <span className="hour-string">
                   {time.getMinutes() === 0 &&
