@@ -190,10 +190,10 @@ const reducer = (
 
 const fifteenMinsInMilliseconds = 900000;
 const initializeState = ({
-  initialFreeTimes,
+  suggestedTimes,
   dates,
 }: {
-  initialFreeTimes: { start_time: Date; end_time: Date }[];
+  suggestedTimes: { start_time: Date; end_time: Date }[];
   dates: Date[];
 }): CalendarState => {
   const initialState = {
@@ -208,7 +208,7 @@ const initializeState = ({
     initialDateTimeDown: null,
   } as CalendarState;
 
-  for (let { start_time, end_time } of initialFreeTimes) {
+  for (let { start_time, end_time } of suggestedTimes) {
     if (
       start_time.getTime() > dates[dates.length - 1].getTime() ||
       end_time.getTime() < dates[0].getTime()
@@ -238,11 +238,11 @@ const initializeState = ({
 };
 
 const EventCalendar = (): JSX.Element => {
-  const freeTimesDataset = document.getElementById("react-event-calendar")
-    .dataset.free_times;
-  const initialFreeTimes = useMemo(
+  const suggestedTimesDataset = document.getElementById("react-event-calendar")
+    .dataset["suggestedTimes"];
+  const suggestedTimes = useMemo(
     () =>
-      JSON.parse(freeTimesDataset)
+      JSON.parse(suggestedTimesDataset)
         .map(
           ({
             start_time,
@@ -280,7 +280,7 @@ const EventCalendar = (): JSX.Element => {
             }
           }
         ),
-    [freeTimesDataset]
+    [suggestedTimesDataset]
   );
   const todaysDate = new Date().getDay();
   // eslint-disable-next-line
@@ -289,7 +289,7 @@ const EventCalendar = (): JSX.Element => {
   ]);
   const [state, dispatch] = useReducer(
     reducer,
-    { initialFreeTimes, dates },
+    { suggestedTimes, dates },
     initializeState
   );
 
