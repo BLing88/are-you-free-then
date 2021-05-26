@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   before_action :logged_in_user
-  before_action :correct_user, only: [:edit]
+  before_action :is_host?, only: [:edit]
   def new
     @event = current_user.events.build
   end
@@ -78,7 +78,6 @@ class EventsController < ApplicationController
   end
 
   def edit
-    @event = Event.find(params[:id])
   end
 
 
@@ -147,5 +146,11 @@ class EventsController < ApplicationController
 
     def correct_user
       redirect_to root_url unless current_user.events.find(params[:id])
+    end
+
+    def is_host?
+      @event = Event.find(params[:id])
+      flash[:danger] = "Only hosts can edit events."
+      redirect_to root_url unless current_user == @event.host
     end
 end
