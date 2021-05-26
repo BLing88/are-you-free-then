@@ -1,12 +1,12 @@
 class EventsController < ApplicationController
   before_action :logged_in_user
   before_action :is_host?, only: [:edit]
+  before_action :is_participant?, only: [:show]
   def new
     @event = current_user.events.build
   end
 
   def show
-    @event = Event.includes(:participants, :suggested_times).find(params[:id])
     
     @suggested_days = helpers.days_from_intervals(@event.suggested_times)
    # @event.suggested_times.each do |time_interval|
@@ -152,5 +152,10 @@ class EventsController < ApplicationController
       @event = Event.find(params[:id])
       flash[:danger] = "Only hosts can edit events."
       redirect_to root_url unless current_user == @event.host
+    end
+    
+    def is_participant?
+    @event = Event.includes(:participants, :suggested_times).find(params[:id])
+    redirect_to root_url unless @event.participants.include?(current_user)
     end
 end

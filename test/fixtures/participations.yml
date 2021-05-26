@@ -11,3 +11,7 @@ two:
 three:
   event: one
   user: greg
+
+four:
+  event: one
+  user: alice
