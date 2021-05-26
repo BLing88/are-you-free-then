@@ -1,5 +1,6 @@
 class EventsController < ApplicationController
   before_action :logged_in_user
+  before_action :correct_user, only: [:edit]
   def new
     @hosting_event = current_user.hosting_events.build
   end
@@ -77,6 +78,10 @@ class EventsController < ApplicationController
     end
   end
 
+  def edit
+    @hosting_event = Event.find(params[:id])
+  end
+
 
   def update
     event_id = params[:event][:event_id]
@@ -116,6 +121,7 @@ class EventsController < ApplicationController
           end
         end
       end
+      @event.update!(event_params) unless event_params.nil?
       flash[:success] = "Update successful!"
       redirect_to @event
     rescue => e
@@ -129,7 +135,7 @@ class EventsController < ApplicationController
   private
     
     def event_params
-      params.require(:event).permit(:host_id, :name, :event_id)
+      params.require(:event).permit(:name)
     end
 
     def suggested_time_params
@@ -138,5 +144,9 @@ class EventsController < ApplicationController
    
     def start_and_end_times(str)
       str.split("_")
+    end
+
+    def correct_user
+      redirect_to root_url unless current_user.events.find(params[:id])
     end
 end

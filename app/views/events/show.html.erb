@@ -5,6 +5,7 @@
     <li><%= participant.name %></li>
   <% end %>
 </ul>
+<%= link_to "Edit event", edit_event_path(@event) %>
 <%= tag.div id: "react-event-calendar", 
             "data-suggested-times": @event.suggested_times.to_json(only: [:start_time, :end_time]),
             "data-participant-times": @times.to_json %>
