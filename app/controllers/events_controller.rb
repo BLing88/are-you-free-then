@@ -40,7 +40,7 @@ class EventsController < ApplicationController
   def create
     @event = current_user.events.build(event_params)
     begin
-      if @event.save
+      if @event.save!
       TimeInterval.transaction do
         @event.reload
         if !params[:create_intervals].nil?
@@ -73,7 +73,7 @@ class EventsController < ApplicationController
     rescue => e
       logger.debug e
       flash.now[:danger] = "There was an error. Please try again."
-      render 'new'
+      render :new
     end
   end
 
@@ -134,7 +134,7 @@ class EventsController < ApplicationController
   private
     
     def event_params
-      params.require(:event).permit(:name)
+      params.require(:event).permit(:host_id, :name)
     end
 
     def suggested_time_params
