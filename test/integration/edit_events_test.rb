@@ -18,6 +18,12 @@ class EditEventsTest < ActionDispatch::IntegrationTest
     get edit_event_path(@event)
     assert_redirected_to root_url
     assert_not flash.empty?
+    log_in_as @bob
+    new_event_name = "New event name"
+    patch event_path(@event), params: { event: { name: new_event_name, event_id: @event.id } }
+    assert_redirected_to root_url
+    assert_not @event.reload.name == new_event_name 
+    assert_not flash.empty?
   end
 
   test "successful update" do

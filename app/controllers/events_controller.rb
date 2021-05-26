@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   before_action :logged_in_user
-  before_action :is_host?, only: [:edit]
+  before_action :is_host?, only: [:edit, :update]
   before_action :is_participant?, only: [:show]
   def new
     @event = current_user.events.build
