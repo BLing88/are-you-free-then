@@ -286,6 +286,7 @@ const EventCalendar = (): JSX.Element => {
         state.dateSelected !== null && (
           <TimeSelector
             date={state.dateSelected}
+            title={"View times"}
             cellsToHighlight={state.timeInputCellsToHighlight.get(
               state.dateSelected
             )}

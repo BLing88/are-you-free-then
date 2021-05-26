@@ -624,6 +624,7 @@ const Calendar = (): JSX.Element => {
         state.dateSelected !== null && (
           <TimeSelector
             date={state.dateSelected}
+            title={"Select times"}
             cellsToHighlight={state.timeInputCellsToHighlight.get(
               state.dateSelected
             )}

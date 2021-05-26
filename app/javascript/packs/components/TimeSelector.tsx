@@ -10,11 +10,13 @@ interface TimeSelectorProps {
   onPointerEnterHandler: ((time: string) => void) | null;
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
+  title: string;
 }
 
 const numFifteenMinsInADay = 1440;
 const TimeSelector = ({
   date,
+  title,
   cellsToHighlight,
   onPointerDownHandler,
   onPointerEnterHandler,
@@ -43,7 +45,7 @@ const TimeSelector = ({
           ? { onPointerLeave: onPointerLeaveHandler }
           : {})}
       >
-        <h2>Select times for {dateObj.toDateString()}</h2>
+        <h2>{`${title} for ${dateObj.toDateString()}`}</h2>
         {times
           .slice(timeInputPage * 32, timeInputPage * 32 + 32)
           .map((time) => {
