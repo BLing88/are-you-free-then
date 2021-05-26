@@ -9,5 +9,5 @@
   <% if !@hosting_event.id.nil? %>
     <%= f.hidden_field :event_id, value: @hosting_event.id %>
   <% end %>
-  <%= f.submit "Create event" %>
+  <%= f.submit "#{submit_title} event" %>
 <% end %>
