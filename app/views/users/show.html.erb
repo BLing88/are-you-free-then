@@ -1,2 +1,8 @@
 <div><%= current_user.name %></div>
 <%= link_to "My free times", free_times_user_path(current_user) %>
+<h2>My events</h2>
+<ul>
+  <% @events.each do |event| %>
+    <li><%= link_to event.name, event %></li> 
+  <% end %>
+</ul>
