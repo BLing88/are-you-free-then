@@ -5,42 +5,6 @@ import {
   getDatesAndRowsOfDates,
 } from "../util/time-intervals";
 
-function getDateFromDateString(str: string): number {
-  return +str.slice(-2);
-}
-
-const dayFromDateMemo = new Map();
-function getDayFromDate(str: string): number {
-  if (dayFromDateMemo.has(str)) {
-    return dayFromDateMemo.get(str);
-  }
-
-  dayFromDateMemo.set(
-    str,
-    new Date(+str.slice(0, 4), +str.slice(5, 7) - 1, +str.slice(-2)).getDay()
-  );
-  return dayFromDateMemo.get(str);
-}
-
-function getMonthFromDate(str: string): number {
-  return +str.slice(5, 7) - 1;
-}
-
-function getYearFromDate(str: string): number {
-  return +str.slice(0, 4);
-}
-
-const timeFromDateMemo = new Map();
-function getTimeFromDate(str: string): number {
-  if (timeFromDateMemo.has(str)) return timeFromDateMemo.get(str);
-
-  const date = new Date(+str.slice(0, 4), +str.slice(5, 7) - 1, +str.slice(-2));
-  date.setHours(3, 0, 0);
-  timeFromDateMemo.set(str, date.getTime());
-
-  return timeFromDateMemo.get(str);
-}
-
 const formatDate = (date: Date) =>
   `${date.getFullYear()}-${(date.getMonth() + 1)
     .toString()
@@ -118,11 +82,6 @@ interface PaginateAction {
   type: typeof MOVE_FORWARD | typeof MOVE_BACK;
 }
 
-const VIEW_TIMES = "VIEW_TIMES";
-interface ViewTimesAction {
-  type: typeof VIEW_TIMES;
-}
-
 const SELECT_DATES = "SELECT_DATES";
 interface SelectDatesAction {
   type: typeof SELECT_DATES;
@@ -133,7 +92,6 @@ export type ReducerAction =
   | EnterCellAction
   | PointerUpAction
   | PaginateAction
-  | ViewTimesAction
   | SelectDatesAction;
 
 type NumberOfWeeks = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
@@ -145,13 +103,13 @@ const reducer = (
   switch (action.type) {
     case SET_CELL_DOWN: {
       if (
-        !state.selectDates &&
         state.dateSelected === null &&
         state.cellsToHighlight.get(action.date)
       ) {
         return {
           ...state,
           dateSelected: action.date,
+          selectDates: false,
         };
       } else if (state.selectDates) {
         return {
@@ -171,11 +129,6 @@ const reducer = (
       return {
         ...state,
         page: (state.page > 0 ? state.page - 1 : 0) as NumberOfWeeks,
-      };
-    case VIEW_TIMES:
-      return {
-        ...state,
-        selectDates: false,
       };
     case SELECT_DATES:
       return {
@@ -370,15 +323,7 @@ const EventCalendar = (): JSX.Element => {
           </button>
         </>
       )}
-      {state.selectDates ? (
-        <button
-          type="button"
-          className="select-btn"
-          onClick={() => dispatch({ type: VIEW_TIMES })}
-        >
-          View times
-        </button>
-      ) : (
+      {!state.selectDates && (
         <button
           type="button"
           className="select-btn"
