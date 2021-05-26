@@ -1,13 +1,13 @@
-<%= form_with model: @hosting_event do |f|%>
+<%= form_with model: @event do |f|%>
   <%= render 'shared/error_messages', object: f.object %>
   <%= f.label :name, "Event name"%>
   <%= f.text_field :name %>
 
   <%= f.hidden_field :host_id, value: current_user.id %>
-  <%= tag.div id: "react-calendar-input", "data-free_times" => @hosting_event.suggested_times.to_json(only: [:start_time, :end_time]) %>
+  <%= tag.div id: "react-calendar-input", "data-free_times" => @event.suggested_times.to_json(only: [:start_time, :end_time]) %>
 
-  <% if !@hosting_event.id.nil? %>
-    <%= f.hidden_field :event_id, value: @hosting_event.id %>
+  <% if !@event.id.nil? %>
+    <%= f.hidden_field :event_id, value: @event.id %>
   <% end %>
   <%= f.submit "#{submit_title} event" %>
 <% end %>

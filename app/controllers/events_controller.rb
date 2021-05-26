@@ -2,7 +2,7 @@ class EventsController < ApplicationController
   before_action :logged_in_user
   before_action :correct_user, only: [:edit]
   def new
-    @hosting_event = current_user.hosting_events.build
+    @event = current_user.events.build
   end
 
   def show
@@ -38,18 +38,18 @@ class EventsController < ApplicationController
   end
 
   def create
-    @hosting_event = current_user.hosting_events.build(event_params)
+    @event = current_user.events.build(event_params)
     begin
-      if @hosting_event.save
+      if @event.save
       TimeInterval.transaction do
-        @hosting_event.reload
+        @event.reload
         if !params[:create_intervals].nil?
           params[:create_intervals].each do |interval|
             start_time, end_time = start_and_end_times(interval)
             time_interval = TimeInterval.find_by(start_time: start_time,
                                                  end_time: end_time)
             if !time_interval.nil?
-              time_interval.update_attribute(:event_count, time_interval.user_count + 1) unless SuggestedEventTime.find_by(event_id: @hosting_event.id, time_interval_id: time_interval.id)
+              time_interval.update_attribute(:event_count, time_interval.user_count + 1) unless SuggestedEventTime.find_by(event_id: @event.id, time_interval_id: time_interval.id)
             else
               time_interval = TimeInterval.create!(
                 start_time: start_time,   
@@ -58,9 +58,9 @@ class EventsController < ApplicationController
                 event_count: 1)
             end
 
-            if (!SuggestedEventTime.find_by(event_id: @hosting_event.id, 
+            if (!SuggestedEventTime.find_by(event_id: @event.id, 
                 time_interval_id: time_interval.id))
-              SuggestedEventTime.create!(event_id: @hosting_event.id,
+              SuggestedEventTime.create!(event_id: @event.id,
                                time_interval_id: time_interval.id)
             end
           end
@@ -68,7 +68,7 @@ class EventsController < ApplicationController
       end
 
       flash[:success] = "Event created!"
-      redirect_to @hosting_event
+      redirect_to @event
       end
     rescue => e
       logger.debug e
@@ -79,7 +79,7 @@ class EventsController < ApplicationController
   end
 
   def edit
-    @hosting_event = Event.find(params[:id])
+    @event = Event.find(params[:id])
   end
 
 
@@ -128,7 +128,7 @@ class EventsController < ApplicationController
       # send error, try again
       logger.debug(e)
       flash[:danger] = "There was an error. Try again."
-      redirect_to @event
+      render :edit
     end
   end
 
