@@ -4,6 +4,38 @@ class EventsController < ApplicationController
     @hosting_event = current_user.hosting_events.build
   end
 
+  def show
+    @event = Event.includes(:participants, :suggested_times).find(params[:id])
+    
+    @suggested_days = helpers.days_from_intervals(@event.suggested_times)
+   # @event.suggested_times.each do |time_interval|
+   #   helpers.days_from_interval(time_interval.start_time, time_interval.end_time).each do |day| 
+   #       @suggested_days << day
+   #   end
+   # end
+
+    #logger.debug "suggested_days: #{@suggested_days}"
+    @event_free_times = []
+    participants = @event.participants.includes(:time_intervals)
+    #logger.debug "participants: #{participants}"
+    @times = {}
+    participants.each do |participant| 
+      intersection = helpers.intersection_with_suggested_days(@suggested_days, participant.time_intervals)
+      # logger.debug "intersection: #{intersection}"
+      intersection.each do |interval|
+        start_time = interval[:start_time]
+        end_time = interval[:end_time]
+        if !@times["#{start_time}_#{end_time}"].nil?
+          @times["#{start_time}_#{end_time}"].participants << participant.name
+        else
+          @times["#{start_time}_#{end_time}"] = { start_time: start_time, end_time: end_time, participants: [participant.name]}
+        end
+      end
+    end  
+    #logger.debug("@times: #{@times}")
+    @times = @times.values
+  end
+
   def create
     @hosting_event = current_user.hosting_events.build(event_params)
     begin
@@ -45,14 +77,6 @@ class EventsController < ApplicationController
     end
   end
 
-  def show
-    @event = Event.find(params[:id])
-    
-    #@event_free_times = []
-    #participants = @event.participants.includes(:free_times)
-    #participants.each do |participant| 
-    #end  
-  end
 
   def update
     event_id = params[:event][:event_id]
