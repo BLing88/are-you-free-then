@@ -72,9 +72,8 @@ class EventsController < ApplicationController
       end
     rescue => e
       logger.debug e
-      flash[:danger] = "There was an error. Please try again."
+      flash.now[:danger] = "There was an error. Please try again."
       render 'new'
-    
     end
   end
 
@@ -127,7 +126,7 @@ class EventsController < ApplicationController
     rescue => e
       # send error, try again
       logger.debug(e)
-      flash[:danger] = "There was an error. Try again."
+      flash.now[:danger] = "There was an error. Try again."
       render :edit
     end
   end
