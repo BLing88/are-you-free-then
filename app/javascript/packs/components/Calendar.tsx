@@ -577,6 +577,13 @@ const Calendar = (): JSX.Element => {
       );
     }
   }
+  const highlightClassName = (time: string) => {
+    let className = "";
+    if (state.timeInputCellsToHighlight.get(state.dateSelected)?.get(time)) {
+      className += "highlight-cell";
+    }
+    return className;
+  };
 
   return (
     <>
@@ -619,22 +626,21 @@ const Calendar = (): JSX.Element => {
         </div>
       }
 
-      {!state.selectDates &&
-        hasSelectedDates &&
-        state.dateSelected !== null && (
-          <TimeSelector
-            date={state.dateSelected}
-            title={"Select times"}
-            cellsToHighlight={state.timeInputCellsToHighlight.get(
-              state.dateSelected
-            )}
-            onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerDownHandler={onTimeInputPointerDownHandler}
-            onPointerEnterHandler={onTimeInputPointerEnterHandler}
-          />
-        )}
+      {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
+        <TimeSelector
+          date={state.dateSelected}
+          title={"Select times"}
+          //cellsToHighlight={state.timeInputCellsToHighlight.get(
+          //state.dateSelected
+          //)}
+          highlightClassName={highlightClassName}
+          onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerDownHandler={onTimeInputPointerDownHandler}
+          onPointerEnterHandler={onTimeInputPointerEnterHandler}
+        />
+      )}
       {state.selectDates && (
         <>
           {" "}

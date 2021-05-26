@@ -4,25 +4,27 @@ type TimeInputPage = 0 | 1 | 2;
 
 interface TimeSelectorProps {
   date: string;
-  cellsToHighlight: Map<string, boolean>;
+  //cellsToHighlight: Map<string, boolean | number>;
   onPointerDownHandler: ((time: string) => void) | null;
   onPointerLeaveHandler: (() => void) | null;
   onPointerEnterHandler: ((time: string) => void) | null;
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
   title: string;
+  highlightClassName: (time: string) => string;
 }
 
 const numFifteenMinsInADay = 1440;
 const TimeSelector = ({
   date,
   title,
-  cellsToHighlight,
+  //cellsToHighlight,
   onPointerDownHandler,
   onPointerEnterHandler,
   onPointerLeaveHandler,
   onPointerUpHandler,
   onPointerCancelHandler,
+  highlightClassName,
 }: TimeSelectorProps): JSX.Element => {
   const times = [] as Date[];
   const dateObj = new Date(
@@ -49,7 +51,7 @@ const TimeSelector = ({
         {times
           .slice(timeInputPage * 32, timeInputPage * 32 + 32)
           .map((time) => {
-            const shouldHighlight = !!cellsToHighlight.get(time.toISOString());
+            // const shouldHighlight = !!cellsToHighlight.get(time.toISOString());
             const onPointerHandlers = {
               onPointerDown: () => onPointerDownHandler(time.toISOString()),
               onPointerEnter: () => onPointerEnterHandler(time.toISOString()),
@@ -59,9 +61,10 @@ const TimeSelector = ({
             return (
               <div
                 key={time.getTime()}
-                className={`time-input-cell ${
-                  shouldHighlight ? "highlight-cell" : ""
-                }`}
+                // use a function of time cell to return highlight class name
+                className={`time-input-cell ${highlightClassName(
+                  time.toISOString()
+                )} `}
                 {...(onPointerDownHandler !== null && onPointerHandlers)}
               >
                 <span className="hour-string">

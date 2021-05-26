@@ -52,8 +52,10 @@ interface CalendarState {
   page: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   dateSelected: string | null;
   pointerDown: boolean;
-  timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
+  timeInputCellsToHighlight: Map<string, Map<string, number>>;
+  suggestedTimes: Map<string, boolean>;
   initialDateTimeDown: string | null;
+  timesParticipantsMap: Map<string, string[]>;
 }
 
 const SET_CELL_DOWN = "SET_CELL_DOWN";
@@ -140,13 +142,19 @@ const reducer = (
       return state;
   }
 };
-
+interface ParticipantInterval {
+  start_time: Date;
+  end_time: Date;
+  participants: string[];
+}
 const fifteenMinsInMilliseconds = 900000;
 const initializeState = ({
   suggestedTimes,
+  participantTimes,
   dates,
 }: {
   suggestedTimes: { start_time: Date; end_time: Date }[];
+  participantTimes: ParticipantInterval[];
   dates: Date[];
 }): CalendarState => {
   const initialState = {
@@ -156,9 +164,11 @@ const initializeState = ({
     fromDate: null,
     page: 0,
     dateSelected: null,
-    timeInputCellsToHighlight: new Map<string, Map<string, boolean>>(),
+    timeInputCellsToHighlight: new Map<string, Map<string, number>>(),
+    suggestedTimes: new Map<string, boolean>(),
     pointerDown: false,
     initialDateTimeDown: null,
+    timesParticipantsMap: new Map<string, string[]>(),
   } as CalendarState;
 
   for (let { start_time, end_time } of suggestedTimes) {
@@ -179,11 +189,56 @@ const initializeState = ({
       const formattedDate = formatDate(date);
       if (!initialState.cellsToHighlight.has(formattedDate)) {
         initialState.cellsToHighlight.set(formattedDate, true);
-        initialState.timeInputCellsToHighlight.set(formattedDate, new Map());
+        // initialState.timeInputCellsToHighlight.set(formattedDate, new Map());
       }
-      initialState.timeInputCellsToHighlight
-        .get(formattedDate)
-        .set(date.toISOString(), true);
+      //initialState.timeInputCellsToHighlight
+      //  .get(formattedDate)
+      //  .set(date.toISOString(), 1);
+      initialState.suggestedTimes.set(date.toISOString(), true);
+      date = new Date(date.getTime() + fifteenMinsInMilliseconds);
+    }
+  }
+
+  // eslint-disable-next-line
+  for (let { start_time, end_time, participants } of participantTimes) {
+    if (
+      start_time.getTime() > dates[dates.length - 1].getTime() ||
+      end_time.getTime() < dates[0].getTime()
+    ) {
+      continue;
+    }
+    if (start_time.getTime() < dates[0].getTime()) {
+      start_time = dates[0];
+    }
+    if (end_time.getTime() > dates[dates.length - 1].getTime()) {
+      end_time = dates[dates.length - 1];
+    }
+    let date = new Date(start_time);
+    const {
+      cellsToHighlight,
+      timeInputCellsToHighlight,
+      timesParticipantsMap,
+    } = initialState;
+    while (date < end_time) {
+      const formattedDate = formatDate(date);
+      if (!cellsToHighlight.has(formattedDate)) {
+        cellsToHighlight.set(formattedDate, true);
+        timeInputCellsToHighlight.set(formattedDate, new Map());
+      }
+      if (!timeInputCellsToHighlight.has(formattedDate)) {
+        timeInputCellsToHighlight.set(formattedDate, new Map());
+      }
+      const dateStr = date.toISOString();
+      const timeInputCellsForDate = timeInputCellsToHighlight.get(
+        formattedDate
+      );
+      timeInputCellsForDate.set(
+        dateStr,
+        timeInputCellsForDate.get(dateStr)
+          ? timeInputCellsForDate.get(dateStr) + 1
+          : 1
+      );
+      timesParticipantsMap.set(dateStr, participants);
       date = new Date(date.getTime() + fifteenMinsInMilliseconds);
     }
   }
@@ -191,8 +246,8 @@ const initializeState = ({
 };
 
 const EventCalendar = (): JSX.Element => {
-  const suggestedTimesDataset = document.getElementById("react-event-calendar")
-    .dataset["suggestedTimes"];
+  const dataContainer = document.getElementById("react-event-calendar");
+  const suggestedTimesDataset = dataContainer.dataset["suggestedTimes"];
   const suggestedTimes = useMemo(
     () =>
       JSON.parse(suggestedTimesDataset)
@@ -235,6 +290,23 @@ const EventCalendar = (): JSX.Element => {
         ),
     [suggestedTimesDataset]
   );
+  const participantTimesDataset = dataContainer.dataset["participantTimes"];
+  const participantTimes = useMemo(
+    () =>
+      JSON.parse(participantTimesDataset).map(
+        ({
+          start_time,
+          end_time,
+        }: {
+          start_time: string;
+          end_time: string;
+        }) => ({
+          start_time: new Date(start_time),
+          end_time: new Date(end_time),
+        })
+      ),
+    [participantTimesDataset]
+  );
   const todaysDate = new Date().getDay();
   // eslint-disable-next-line
   const [dates, dateRows] = useMemo(() => getDatesAndRowsOfDates(), [
@@ -242,7 +314,7 @@ const EventCalendar = (): JSX.Element => {
   ]);
   const [state, dispatch] = useReducer(
     reducer,
-    { suggestedTimes, dates },
+    { suggestedTimes, participantTimes, dates },
     initializeState
   );
 
@@ -250,6 +322,16 @@ const EventCalendar = (): JSX.Element => {
     .filter(([_, isSelected]) => isSelected)
     .map(([date, _]) => date);
   const hasSelectedDates = selectedDates.length > 0;
+  const highlightClassName = (time: string) => {
+    let className = "";
+    if (state.timeInputCellsToHighlight.get(state.dateSelected)?.get(time)) {
+      className += "highlight-cell ";
+    }
+    if (state.suggestedTimes.get(time)) {
+      className += "suggested-time-cell ";
+    }
+    return className;
+  };
 
   return (
     <>
@@ -281,22 +363,21 @@ const EventCalendar = (): JSX.Element => {
           ))}
       </div>
 
-      {!state.selectDates &&
-        hasSelectedDates &&
-        state.dateSelected !== null && (
-          <TimeSelector
-            date={state.dateSelected}
-            title={"View times"}
-            cellsToHighlight={state.timeInputCellsToHighlight.get(
-              state.dateSelected
-            )}
-            onPointerLeaveHandler={null}
-            onPointerUpHandler={null}
-            onPointerCancelHandler={null}
-            onPointerDownHandler={null}
-            onPointerEnterHandler={null}
-          />
-        )}
+      {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
+        <TimeSelector
+          date={state.dateSelected}
+          title={"View times"}
+          highlightClassName={highlightClassName}
+          //cellsToHighlight={state.timeInputCellsToHighlight.get(
+          //   state.dateSelected
+          //)}
+          onPointerLeaveHandler={null}
+          onPointerUpHandler={null}
+          onPointerCancelHandler={null}
+          onPointerDownHandler={null}
+          onPointerEnterHandler={null}
+        />
+      )}
       {state.selectDates && (
         <>
           {" "}
