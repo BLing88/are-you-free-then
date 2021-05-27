@@ -1,0 +1,6 @@
+<h1>Your event invitations</h1>
+<ul>
+  <% @invites.each do |invite| %>
+    <li class="event-invite">Event: <%= invite.event.name %>, host: <%= invite.event.host.name %> <%= link_to "Accept", participations_path(event: invite.event.id, user: invite.invitee.id) %> <%= link_to "Delete", event_invite_path(invite.id) %></li> 
+  <% end %>
+</ul>

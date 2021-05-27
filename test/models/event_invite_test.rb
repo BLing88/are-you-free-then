@@ -2,8 +2,9 @@ require "test_helper"
 
 class EventInviteTest < ActiveSupport::TestCase
   def setup
-    @invitee = users(:eve)
-    @event = events(:one)
+    @invitee = users(:greg)
+    @event = events(:two)
+    @participant = users(:eve)
     @invitation = EventInvite.new(event: @event, 
                                   invitee: @invitee)
   end
@@ -32,7 +33,7 @@ class EventInviteTest < ActiveSupport::TestCase
   end
 
   test "can only invite users who aren't already participants" do
-    invite = EventInvite.new(event: @event, invitee: users(:bob))
+    invite = EventInvite.new(event: @event, invitee: @participant)
     assert_not invite.valid?
   end
 end

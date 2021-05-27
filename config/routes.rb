@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get 'event_invites/new'
+  #get 'event_invites/new'
   get 'sessions/new'
   root 'static_pages#welcome'
   get '/welcome', to: 'static_pages#welcome'
@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       get :free_times
       get :free_times_json
       get :friends
+      get :invites, to: "users#event_invites"
     end
   end
   resources :events, only: [:new, :show, :edit, :update, :create, :destroy] do
@@ -24,5 +25,7 @@ Rails.application.routes.draw do
       post '/invite', to: 'event_invites#create'
     end
   end
+  resources :event_invites, only: [:destroy]
+  resources :participations, only: [:create]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

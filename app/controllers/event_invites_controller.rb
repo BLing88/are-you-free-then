@@ -1,4 +1,6 @@
 class EventInvitesController < ApplicationController
+  before_action :logged_in_user
+  before_action :correct_user, only: [:destroy]
   def new
     @event = Event.find(params[:id])
     @friends = current_user.friends
@@ -23,4 +25,20 @@ class EventInvitesController < ApplicationController
       render :new
     end
   end
+  
+  def destroy
+    if EventInvite.find(params[:id]).destroy
+      flash[:success] = "Invite successfully deleted!"
+      redirect_to invites_user_path(current_user)
+    else
+      redirect_to root_url
+    end
+  end
+
+  private
+    
+    def correct_user
+      invite = EventInvite.find(params[:id])
+      redirect_to root_url unless current_user == invite.invitee
+    end
 end

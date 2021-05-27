@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:edit, :update, :destroy, :free_times, :friends]
-  before_action :correct_user, only: [:edit, :update, :free_times, :friends]
+  before_action :logged_in_user, only: [:edit, :update, :destroy, :free_times, :friends, :event_invites]
+  before_action :correct_user, only: [:edit, :update, :free_times, :friends, :event_invites]
   
   def new
     @user = User.new
@@ -65,6 +65,10 @@ class UsersController < ApplicationController
 
   def friends
     @friends = @user.friends
+  end
+
+  def event_invites
+    @invites = current_user.event_invites
   end
 
   private
