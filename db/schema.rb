@@ -10,10 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_25_174831) do
+ActiveRecord::Schema.define(version: 2021_05_27_002007) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "event_invites", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "invitee_id", null: false
+    t.text "status", default: "Pending"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id", "invitee_id"], name: "index_event_invites_on_event_id_and_invitee_id", unique: true
+    t.index ["event_id", "status"], name: "index_event_invites_on_event_id_and_status"
+    t.index ["event_id"], name: "index_event_invites_on_event_id"
+    t.index ["invitee_id", "status"], name: "index_event_invites_on_invitee_id_and_status"
+    t.index ["invitee_id"], name: "index_event_invites_on_invitee_id"
+  end
 
   create_table "events", force: :cascade do |t|
     t.bigint "host_id", null: false
@@ -91,6 +104,8 @@ ActiveRecord::Schema.define(version: 2021_05_25_174831) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "event_invites", "events"
+  add_foreign_key "event_invites", "users", column: "invitee_id"
   add_foreign_key "events", "users", column: "host_id"
   add_foreign_key "free_times", "time_intervals"
   add_foreign_key "free_times", "users"

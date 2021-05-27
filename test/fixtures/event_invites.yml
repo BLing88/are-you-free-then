@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  event: one
+  invitee: one
+  status: MyText
+
+two:
+  event: two
+  invitee: two
+  status: MyText
