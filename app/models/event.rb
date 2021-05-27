@@ -6,6 +6,7 @@ class Event < ApplicationRecord
   has_many :suggested_event_times, dependent: :destroy
   has_many :suggested_times, through: :suggested_event_times, source: :time_interval
   has_many :event_invites, dependent: :destroy
+  has_many :invitees, through: :event_invites
 
   validates :name, presence: true, length: { maximum: 50 }, 
             uniqueness: { scope: :host } 
