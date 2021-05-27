@@ -29,7 +29,7 @@ class User < ApplicationRecord
   
   has_many :received_pending_friends, ->(user) { Relationship.joins(:relationship_status).unscope(:where).where(relationship_statuses: { name: "Pending" }).where(requested_id: user.id) }, through: :relationships, source: :requestor
 
-  has_many :event_invites, dependent: :destroy
+  has_many :event_invites, dependent: :destroy, foreign_key: :invitee_id
 
   def friends
     requested_friends + accepted_friends
