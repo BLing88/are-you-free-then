@@ -1,6 +1,11 @@
 <h1>Your event invitations</h1>
 <ul>
+  <%= tag.p("You currently have no invitations.") if @invites.count == 0 %>
   <% @invites.each do |invite| %>
-    <li class="event-invite">Event: <%= invite.event.name %>, host: <%= invite.event.host.name %> <%= link_to "Accept", participations_path(event: invite.event.id, user: invite.invitee.id) %> <%= link_to "Delete", event_invite_path(invite.id) %></li> 
+    <li class="event-invite">Event: <%= invite.event.name %>, host: <%= invite.event.host.name %> <%= form_with url: participations_path do |f| %>
+      <%= f.hidden_field :event_id, value: invite.event.id %>
+      <%= f.hidden_field :user_id, value: current_user.id %>
+      <%= f.submit "Accept" %>
+    <% end %> <%= link_to "Delete", event_invite_path(invite.id) %></li> 
   <% end %>
 </ul>
