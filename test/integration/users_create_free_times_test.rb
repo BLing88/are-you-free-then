@@ -6,7 +6,13 @@ class UsersCreateFreeTimesTest < ActionDispatch::IntegrationTest
     @other_user = users(:bob)
   end
 
-  test "get free times sends unauthorized error if not logged in" do
+  test "get free times redirects to login if not logged in" do
+    get free_times_json_user_path(@user)
+    assert_redirected_to login_url
+  end
+
+  test "get free times sends unauthorized error if wrong user" do
+    log_in_as @other_user
     get free_times_json_user_path(@user)
     assert_response :unauthorized
   end

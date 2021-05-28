@@ -22,7 +22,7 @@ class ParticipationsController < ApplicationController
   end
 
   def correct_user
-    redirect_to root_url unless current_user.id.to_s == params[:user_id]
+    redirect_to root_url unless @current_user.id.to_s == params[:user_id]
   end
 
   def correct_event_invite

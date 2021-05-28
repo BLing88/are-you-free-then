@@ -3,8 +3,8 @@ class EventInvitesController < ApplicationController
   before_action :correct_user, only: [:destroy]
   def new
     @event = Event.find(params[:id])
-    @friends = current_user.friends
-    @user = current_user
+    @friends = @current_user.friends
+    @user = @current_user
   end
 
   def create
@@ -21,7 +21,7 @@ class EventInvitesController < ApplicationController
     rescue => e
       logger.debug e
       flash.now[:danger] = "There was an error. Please try again."
-      @friends = current_user.friends
+      @friends = @current_user.friends
       render :new
     end
   end
@@ -39,6 +39,6 @@ class EventInvitesController < ApplicationController
     
     def correct_user
       invite = EventInvite.find(params[:id])
-      redirect_to root_url unless current_user == invite.invitee
+      redirect_to root_url unless @current_user == invite.invitee
     end
 end
