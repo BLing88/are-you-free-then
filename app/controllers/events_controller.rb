@@ -2,18 +2,18 @@ class EventsController < ApplicationController
   before_action :logged_in_user
   before_action :is_host?, only: [:edit, :update]
   before_action :is_participant?, only: [:show]
+
   def new
-    @event = current_user.events.build
+    @event = @current_user.events.build
   end
 
   def show
-    
     @suggested_days = helpers.days_from_intervals(@event.suggested_times)
-   # @event.suggested_times.each do |time_interval|
-   #   helpers.days_from_interval(time_interval.start_time, time_interval.end_time).each do |day| 
-   #       @suggested_days << day
-   #   end
-   # end
+    # @event.suggested_times.each do |time_interval|
+    #   helpers.days_from_interval(time_interval.start_time, time_interval.end_time).each do |day| 
+    #       @suggested_days << day
+    #   end
+    # end
 
     #logger.debug "suggested_days: #{@suggested_days}"
     @event_free_times = []
@@ -38,37 +38,33 @@ class EventsController < ApplicationController
   end
 
   def create
-    @event = current_user.events.build(event_params)
+    @event = @current_user.events.build(event_params)
     begin
       if @event.save!
-      TimeInterval.transaction do
-        @event.reload
-        if !params[:create_intervals].nil?
-          params[:create_intervals].each do |interval|
-            start_time, end_time = start_and_end_times(interval)
-            time_interval = TimeInterval.find_by(start_time: start_time,
+        TimeInterval.transaction do
+          #@event.reload
+          if !params[:create_intervals].nil?
+            params[:create_intervals].each do |interval|
+              start_time, end_time = start_and_end_times(interval)
+              time_interval = TimeInterval.find_by(start_time: start_time,
                                                  end_time: end_time)
-            if !time_interval.nil?
-              time_interval.update_attribute(:event_count, time_interval.user_count + 1) unless SuggestedEventTime.find_by(event_id: @event.id, time_interval_id: time_interval.id)
-            else
-              time_interval = TimeInterval.create!(
-                start_time: start_time,   
-                end_time: end_time,
-                user_count: 0,
-                event_count: 1)
-            end
+              if time_interval.nil?
+                time_interval = TimeInterval.create!(
+                  start_time: start_time,   
+                  end_time: end_time)
+              end
 
-            if (!SuggestedEventTime.find_by(event_id: @event.id, 
-                time_interval_id: time_interval.id))
-              SuggestedEventTime.create!(event_id: @event.id,
-                               time_interval_id: time_interval.id)
+              if (!SuggestedEventTime.exists?(event_id: @event.id, 
+                  time_interval_id: time_interval.id))
+                SuggestedEventTime.create!(event_id: @event.id,
+                                           time_interval_id: time_interval.id)
+              end
             end
           end
         end
-      end
 
-      flash[:success] = "Event created!"
-      redirect_to @event
+        flash[:success] = "Event created!"
+        redirect_to @event
       end
     rescue => e
       logger.debug e
@@ -83,7 +79,6 @@ class EventsController < ApplicationController
 
   def update
     event_id = params[:event][:event_id]
-    @event = Event.find(event_id)
     begin
       TimeInterval.transaction do
         if !params[:create_intervals].nil?
@@ -91,20 +86,16 @@ class EventsController < ApplicationController
             start_time, end_time = start_and_end_times(interval)
             time_interval = TimeInterval.find_by(start_time: start_time,
                                                  end_time: end_time)
-            if !time_interval.nil?
-              time_interval.update_attribute(:event_count, time_interval.user_count + 1) unless SuggestedEventTime.find_by(event_id: event_id, time_interval_id: time_interval.id)
-            else
+            if time_interval.nil?
               time_interval = TimeInterval.create!(
                 start_time: start_time,   
-                end_time: end_time,
-                user_count: 0,
-                event_count: 1)
+                end_time: end_time)
             end
 
-            if (!SuggestedEventTime.find_by(event_id: event_id, 
+            if (!SuggestedEventTime.exists?(event_id: event_id, 
                 time_interval_id: time_interval.id))
               SuggestedEventTime.create!(event_id: event_id,
-                               time_interval_id: time_interval.id)
+                                         time_interval_id: time_interval.id)
             end
           end
         end
@@ -131,31 +122,31 @@ class EventsController < ApplicationController
   end
 
   private
-    
-    def event_params
-      params.require(:event).permit(:host_id, :name)
-    end
 
-    def suggested_time_params
-      params.permit(:event_id, "create_intervals[]", "delete_intervals[]")
-    end
-   
-    def start_and_end_times(str)
-      str.split("_")
-    end
+  def event_params
+    params.require(:event).permit(:host_id, :name)
+  end
 
-    def correct_user
-      redirect_to root_url unless current_user.events.find(params[:id])
-    end
+  def suggested_time_params
+    params.permit(:event_id, "create_intervals[]", "delete_intervals[]")
+  end
 
-    def is_host?
-      @event = Event.find(params[:id])
-      flash[:danger] = "Only hosts can edit events."
-      redirect_to root_url unless current_user == @event.host
-    end
-    
-    def is_participant?
+  def start_and_end_times(str)
+    str.split("_")
+  end
+
+  def correct_user
+    redirect_to root_url unless @current_user.events.find(params[:id])
+  end
+
+  def is_host?
+    @event = Event.find(params[:id])
+    flash[:danger] = "Only hosts can edit events."
+    redirect_to root_url unless @current_user == @event.host
+  end
+
+  def is_participant?
     @event = Event.includes(:participants, :suggested_times).find(params[:id])
     redirect_to root_url unless @event.participants.include?(current_user)
-    end
+  end
 end

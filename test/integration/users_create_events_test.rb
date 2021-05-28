@@ -34,7 +34,9 @@ class UsersCreateEventsTest < ActionDispatch::IntegrationTest
     log_in_as @alice
     event_name = "Another event"
     assert_difference 'Event.count', 1 do
-      post events_path, params: { event: { name: event_name, host_id: @alice.id } }
+      post events_path, params: { event: { name: event_name, 
+                                           host_id: @alice.id,
+                                           create_intervals: ["2022-12-05T12:00:00.000Z_2022-12-05T18:30:00.000Z"] } }
     end
     assert_redirected_to Event.find_by(name: event_name, host: @alice)
     follow_redirect!
