@@ -7,7 +7,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 
   test "login path" do
     get login_path
-    assert_select "h1", /log in/i
+    assert_select "input[type='submit']", value: /login/i
     assert_select "label", /email/i
     assert_select "input[id=?]", "session_email"
     assert_select "label", /password/i
@@ -22,7 +22,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     post login_path, params: { session: { email: "",
                                           password: "" } }
     assert_not is_logged_in?
-    assert_select "h1", /log in/i
+    assert_select "input[type='submit']", value: /login/i
     assert_not flash.empty?
     get root_path
     assert flash.empty?
@@ -60,7 +60,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     post login_path, params: { session: { email: @user.email,
                                           password: "invalid" } }
     assert_not is_logged_in?
-    assert_select 'h1', /log in/i
+    assert_select "input[type='submit']", value: /login/i
     assert_not flash.empty?
     get root_path
     assert flash.empty?

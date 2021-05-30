@@ -1,20 +1,21 @@
-<h1>Log in</h1>
-<div>
-  <%= form_with(url: login_path, scope: :session) do |f| %>
-    <%= f.label :email %>
+<%= render 'shared/app_logo', width: 250, height: 180 %>
+<%= form_with url: login_path, scope: :session, class: "login-form" do |f| %>
+  <%= f.label :email do %>
+    Email
     <%= f.email_field :email %>
-
-    <%= f.label :password %>
-    <%= f.password_field :password %>
-
-    <%= f.label :remember_me do %>
-      <%= f.check_box :remember_me %>
-      <span>Remember me on this computer</span>
-    <% end %>
-
-    <%= f.submit "Log in" %>
   <% end %>
-  <p>
-  New user? <%= link_to "Sign up", signup_url %>
-  </p>
-</div>
+
+  <%= f.label :password do %>
+    Password
+    <%= f.password_field :password %>
+  <% end %>
+  <%= f.label :remember_me, class: "remember-me" do %>
+    <%= f.check_box :remember_me %>
+    <small>Remember me</small>
+  <% end %>
+
+  <%= f.submit "Login", class: "login-btn" %>
+<% end %>
+<p>
+New user? <%= link_to "Sign up", signup_url, class: 'signup-link' %>
+</p>

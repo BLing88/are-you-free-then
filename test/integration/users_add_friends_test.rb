@@ -17,7 +17,7 @@ class UsersAddFriendsTest < ActionDispatch::IntegrationTest
   test "can see one's friends when logged in" do
     log_in_as(@user)
     get friends_user_path(@user)
-    assert_select 'div', text: /your friends/i
+    assert_select 'h1', text: /your friends/i
     @user.friends.each do |friend|
       assert_select 'li', text: Regexp.new("#{friend.name}")
     end
