@@ -1,0 +1,26 @@
+<ul>
+  <li>
+    <%= link_to root_path do%>
+      <small>Home</small>
+    <% end %>
+  </li>
+  <li>
+    <%= link_to free_times_user_path(@current_user) do %>
+      <small>My times</small>
+    <% end%>
+  </li>
+  <li>
+    <%= link_to new_event_path do %>
+      <small>+</small>
+    <% end %>
+  </li>
+  <li>
+    <%= link_to '#' do %>
+      <small>My event</small>
+    <% end %>
+  <li>
+    <%= link_to @current_user do %>
+      <small>My profile</small>
+    <% end %>
+  </li>
+</ul>

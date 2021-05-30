@@ -1,0 +1,39 @@
+header {
+  height: var(--header-height); 
+  background: #222730;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  z-index: 1;
+}
+
+nav ul {
+  list-style: none;
+  display: grid block;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 0;
+  justify-content: space-between;
+  justify-items: center;
+  align-items: center;
+
+  a {
+      color: var(--foreground-color);
+  }
+}
+
+@media (min-width: 450px) {
+    header {
+      top: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      width: 100vw;
+    }
+
+    nav {
+      width: 33vw; 
+      margin-right: 2rem;
+    }
+}
