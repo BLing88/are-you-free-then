@@ -69,6 +69,12 @@ input[type='checkbox']:hover {
     margin-top: 45px;
 }
 
+@media (max-width: 392px) {
+    body {
+        padding: 0 0 var(--header-height) 0;
+    }
+}
+
 @media (min-width: 450px) {
     body {
         padding-top: var(--header-height); 
