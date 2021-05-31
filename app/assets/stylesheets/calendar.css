@@ -8,8 +8,7 @@
 }
 
 .calendar {
-    grid-area: input;
-    width: 350px;
+    width: 320px;
     height: 250px;
     overflow: clip;
     user-select: none;

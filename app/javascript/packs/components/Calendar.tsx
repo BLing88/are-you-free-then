@@ -82,7 +82,7 @@ const Row = ({
             onPointerEnter={() => onPointerEnter(formattedDate)}
             onPointerLeave={() => onPointerLeave(formattedDate)}
             style={
-              highlight ? { color: "green", backgroundColor: "lightblue" } : {}
+              highlight ? { color: "#FFFFFF", backgroundColor: "#222730" } : {}
             }
           >
             {date.getDate()}
@@ -94,12 +94,14 @@ const Row = ({
   );
 };
 
+type NumberOfPages = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
+
 interface CalendarState {
   selectDates: boolean;
   cellsToHighlight: Map<string, boolean>;
   cellDown: string | null;
   fromDate: string | null;
-  page: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  page: NumberOfPages;
   dateSelected: string | null;
   pointerDown: boolean;
   timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
@@ -169,8 +171,6 @@ export type ReducerAction =
   | TimeInputPointerDownAction
   | TimeInputEnterCellAction
   | TimeInputPointerUpAction;
-
-type NumberOfWeeks = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
 const reducer = (
   state: CalendarState,
@@ -328,12 +328,12 @@ const reducer = (
     case MOVE_FORWARD:
       return {
         ...state,
-        page: (state.page < 12 ? state.page + 1 : 12) as NumberOfWeeks,
+        page: (state.page < 13 ? state.page + 1 : 13) as NumberOfPages,
       };
     case MOVE_BACK:
       return {
         ...state,
-        page: (state.page > 0 ? state.page - 1 : 0) as NumberOfWeeks,
+        page: (state.page > 0 ? state.page - 1 : 0) as NumberOfPages,
       };
     case SELECT_TIMES:
       return {
@@ -484,10 +484,11 @@ const Calendar = (): JSX.Element => {
     [freeTimesDataset]
   );
   const todaysDate = new Date().getDay();
-  // eslint-disable-next-line
-  const [dates, dateRows] = useMemo(() => getDatesAndRowsOfDates(), [
-    todaysDate,
-  ]);
+  const [dates, dateRows, firstOfEachMonth] = useMemo(
+    () => getDatesAndRowsOfDates(),
+    // eslint-disable-next-line
+    [todaysDate]
+  );
   const [state, dispatch] = useReducer(
     reducer,
     { initialFreeTimes, dates },
@@ -602,7 +603,10 @@ const Calendar = (): JSX.Element => {
           <span>Sat</span>
           <span />
           {dateRows
-            .slice(0 + 4 * state.page, 4 + 4 * state.page)
+            .slice(
+              firstOfEachMonth[state.page],
+              6 + firstOfEachMonth[state.page]
+            )
             .map((row, rowIndex) => (
               <Row
                 key={row[0].getTime()}
@@ -626,21 +630,20 @@ const Calendar = (): JSX.Element => {
         </div>
       }
 
-      {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
-        <TimeSelector
-          date={state.dateSelected}
-          title={"Select times"}
-          //cellsToHighlight={state.timeInputCellsToHighlight.get(
-          //state.dateSelected
-          //)}
-          highlightClassName={highlightClassName}
-          onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
-          onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
-          onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
-          onPointerDownHandler={onTimeInputPointerDownHandler}
-          onPointerEnterHandler={onTimeInputPointerEnterHandler}
-        />
-      )}
+      {!state.selectDates &&
+        hasSelectedDates &&
+        state.dateSelected !== null && (
+          <TimeSelector
+            date={state.dateSelected}
+            title={"Select times"}
+            highlightClassName={highlightClassName}
+            onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerDownHandler={onTimeInputPointerDownHandler}
+            onPointerEnterHandler={onTimeInputPointerEnterHandler}
+          />
+        )}
       {state.selectDates && (
         <>
           {" "}

@@ -1,26 +1,46 @@
 const dayInMilliseconds = 86400000;
-export const getDatesAndRowsOfDates = (): [Date[], Date[][]] => {
+export const getDatesAndRowsOfDates = (): [Date[], Date[][], number[]] => {
   const today = new Date();
   today.setHours(3, 0, 0, 0);
   const dates = [today];
+
+  // go to beginning of the current week
   for (let i = 1; i <= today.getDay(); i++) {
     dates.unshift(new Date(today.getTime() - i * dayInMilliseconds));
+  }
+
+  // go backwards adding dates until the 1st of the month
+  //const numWeeksBefore = Math.floor(dates[0].getDate() / 7);
+  const startOfThisWeek = dates[0];
+  for (let i = 1; i < startOfThisWeek.getDate(); i++) {
+    dates.unshift(new Date(startOfThisWeek.getTime() - i * dayInMilliseconds));
+  }
+
+  // add the days of the week before the 1st of the month
+  const firstDate = dates[0];
+  for (let i = 1; i <= firstDate.getDay(); i++) {
+    dates.unshift(new Date(firstDate.getTime() - i * dayInMilliseconds));
   }
   for (let i = 1; i < 365; i++) {
     dates.push(new Date(today.getTime() + i * dayInMilliseconds));
   }
-  return [
-    dates,
-    dates.reduce((result, date, index) => {
-      if (index % 7 === 0) {
-        result.push([date]);
-        return result;
-      } else {
-        result[result.length - 1].push(date);
-        return result;
-      }
-    }, [] as Date[][]),
-  ];
+
+  const firstOfEachMonth = []; // contains the index of rows that contain the first of each month, in chronological order
+  const dateRows = [];
+  for (let i = 0; i < dates.length; i++) {
+    const date = dates[i];
+    if (i % 7 === 0) {
+      dateRows.push([date]);
+    } else {
+      dateRows[dateRows.length - 1].push(date);
+    }
+
+    if (date.getDate() === 1) {
+      firstOfEachMonth.push(dateRows.length - 1);
+    }
+  }
+
+  return [dates, dateRows, firstOfEachMonth];
 };
 
 export const endOfInterval = (
