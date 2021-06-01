@@ -26,7 +26,7 @@ body {
   --foreground-color: #09CF54;
   --background-color: #222730;
   --min-width: 450px;
-  --header-height: 3rem;
+  --header-height: 2.75rem;
     font-family: "Fira Sans", sans-serif ;
     line-height: 1.3;
     padding: 0 Min(10%, 75px) var(--header-height) Min(10%, 75px);

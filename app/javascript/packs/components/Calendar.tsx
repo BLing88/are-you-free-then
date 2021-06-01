@@ -50,7 +50,7 @@ const formatDate = (date: Date) =>
 interface RowProps {
   dates: Date[];
   rowIndex: number;
-  cellsToHighlight: Map<string, boolean>;
+  cellsToHighlight: string[];
   onPointerDown: (date: string) => void;
   onPointerUp: () => void;
   onPointerEnter: (date: string) => void;
@@ -94,7 +94,7 @@ const Row = ({
   );
 };
 
-type NumberOfPages = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
+type NumberOfPages = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 
 interface CalendarState {
   selectDates: boolean;
@@ -328,12 +328,12 @@ const reducer = (
     case MOVE_FORWARD:
       return {
         ...state,
-        page: (state.page < 13 ? state.page + 1 : 13) as NumberOfPages,
+        page: (state.page < 12 ? state.page + 2 : 12) as NumberOfPages,
       };
     case MOVE_BACK:
       return {
         ...state,
-        page: (state.page > 0 ? state.page - 1 : 0) as NumberOfPages,
+        page: (state.page > 0 ? state.page - 2 : 0) as NumberOfPages,
       };
     case SELECT_TIMES:
       return {
@@ -437,8 +437,6 @@ const initializeState = ({
   }
   return initialState;
 };
-
-const numRows = 6;
 
 const Calendar = (): JSX.Element => {
   const freeTimesDataset = document.getElementById("react-calendar-input")
@@ -588,20 +586,37 @@ const Calendar = (): JSX.Element => {
     return className;
   };
 
-  const isInGrid = (index: number): boolean =>
+  const maxNumRowsFirstMonth =
+    firstOfEachMonth[state.page + 1] - firstOfEachMonth[state.page] + 1;
+  const numRowsFirstMonth =
+    maxNumRowsFirstMonth -
+    (dateRows[
+      maxNumRowsFirstMonth + firstOfEachMonth[state.page] - 1
+    ][0].getDate() === 1
+      ? 1
+      : 0);
+  const maxNumRowsSecondMonth =
+    firstOfEachMonth[state.page + 2] - firstOfEachMonth[state.page + 1] + 1;
+  const numRowsSecondMonth =
+    maxNumRowsSecondMonth -
+    (dateRows[
+      maxNumRowsSecondMonth + firstOfEachMonth[state.page + 1] - 1
+    ][0].getDate() === 1
+      ? 1
+      : 0);
+  const isInGrid = (index: number, page: number, numRows: number): boolean =>
     index >= 0 &&
     index < dates.length &&
-    dateRows[firstOfEachMonth[state.page]][0].getTime() <=
-      dates[index].getTime() &&
+    dateRows[firstOfEachMonth[page]][0].getTime() <= dates[index].getTime() &&
     dates[index].getTime() <=
-      dateRows[firstOfEachMonth[state.page] + numRows - 1][6].getTime();
+      dateRows[firstOfEachMonth[page] + numRows - 1][6].getTime();
 
   return (
     <>
       <div className="calendar-grid">
         <p className="calendar-month">
           {dateRows[firstOfEachMonth[state.page]][6].toLocaleString("default", {
-            month: "short",
+            month: "long",
           })}
         </p>
         <p className="calendar-year">
@@ -612,47 +627,61 @@ const Calendar = (): JSX.Element => {
           className="calendar"
           onPointerLeave={() => dispatch({ type: CELL_UP })}
         >
-          <span className="day-of-week">S</span>
-          <span className="day-of-week">M</span>
-          <span className="day-of-week">T</span>
-          <span className="day-of-week">W</span>
-          <span className="day-of-week">T</span>
-          <span className="day-of-week">F</span>
-          <span className="day-of-week">S</span>
           {dateRows
             .slice(
               firstOfEachMonth[state.page],
-              numRows + firstOfEachMonth[state.page]
+              numRowsFirstMonth + firstOfEachMonth[state.page]
             )
             .map((row, rowIndex) => {
               const classNames = row.map((date, index) => {
                 if (!state.cellsToHighlight.get(formatDate(date))) {
                   return "";
                 }
-                let className = "calendar-highlight-cell ";
+                let className =
+                  "calendar-highlight-cell " +
+                  (date.getMonth() !==
+                  dateRows[firstOfEachMonth[state.page]][6].getMonth()
+                    ? "not-same-month "
+                    : "");
                 const indexInDatesArr =
                   index + 7 * (firstOfEachMonth[state.page] + rowIndex);
                 const onRightBoundary = index === 6;
                 const onLeftBoundary = index === 0;
                 const onTopBoundary = rowIndex === 0;
-                const onBottomBoundary = rowIndex === numRows - 1;
+                const onBottomBoundary = rowIndex === numRowsFirstMonth - 1;
                 const topCellSelected =
-                  isInGrid(indexInDatesArr - 7) &&
+                  isInGrid(
+                    indexInDatesArr - 7,
+                    state.page,
+                    numRowsFirstMonth
+                  ) &&
                   state.cellsToHighlight.get(
                     formatDate(dates[indexInDatesArr - 7])
                   );
                 const bottomCellSelected =
-                  isInGrid(indexInDatesArr + 7) &&
+                  isInGrid(
+                    indexInDatesArr + 7,
+                    state.page,
+                    numRowsFirstMonth
+                  ) &&
                   state.cellsToHighlight.get(
                     formatDate(dates[indexInDatesArr + 7])
                   );
                 const leftCellSelected =
-                  isInGrid(indexInDatesArr - 1) &&
+                  isInGrid(
+                    indexInDatesArr - 1,
+                    state.page,
+                    numRowsFirstMonth
+                  ) &&
                   state.cellsToHighlight.get(
                     formatDate(dates[indexInDatesArr - 1])
                   );
                 const rightCellSelected =
-                  isInGrid(indexInDatesArr + 1) &&
+                  isInGrid(
+                    indexInDatesArr + 1,
+                    state.page,
+                    numRowsFirstMonth
+                  ) &&
                   state.cellsToHighlight.get(
                     formatDate(dates[indexInDatesArr + 1])
                   );
@@ -675,7 +704,7 @@ const Calendar = (): JSX.Element => {
                   key={row[0].getTime()}
                   dates={row}
                   rowIndex={rowIndex}
-                  cellsToHighlight={classNames} //state.cellsToHighlight}
+                  cellsToHighlight={classNames}
                   onPointerDown={(date: string) => {
                     dispatch({ type: SET_CELL_DOWN, date });
                   }}
@@ -698,7 +727,7 @@ const Calendar = (): JSX.Element => {
           {dateRows[firstOfEachMonth[state.page + 1]][6].toLocaleString(
             "default",
             {
-              month: "short",
+              month: "long",
             }
           )}
         </p>
@@ -713,28 +742,97 @@ const Calendar = (): JSX.Element => {
           {dateRows
             .slice(
               firstOfEachMonth[state.page + 1],
-              6 + firstOfEachMonth[state.page + 1]
+              numRowsSecondMonth + firstOfEachMonth[state.page + 1]
             )
-            .map((row, rowIndex) => (
-              <Row
-                key={row[0].getTime()}
-                dates={row}
-                rowIndex={rowIndex}
-                cellsToHighlight={state.cellsToHighlight}
-                onPointerDown={(date: string) => {
-                  dispatch({ type: SET_CELL_DOWN, date });
-                }}
-                onPointerEnter={(date: string) =>
-                  dispatch({ type: ON_ENTER_CELL, date, dates })
+            .map((row, rowIndex) => {
+              const classNames = row.map((date, index) => {
+                if (!state.cellsToHighlight.get(formatDate(date))) {
+                  return "";
                 }
-                onPointerUp={() => {
-                  dispatch({ type: CELL_UP });
-                }}
-                onPointerLeave={(date: string) =>
-                  dispatch({ type: ON_POINTER_LEAVE, date })
+                let className =
+                  "calendar-highlight-cell " +
+                  (date.getMonth() !==
+                  dateRows[firstOfEachMonth[state.page + 1]][6].getMonth()
+                    ? "not-same-month "
+                    : "");
+                const indexInDatesArr =
+                  index + 7 * (firstOfEachMonth[state.page + 1] + rowIndex);
+                const onRightBoundary = index === 6;
+                const onLeftBoundary = index === 0;
+                const onTopBoundary = rowIndex === 0;
+                const onBottomBoundary = rowIndex === numRowsSecondMonth - 1;
+                const topCellSelected =
+                  isInGrid(
+                    indexInDatesArr - 7,
+                    state.page + 1,
+                    numRowsSecondMonth
+                  ) &&
+                  state.cellsToHighlight.get(
+                    formatDate(dates[indexInDatesArr - 7])
+                  );
+                const bottomCellSelected =
+                  isInGrid(
+                    indexInDatesArr + 7,
+                    state.page + 1,
+                    numRowsSecondMonth
+                  ) &&
+                  state.cellsToHighlight.get(
+                    formatDate(dates[indexInDatesArr + 7])
+                  );
+                const leftCellSelected =
+                  isInGrid(
+                    indexInDatesArr - 1,
+                    state.page + 1,
+                    numRowsSecondMonth
+                  ) &&
+                  state.cellsToHighlight.get(
+                    formatDate(dates[indexInDatesArr - 1])
+                  );
+                const rightCellSelected =
+                  isInGrid(
+                    indexInDatesArr + 1,
+                    state.page + 1,
+                    numRowsSecondMonth
+                  ) &&
+                  state.cellsToHighlight.get(
+                    formatDate(dates[indexInDatesArr + 1])
+                  );
+                if (topCellSelected && !onTopBoundary) {
+                  className += "flat-top ";
                 }
-              />
-            ))}
+                if (bottomCellSelected && !onBottomBoundary) {
+                  className += "flat-bottom ";
+                }
+                if (leftCellSelected && !onLeftBoundary) {
+                  className += "flat-left ";
+                }
+                if (rightCellSelected && !onRightBoundary) {
+                  className += "flat-right ";
+                }
+                return className;
+              });
+
+              return (
+                <Row
+                  key={row[0].getTime()}
+                  dates={row}
+                  rowIndex={rowIndex}
+                  cellsToHighlight={classNames}
+                  onPointerDown={(date: string) => {
+                    dispatch({ type: SET_CELL_DOWN, date });
+                  }}
+                  onPointerEnter={(date: string) =>
+                    dispatch({ type: ON_ENTER_CELL, date, dates })
+                  }
+                  onPointerUp={() => {
+                    dispatch({ type: CELL_UP });
+                  }}
+                  onPointerLeave={(date: string) =>
+                    dispatch({ type: ON_POINTER_LEAVE, date })
+                  }
+                />
+              );
+            })}
         </div>
       </div>
 
@@ -752,9 +850,8 @@ const Calendar = (): JSX.Element => {
             onPointerEnterHandler={onTimeInputPointerEnterHandler}
           />
         )}
-      {state.selectDates && (
-        <>
-          {" "}
+      <div className="btns">
+        {state.selectDates && (
           <button
             type="button"
             className="back-btn"
@@ -766,6 +863,24 @@ const Calendar = (): JSX.Element => {
           >
             Back
           </button>
+        )}
+        <button
+          type="button"
+          className="select-btn"
+          onClick={() =>
+            dispatch({ type: state.selectDates ? SELECT_TIMES : SELECT_DATES })
+          }
+        >
+          {state.selectDates ? "Times" : "Dates"}
+        </button>
+        <input
+          type="submit"
+          name="commit"
+          value="Update"
+          data-disable-with="Update"
+        />
+
+        {state.selectDates && (
           <button
             type="button"
             className="forward-btn"
@@ -777,25 +892,9 @@ const Calendar = (): JSX.Element => {
           >
             Forward
           </button>
-        </>
-      )}
-      {state.selectDates ? (
-        <button
-          type="button"
-          className="select-btn"
-          onClick={() => dispatch({ type: SELECT_TIMES })}
-        >
-          Select times
-        </button>
-      ) : (
-        <button
-          type="button"
-          className="select-btn"
-          onClick={() => dispatch({ type: SELECT_DATES })}
-        >
-          Select dates
-        </button>
-      )}
+        )}
+      </div>
+
       {!state.selectDates && state.dateSelected === null && (
         <p>Choose a date to select times for</p>
       )}

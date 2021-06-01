@@ -1,7 +1,7 @@
 <%= form_with url: free_times_path, id: 'calendar-container' do |f| %>
+<%= render 'users/free_times_logo' %>
     <%= tag.div id: "react-calendar-input",
-      "data-free_times" => @free_times.to_json(only: [:start_time, :end_time])%>
+      "data-free_times" => @free_times.to_json(only: [:start_time, :end_time]) %>
 
-    <%= f.submit "Submit" %>
 <% end %>
 

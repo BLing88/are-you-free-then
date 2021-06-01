@@ -24,6 +24,24 @@ export const getDatesAndRowsOfDates = (): [Date[], Date[][], number[]] => {
   for (let i = 1; i < 365; i++) {
     dates.push(new Date(today.getTime() + i * dayInMilliseconds));
   }
+  let i = 365;
+  while (dates.length % 7 !== 0) {
+    dates.push(new Date(today.getTime() + i * dayInMilliseconds));
+    i++;
+  }
+  // finish the month
+  const latestDate = dates[dates.length - 1];
+  for (let i = latestDate.getDate() + 1; i < 28; i++) {
+    dates.push(new Date(latestDate.getTime() + i * dayInMilliseconds));
+  }
+
+  // finish the week
+  let j = 1;
+  const finalDate = dates[dates.length - 1];
+  while (dates.length % 7 !== 0) {
+    dates.push(new Date(finalDate.getTime() + j * dayInMilliseconds));
+    j++;
+  }
 
   const firstOfEachMonth = []; // contains the index of rows that contain the first of each month, in chronological order
   const dateRows = [];

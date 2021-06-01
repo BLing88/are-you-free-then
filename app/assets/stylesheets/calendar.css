@@ -2,28 +2,37 @@
     display: flex block;
     flex-direction: column;
     align-items: center;
+    height: 600px
+}
+
+#react-calendar-input {
+    height: 100%;
+    display: flex block;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .calendar-grid{
-    --calendar-width: 320px;
+    --calendar-width: 287px;
+    --calendar-height: 246px;
     width: var(--calendar-width);
     display: grid;
     grid-template-columns: auto auto;
     grid-template-rows: auto 1fr;
     grid-template-areas: "month year"
       "calendar calendar";
+    font-size: 1rem
 }
 
 .calendar {
     grid-area: calendar;
     width: var(--calendar-width);
-    height: var(--calendar-width); /* 250px;*/
     overflow: clip;
     user-select: none;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: 46px;
-    grid-auto-rows: 46px;
+    grid-template-rows: calc(var(--calendar-height) / 6);
+    grid-auto-rows: calc(var(--calendar-height) / 6);
     justify-items: center;
     gap: 0;
     align-items: center;
@@ -60,10 +69,14 @@
     border-bottom-right-radius: 0; 
 }
 
+.not-same-month {
+    opacity: 0.5;
+}
+
 .calendar-month, 
 .calendar-year {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: bold;
 }
 
@@ -88,6 +101,9 @@
 .calendar-highlight-cell {
     color: var(--action-text-color);
     background-color: var(--background-color);
+}
+
+.btns {
 }
 
 .back-btn {
