@@ -13,8 +13,6 @@
 }
 
 .calendar-grid{
-    --calendar-width: 287px;
-    --calendar-height: 246px;
     width: var(--calendar-width);
     display: grid;
     grid-template-columns: auto auto;
@@ -104,23 +102,36 @@
 }
 
 .btns {
-    display: flex;
-    flex-direction: row;
+    display: grid;
     justify-content: space-between;
+    grid-template-columns: repeat(4, auto);
+    grid-template-areas: 
+        "back-btn select-btn other forward-btn";
 }
 
 .back-btn {
-    grid-area: back;
+    grid-area: back-btn;
+    color: black;
+    background: none;
 }
 
-.forward-button {
-    grid-area: forward;
+.forward-btn {
+    grid-area: forward-btn;
+    color: black;
+    background: none;
 }
 
 .select-btn {
-    grid-area: select;
+    grid-area: select-btn;
+}
+
+.submit-btn {
+    grid-area: other;
 }
 
 .date-select-message {
-    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }

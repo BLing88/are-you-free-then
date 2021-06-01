@@ -1,13 +1,18 @@
 <% provide(:title, @event.name) %>
-<h1><%= @event.name %></h1>
-<ul>
-  <% @event.participants.each do |participant| %>
-    <li><%= participant.name %></li>
-  <% end %>
-</ul>
-<%= link_to "Edit event", edit_event_path(@event) %>
-<%= link_to "Invite participants", invite_event_path(@event) %>
-<%= tag.div id: "react-event-calendar", 
-            "data-suggested-times": @event.suggested_times.to_json(only: [:start_time, :end_time]),
-            "data-participant-times": @times.to_json %>
+<%= tag.div class: "event-page" do %>
+  <h1 class="event-name"><%= @event.name %></h1>
 
+  <%= tag.div id: "react-event-calendar", 
+    "data-suggested-times": @event.suggested_times.to_json(only: [:start_time, :end_time]),
+    "data-participant-times": @times.to_json %>
+  <div class="event-details">
+    <%= link_to "Edit event", edit_event_path(@event) %>
+    <%= link_to "Invite participants", invite_event_path(@event) %>
+    <h2>Participants</h2>
+    <ul>
+      <% @event.participants.each do |participant| %>
+        <li><%= participant.name %></li>
+      <% end %>
+    </ul>
+    <div>
+    <% end %>

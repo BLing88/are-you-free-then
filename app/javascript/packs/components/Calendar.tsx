@@ -5,6 +5,8 @@ import {
   intervalIsLessThan,
   getDatesAndRowsOfDates,
 } from "../util/time-intervals";
+import { BackButton } from "./BackButton";
+import { ForwardButton } from "./ForwardButton";
 
 function getDateFromDateString(str: string): number {
   return +str.slice(-2);
@@ -856,52 +858,50 @@ const Calendar = (): JSX.Element => {
           </button>
         </TimeSelector>
       )}
-      <div className="btns">
-        {state.selectDates && (
-          <>
-            <button
-              type="button"
-              className="back-btn"
-              onClick={() =>
+      {state.selectDates && (
+        <div className="btns">
+          {state.page > 0 && (
+            <BackButton
+              onClickHandler={() =>
                 dispatch({
                   type: MOVE_BACK,
                 })
               }
-            >
-              Back
-            </button>
-
-            <button
-              type="button"
-              className="select-btn"
-              onClick={() => dispatch({ type: SELECT_TIMES })}
-            >
-              Times
-            </button>
-            <input
-              type="submit"
-              name="commit"
-              value="Update"
-              data-disable-with="Update"
             />
+          )}
 
-            <button
-              type="button"
-              className="forward-btn"
-              onClick={() =>
+          <button
+            type="button"
+            className="select-btn"
+            onClick={() => dispatch({ type: SELECT_TIMES })}
+          >
+            Times
+          </button>
+          <input
+            className="submit-btn"
+            type="submit"
+            name="commit"
+            value="Update"
+            data-disable-with="Update"
+          />
+
+          {state.page < 12 && (
+            <ForwardButton
+              onClickHandler={() =>
                 dispatch({
                   type: MOVE_FORWARD,
                 })
               }
-            >
-              Forward
-            </button>
-          </>
-        )}
-      </div>
+            />
+          )}
+        </div>
+      )}
 
       {!state.selectDates && state.dateSelected === null && (
-        <p className="date-select-message">Choose a date to select times for</p>
+        <div className="date-select-message">
+          <span>Select a date to view</span>
+          <BackButton onClickHandler={() => dispatch({ type: SELECT_DATES })} />
+        </div>
       )}
       {newTimeIntervals.length > 0 &&
         newTimeIntervals.map(([start, end]) => (
