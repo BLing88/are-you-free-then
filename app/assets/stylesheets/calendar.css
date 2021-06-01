@@ -104,6 +104,9 @@
 }
 
 .btns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .back-btn {
@@ -116,4 +119,8 @@
 
 .select-btn {
     grid-area: select;
+}
+
+.date-select-message {
+    margin: 0;
 }

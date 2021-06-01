@@ -1,10 +1,7 @@
-import React, { useState } from "react";
-
-type TimeInputPage = 0 | 1 | 2;
+import React, { Fragment, ReactElement } from "react";
 
 interface TimeSelectorProps {
   date: string;
-  //cellsToHighlight: Map<string, boolean | number>;
   onPointerDownHandler: ((time: string) => void) | null;
   onPointerLeaveHandler: (() => void) | null;
   onPointerEnterHandler: ((time: string) => void) | null;
@@ -12,19 +9,19 @@ interface TimeSelectorProps {
   onPointerCancelHandler: (() => void) | null;
   title: string;
   highlightClassName: (time: string) => string;
+  children: ReactElement;
 }
 
 const numFifteenMinsInADay = 1440;
 const TimeSelector = ({
   date,
-  title,
-  //cellsToHighlight,
   onPointerDownHandler,
   onPointerEnterHandler,
   onPointerLeaveHandler,
   onPointerUpHandler,
   onPointerCancelHandler,
   highlightClassName,
+  children,
 }: TimeSelectorProps): JSX.Element => {
   const times = [] as Date[];
   const dateObj = new Date(
@@ -37,70 +34,51 @@ const TimeSelector = ({
     dateObj.setMinutes(i % 60);
     times.push(new Date(dateObj.getTime()));
   }
-  const [timeInputPage, setTimeInputPage] = useState<TimeInputPage>(1);
+  const todaysDate = dateObj.toDateString();
 
   return (
-    <>
-      <div
-        className="time-selector-input"
-        {...(onPointerLeaveHandler
-          ? { onPointerLeave: onPointerLeaveHandler }
-          : {})}
-      >
-        <h2>{`${title} for ${dateObj.toDateString()}`}</h2>
-        {times
-          .slice(timeInputPage * 32, timeInputPage * 32 + 32)
-          .map((time) => {
-            // const shouldHighlight = !!cellsToHighlight.get(time.toISOString());
-            const onPointerHandlers = {
-              onPointerDown: () => onPointerDownHandler(time.toISOString()),
-              onPointerEnter: () => onPointerEnterHandler(time.toISOString()),
-              onPointerUp: onPointerUpHandler,
-              onPointerCancel: onPointerCancelHandler,
-            };
-            return (
-              <div
-                key={time.getTime()}
-                // use a function of time cell to return highlight class name
-                className={`time-input-cell ${highlightClassName(
-                  time.toISOString()
-                )} `}
-                {...(onPointerDownHandler !== null && onPointerHandlers)}
-              >
-                <span className="hour-string">
-                  {time.getMinutes() === 0 &&
-                    time.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                </span>
-              </div>
-            );
-          })}
+    <div
+      className="time-selector-input"
+      {...(onPointerLeaveHandler
+        ? { onPointerLeave: onPointerLeaveHandler }
+        : {})}
+    >
+      <div className="time-input-empty-div" />
+      <div className="time-input-minutes">
+        <span className="time-input-minutes-cell">0-15</span>
+        <span className="time-input-minutes-cell">15-30</span>
+        <span className="time-input-minutes-cell">30-45</span>
+        <span className="time-input-minutes-cell">45-00</span>
       </div>
-      <button
-        type="button"
-        className="back-btn"
-        onClick={() =>
-          setTimeInputPage((page) =>
-            page > 0 ? ((page - 1) as TimeInputPage) : 0
-          )
-        }
-      >
-        Back
-      </button>
-      <button
-        type="button"
-        className="forward-btn"
-        onClick={() =>
-          setTimeInputPage((page) =>
-            page === 2 ? 2 : ((page + 1) as TimeInputPage)
-          )
-        }
-      >
-        Forward
-      </button>
-    </>
+      {times.map((time) => {
+        const onPointerHandlers = {
+          onPointerDown: () => onPointerDownHandler(time.toISOString()),
+          onPointerEnter: () => onPointerEnterHandler(time.toISOString()),
+          onPointerUp: onPointerUpHandler,
+          onPointerCancel: onPointerCancelHandler,
+        };
+        return (
+          <Fragment key={time.getTime()}>
+            {time.getMinutes() === 0 && (
+              <small className="time-input-hour">
+                {time.toLocaleTimeString([], {
+                  hour: "2-digit",
+                })}
+              </small>
+            )}
+            <div
+              // use a function of time cell to return highlight class name
+              className={`time-input-cell ${highlightClassName(
+                time.toISOString()
+              )} `}
+              {...(onPointerDownHandler !== null && onPointerHandlers)}
+            ></div>
+          </Fragment>
+        );
+      })}
+      <span className="time-input-date">{todaysDate}</span>
+      <div className="time-input-back-btn">{children}</div>
+    </div>
   );
 };
 

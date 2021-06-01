@@ -836,67 +836,72 @@ const Calendar = (): JSX.Element => {
         </div>
       </div>
 
-      {!state.selectDates &&
-        hasSelectedDates &&
-        state.dateSelected !== null && (
-          <TimeSelector
-            date={state.dateSelected}
-            title={"Select times"}
-            highlightClassName={highlightClassName}
-            onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerDownHandler={onTimeInputPointerDownHandler}
-            onPointerEnterHandler={onTimeInputPointerEnterHandler}
-          />
-        )}
-      <div className="btns">
-        {state.selectDates && (
+      {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
+        <TimeSelector
+          date={state.dateSelected}
+          title={"Select times"}
+          highlightClassName={highlightClassName}
+          onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerDownHandler={onTimeInputPointerDownHandler}
+          onPointerEnterHandler={onTimeInputPointerEnterHandler}
+        >
           <button
             type="button"
-            className="back-btn"
-            onClick={() =>
-              dispatch({
-                type: MOVE_BACK,
-              })
-            }
+            className="select-btn"
+            onClick={() => dispatch({ type: SELECT_DATES })}
           >
             Back
           </button>
-        )}
-        <button
-          type="button"
-          className="select-btn"
-          onClick={() =>
-            dispatch({ type: state.selectDates ? SELECT_TIMES : SELECT_DATES })
-          }
-        >
-          {state.selectDates ? "Times" : "Dates"}
-        </button>
-        <input
-          type="submit"
-          name="commit"
-          value="Update"
-          data-disable-with="Update"
-        />
-
+        </TimeSelector>
+      )}
+      <div className="btns">
         {state.selectDates && (
-          <button
-            type="button"
-            className="forward-btn"
-            onClick={() =>
-              dispatch({
-                type: MOVE_FORWARD,
-              })
-            }
-          >
-            Forward
-          </button>
+          <>
+            <button
+              type="button"
+              className="back-btn"
+              onClick={() =>
+                dispatch({
+                  type: MOVE_BACK,
+                })
+              }
+            >
+              Back
+            </button>
+
+            <button
+              type="button"
+              className="select-btn"
+              onClick={() => dispatch({ type: SELECT_TIMES })}
+            >
+              Times
+            </button>
+            <input
+              type="submit"
+              name="commit"
+              value="Update"
+              data-disable-with="Update"
+            />
+
+            <button
+              type="button"
+              className="forward-btn"
+              onClick={() =>
+                dispatch({
+                  type: MOVE_FORWARD,
+                })
+              }
+            >
+              Forward
+            </button>
+          </>
         )}
       </div>
 
       {!state.selectDates && state.dateSelected === null && (
-        <p>Choose a date to select times for</p>
+        <p className="date-select-message">Choose a date to select times for</p>
       )}
       {newTimeIntervals.length > 0 &&
         newTimeIntervals.map(([start, end]) => (
