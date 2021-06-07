@@ -6,9 +6,14 @@
 }
 
 .login-form {
-    display: block flex;
-    flex-direction: column;
-    align-items: flex-start;
+    display: block grid;
+    width: Min(100%, 380px);
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+    grid-template-areas: "email"
+        "password"
+        "remember-me"
+        "login-btn"
 }
 
 .login-form  {
@@ -24,7 +29,8 @@
     width: Min(35%, 100px);
     margin-top: 1.3rem;
     height: 4rem;
-    align-self: end; 
+    justify-self: end; 
+    grid-area: login-btn;
 }
 
 .signup-link {
@@ -38,6 +44,7 @@
 
 .remember-me {
     display: inline;
+    grid-area: remember-me;
 }
 
 .remember-me:hover {
