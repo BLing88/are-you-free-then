@@ -1,4 +1,16 @@
 <% provide(:title, "Create event") %>
-<h1>Create a new event</h1>
-<%= render 'shared/event_form', submit_title: "Create" %>
+<div class="create-event-page">
+  <svg class="create-logo" width="133px" height="50px" viewBox="0 0 133 50">
+    <text
+        x="0"
+        y="36"
+        stroke="black"
+        fill="none"
+        font-size='45px'
+        >
+        Create
+    </text>
+  </svg>
+  <%= render 'shared/event_form', update_btn_message: "Create" %>
+</div>
 

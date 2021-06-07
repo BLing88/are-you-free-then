@@ -485,6 +485,9 @@ const Calendar = (): JSX.Element => {
         ),
     [freeTimesDataset]
   );
+  const updateBtnMessage: string =
+    document.getElementById("react-calendar-input").dataset.updateBtnMessage ??
+    "Submit";
   const todaysDate = new Date().getDay();
   const [dates, dateRows, firstOfEachMonth] = useMemo(
     () => getDatesAndRowsOfDates(),
@@ -881,7 +884,7 @@ const Calendar = (): JSX.Element => {
             className="submit-btn"
             type="submit"
             name="commit"
-            value="Update"
+            value={updateBtnMessage}
             data-disable-with="Update"
           />
 

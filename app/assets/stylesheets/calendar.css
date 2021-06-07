@@ -7,6 +7,7 @@
 
 #react-calendar-input {
     height: 100%;
+    width: var(--calendar-width);
     display: flex block;
     flex-direction: column;
     justify-content: space-between;
@@ -104,7 +105,7 @@
 .btns {
     display: grid;
     justify-content: space-between;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(4, calc(100% / 4 - 5px));
     grid-template-areas: 
         "back-btn select-btn other forward-btn";
 }

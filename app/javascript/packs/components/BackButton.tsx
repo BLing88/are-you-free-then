@@ -6,6 +6,6 @@ interface BackButtonProps {
 
 export const BackButton = ({ onClickHandler }: BackButtonProps) => (
   <button type="button" className="back-btn" onClick={onClickHandler}>
-    &#x3008; Back
+    &#x3008; <small>Back</small>
   </button>
 );

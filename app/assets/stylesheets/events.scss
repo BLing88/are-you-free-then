@@ -9,8 +9,29 @@
     grid-area: calendar;
 }
 
+.create-event-page {
+    display: flex;
+    flex-direction: column;
+}
+
+.create-logo {
+    align-self: end;
+}
+
+.event-form {
+    display: flex block;
+    flex-direction: column;
+    align-items: center;
+}
+
 .event-page ul {
     list-style: none;
+}
+
+.event-name-label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.5rem;
 }
 
 .event-name {

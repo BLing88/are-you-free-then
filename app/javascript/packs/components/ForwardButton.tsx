@@ -4,8 +4,10 @@ interface ForwardButtonProps {
   onClickHandler: () => void;
 }
 
-export const ForwardButton = ({ onClickHandler }: ForwardButtonProps) => (
+export const ForwardButton = ({
+  onClickHandler,
+}: ForwardButtonProps): JSX.Element => (
   <button type="button" className="forward-btn" onClick={onClickHandler}>
-    Forward &#x3009;
+    <small>Forward</small> &#x3009;
   </button>
 );
