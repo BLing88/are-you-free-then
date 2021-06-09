@@ -141,8 +141,10 @@ class EventsController < ApplicationController
 
   def is_host?
     @event = Event.find(params[:id])
-    flash[:danger] = "Only hosts can edit events."
-    redirect_to root_url unless @current_user == @event.host
+    if @current_user != @event.host
+      flash[:danger] = "Only hosts can edit events."
+      redirect_to root_url
+    end
   end
 
   def is_participant?
