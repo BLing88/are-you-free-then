@@ -6,7 +6,7 @@
 }
 
 .login-form {
-    display: block grid;
+    display: grid;
     width: Min(100%, 380px);
     grid-template-columns: 1fr;
     grid-template-rows: repeat(4, auto);
@@ -18,7 +18,7 @@
 
 .login-form  {
     label[for="session_email"], label[for="session_password"] {
-        display: inline flex;
+        display: inline-flex;
         font-weight: bold;
         flex-direction: column;
         margin-bottom: 1.1rem;

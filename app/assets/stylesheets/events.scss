@@ -3,7 +3,7 @@
 // You can use Sass (SCSS) here: https://sass-lang.com/
 #react-event-calendar {
     width: var(--calendar-width);
-    display: flex block;
+    display: flex;
     flex-direction: column;
     margin: 0 auto;
     grid-area: calendar;
@@ -19,7 +19,7 @@
 }
 
 .event-form {
-    display: flex block;
+    display: flex;
     flex-direction: column;
     align-items: center;
 }

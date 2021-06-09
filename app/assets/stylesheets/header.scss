@@ -11,7 +11,7 @@ header {
 
 nav ul {
   list-style: none;
-  display: grid block;
+  display: grid;
   grid-template-columns: repeat(5, 1fr);
   padding: 0;
   justify-content: space-between;

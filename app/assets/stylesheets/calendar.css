@@ -1,5 +1,5 @@
 #calendar-container {
-    display: flex block;
+    display: flex;
     flex-direction: column;
     align-items: center;
     height: 600px
@@ -8,7 +8,7 @@
 #react-calendar-input {
     height: 100%;
     width: var(--calendar-width);
-    display: flex block;
+    display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
