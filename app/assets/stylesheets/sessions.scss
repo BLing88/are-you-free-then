@@ -35,7 +35,7 @@
 
 .signup-link {
     color: #000;
-    transition: color 0.25s ease;
+    transition: color var(--transition-duration) ease;
 }
 
 .signup-link:hover, .signup-link:focus {

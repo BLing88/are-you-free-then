@@ -18,3 +18,55 @@
 .free-times-logo {
   align-self: end;
 }
+
+.event-invite-list,
+.event-list {
+  list-style: none; 
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
+  gap: 0.5rem; 
+}
+
+.event-li {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: auto;
+  gap: 0.5rem;
+}
+
+.event-link {
+    color: var(--background-color);
+    transition: color var(--transition-duration) ease-in;
+}
+
+.event-link:hover {
+    color: var(--action-color);
+}
+
+.event-invite-li {
+  display: grid;
+  grid-template-columns: 1fr 1fr 65px 15px;
+  grid-auto-rows: auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.delete-invite-link {
+    font-size: 2rem;
+    text-decoration: none;
+    justify-self: center;
+    color: black;
+    transition: color var(--transition-duration) ease-in;
+}
+
+.delete-invite-link:hover {
+    color: var(--action-color);
+}
+
+.event-name-header,
+.host-name-header {
+    font-weight: bold;
+}

@@ -6,6 +6,6 @@
       <%= f.hidden_field :event_id, value: invite.event.id %>
       <%= f.hidden_field :user_id, value: current_user.id %>
       <%= f.submit "Accept" %>
-    <% end %> <%= link_to "Delete", event_invite_path(invite.id) %></li> 
+    <% end %> <%= link_to "Delete", event_invite_path(invite.id), method: :delete %></li> 
   <% end %>
 </ul>

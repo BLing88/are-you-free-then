@@ -2,6 +2,7 @@ import React from "react";
 import { render } from "react-dom";
 import { Calendar } from "./components/Calendar";
 import { EventCalendar } from "./components/EventCalendar";
+import { renderUserHomePage } from "./UserHomePage";
 
 document.addEventListener("turbolinks:load", () => {
   const container = document.getElementById("react-calendar-input");
@@ -14,4 +15,6 @@ document.addEventListener("turbolinks:load", () => {
   if (eventCalendarContainer) {
     render(<EventCalendar />, eventCalendarContainer);
   }
+
+  renderUserHomePage();
 });
