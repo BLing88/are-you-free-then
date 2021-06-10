@@ -13,7 +13,7 @@ class EventInvitesController < ApplicationController
     begin
     EventInvite.transaction do
       invitees.each do |invitee|
-        @event.event_invites.create!(invitee_id: invitee) unless EventInvite.exists?(invitee_id: invitee) || invitee.blank?
+        @event.event_invites.create!(invitee_id: invitee) unless (invitee.blank? || @event.event_invites.exists?(invitee_id: invitee))
       end
       flash[:success] = "#{"Paricipant".pluralize(invitees.count - 1)} successfully invited!" unless invitees.count == 1
     end
