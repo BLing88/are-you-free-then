@@ -83,3 +83,17 @@
 .host-name-header {
     font-weight: bold;
 }
+
+.home-page-nav {
+    margin-bottom: 0.5rem;
+
+    button {
+        background: none;
+        color: var(--background-color);
+    }
+}
+
+.current-tab {
+    border-bottom: solid var(--action-color);
+    border-radius: 0;
+}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EventInvitesList, Invite } from "./EventInvitesList";
+// import { EventInvitesList, Invite } from "./EventInvitesList";
 import { EventList, Event } from "./EventList";
 
 //const NOTIFICATIONS = "Notifications";
@@ -29,10 +29,18 @@ export const UserHomePage = (): JSX.Element => {
         {/*<button type="button" onClick={() => setDisplayState(NOTIFICATIONS)}>
           Notifications
       </button>*/}
-        <button type="button" onClick={() => setDisplayState(EVENTS)}>
+        <button
+          type="button"
+          className={`${displayState === EVENTS ? "current-tab" : ""}`}
+          onClick={() => setDisplayState(EVENTS)}
+        >
           Events
         </button>
-        <button type="button" onClick={() => setDisplayState(FIND_EVENT)}>
+        <button
+          type="button"
+          className={`${displayState === FIND_EVENT ? "current-tab" : ""}`}
+          onClick={() => setDisplayState(FIND_EVENT)}
+        >
           Find event
         </button>
         {/*<button type="button" onClick={() => setDisplayState(EVENT_INVITES)}>
