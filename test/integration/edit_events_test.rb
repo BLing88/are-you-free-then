@@ -38,7 +38,7 @@ class EditEventsTest < ActionDispatch::IntegrationTest
   test "can add participants" do
     log_in_as @alice
     get event_path(@event)
-    assert_select "a[href=?]", invite_event_path(@event)
+    # assert_select "a[href=?]", invite_event_path(@event)
     get invite_event_path(@event)
     @alice.friends.each do |friend|
       assert_select "input[type='checkbox']", value: friend.id
