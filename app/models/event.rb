@@ -1,6 +1,7 @@
 class Event < ApplicationRecord
   before_validation :add_event_code
   after_create :add_host_as_participant
+  # attr_accessor :event_code
   belongs_to :host, class_name: :User
   has_many :participations, dependent: :destroy
   has_many :participants, through: :participations, source: :user
@@ -22,12 +23,12 @@ class Event < ApplicationRecord
     end
 
     def add_event_code
-      if self.event_code.blank? 
+      if self[:event_code].blank? 
         code = SecureRandom.urlsafe_base64
         while Event.exists?(event_code: code)
           code = SecureRandom.urlsafe_base64
         end
-        self.event_code = code
+        self.assign_attributes(event_code: code)
       end
     end
 end
