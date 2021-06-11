@@ -3,7 +3,9 @@
 one:
   name: Test Event One
   host: alice
+  event_code: <%= SecureRandom.urlsafe_base64 %>
 
 two:
   name: "Bob's Event"
   host: bob
+  event_code: <%= SecureRandom.urlsafe_base64 %>

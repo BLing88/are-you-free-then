@@ -39,4 +39,23 @@ class EventTest < ActiveSupport::TestCase
     event = Event.create(host: @alice, name: "Alice's event")
     assert event.participants.include?(@alice)
   end
+
+  test "events have nonblank, unique event codes" do
+    assert @event.valid?
+    other_event = Event.new host: @bob, name: "asfkjoa", event_code: @event.event_code
+
+    @event.event_code = ""
+    @event.valid?
+    assert @event.event_code != ""
+
+    @event.event_code = nil
+    @event.valid?
+    assert @event.event_code != nil
+
+    assert @event.valid?
+    assert_not other_event.valid?
+
+    other_event.event_code = SecureRandom.urlsafe_base64 
+    assert other_event.valid?
+  end
 end
