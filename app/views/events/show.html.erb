@@ -6,12 +6,16 @@
     "data-suggested-times": @event.suggested_times.to_json(only: [:start_time, :end_time]),
     "data-participant-times": @times.to_json %>
   <div class="event-details">
-    <%= link_to "Edit event", edit_event_path(@event) %>
-    <%= link_to "Invite participants", invite_event_path(@event) %>
-    <h2>Participants</h2>
-    <ul>
+    <% if @current_user == @event.host%>
+      <%= link_to  edit_event_path(@event), class: 'edit-link' do %>
+        <%= render 'shared/edit_link' %>
+      <% end %>
+    <% end %> 
+    <%#= link_to "Invite participants", invite_event_path(@event) %>
+    <h2 class="participants-list-heading">Participants</h2>
+    <ul class="participants-list">
       <% @event.participants.each do |participant| %>
-        <li><%= participant.name %></li>
+        <li class="participant-li"><%= participant.name %></li>
       <% end %>
     </ul>
     <div>

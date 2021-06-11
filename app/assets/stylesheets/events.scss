@@ -43,6 +43,24 @@
 
 .event-details{
     grid-area: details;
+    width: var(--calendar-width);
+    margin: 0 auto;
+    position: relative;
+}
+
+.edit-link {
+    position: fixed;
+    right: 1rem;
+    bottom: calc(var(--header-height) + 0.5rem);
+}
+
+.participants-list-heading {
+    margin-bottom: 0.5rem;
+}
+
+.participants-list {
+    padding: 0;
+    margin-top: 0;
 }
 
 @media (min-width: 450px) {
@@ -53,5 +71,12 @@
         grid-template-areas: 
             "name name"
             "calendar details";
+    }
+
+    .edit-link {
+        position: absolute;
+        right: auto;
+        bottom: auto;
+        left: calc(100% - var(--edit-link-size));
     }
 }

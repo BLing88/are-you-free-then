@@ -30,6 +30,7 @@ body {
   --calendar-width: 287px;
   --calendar-height: 246px;
   --transition-duration: 0.15s;
+  --edit-link-size: 50px;
     font-family: "Fira Sans", sans-serif ;
     line-height: 1.3;
     padding: 0 Min(10%, 75px) calc(var(--header-height) + 1rem) Min(10%, 75px);
