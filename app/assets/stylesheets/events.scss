@@ -9,6 +9,14 @@
     grid-area: calendar;
 }
 
+.edit-event-header {
+    text-align: right;
+}
+
+.event-code-title {
+    font-weight: bold;
+}
+
 .create-event-page {
     display: flex;
     flex-direction: column;
@@ -72,11 +80,16 @@
             "name name"
             "calendar details";
     }
+    
+    .event-name {
+        text-align: left;
+    }
 
     .edit-link {
         position: absolute;
         right: auto;
         bottom: auto;
+        top: 2rem;
         left: calc(100% - var(--edit-link-size));
     }
 }
