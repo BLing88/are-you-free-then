@@ -49,10 +49,10 @@
     grid-area: name;
 }
 
-.event-details{
+.event-details {
     grid-area: details;
     width: var(--calendar-width);
-    margin: 0 auto;
+    margin: 1rem auto 0 auto;
     position: relative;
 }
 
@@ -91,5 +91,9 @@
         bottom: auto;
         top: 2rem;
         left: calc(100% - var(--edit-link-size));
+    }
+
+    .event-details {
+        margin: 0 auto;
     }
 }
