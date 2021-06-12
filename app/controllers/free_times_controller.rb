@@ -8,7 +8,8 @@ class FreeTimesController < ApplicationController
         if !params[:create_intervals].nil?
           params[:create_intervals].each do |interval|
             start_time, end_time = start_and_end_times(interval)
-            if !TimeInterval.exists?(start_time: start_time, end_time: end_time)
+            time_interval = TimeInterval.find_by(start_time: start_time, end_time: end_time)
+            if time_interval.nil?
               time_interval = TimeInterval.create!(
                 start_time: start_time,   
                 end_time: end_time)
