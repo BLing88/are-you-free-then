@@ -68,6 +68,39 @@ input[type='checkbox']:hover {
     cursor: pointer;
 }
 
+.flash-message-container {
+    display: grid;
+    grid-template-columns: 1fr 3rem;
+    grid-template-areas: "message close-btn";
+    border-radius: 5px;
+    padding: 1rem;
+    background-color: var(--background-color);
+    width: calc(100% - 2 * Min(10%, 75px) - 2rem);
+    position: fixed;
+    top: 25vh;
+    z-index: 1;
+}
+
+.flash-message-container.danger {
+    color: lightcoral;
+}
+
+.flash-message-container.success {
+    color: var(--foreground-color);
+}
+
+.flash-message {
+    grid-area: message;
+}
+
+.close-btn {
+    grid-area: close-btn;
+    font-size: 2.5rem;
+    cursor: pointer;
+    justify-self: flex-end;
+    align-self: center;
+}
+
 .debug_dump {
     font-size: 15px;
     margin-top: 45px;
@@ -77,10 +110,20 @@ input[type='checkbox']:hover {
     body {
         padding: 0 0.5rem calc(var(--header-height) + 1rem) 0.5rem;
     }
+    
+    .flash-message-container {
+        width: calc(100% - 3rem);
+    }
 }
 
 @media (min-width: 450px) {
     body {
         padding-top: var(--header-height); 
+    }
+    
+    .flash-message-container {
+        position: static;
+        width: auto;  
+        margin: 0.5rem 0;
     }
 }
