@@ -8,6 +8,6 @@ export const ForwardButton = ({
   onClickHandler,
 }: ForwardButtonProps): JSX.Element => (
   <button type="button" className="forward-btn" onClick={onClickHandler}>
-    <small>Forward</small> &#x3009;
+    <small>Fwd</small> &#x3009;
   </button>
 );
