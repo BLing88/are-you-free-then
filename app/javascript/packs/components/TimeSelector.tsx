@@ -45,7 +45,7 @@ const TimeSelector = ({
     >
       <div className="time-input-empty-div" />
       <div className="time-input-minutes">
-        <span className="time-input-minutes-cell">0-15</span>
+        <span className="time-input-minutes-cell">00-15</span>
         <span className="time-input-minutes-cell">15-30</span>
         <span className="time-input-minutes-cell">30-45</span>
         <span className="time-input-minutes-cell">45-00</span>
