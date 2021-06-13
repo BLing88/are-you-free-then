@@ -9,6 +9,7 @@ import * as ActiveStorage from "@rails/activestorage";
 import "channels";
 import "./CalendarInput";
 import "./closeFlashMessage";
+import "./toggleHeaderMenu";
 
 Rails.start();
 Turbolinks.start();
