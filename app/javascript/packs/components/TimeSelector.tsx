@@ -1,5 +1,9 @@
 import React, { Fragment, ReactElement } from "react";
 
+interface TimeInputCellStyle {
+  backgroundColor: string;
+}
+
 interface TimeSelectorProps {
   date: string;
   onPointerDownHandler: ((time: string) => void) | null;
@@ -9,9 +13,11 @@ interface TimeSelectorProps {
   onPointerCancelHandler: (() => void) | null;
   title: string;
   highlightClassName: (time: string) => string;
+  colorMap: (time: string) => TimeInputCellStyle;
   children: ReactElement;
 }
 
+const emptyObj = {};
 const numFifteenMinsInADay = 1440;
 const TimeSelector = ({
   date,
@@ -21,6 +27,7 @@ const TimeSelector = ({
   onPointerUpHandler,
   onPointerCancelHandler,
   highlightClassName,
+  colorMap,
   children,
 }: TimeSelectorProps): JSX.Element => {
   const times = [] as Date[];
@@ -62,11 +69,12 @@ const TimeSelector = ({
             {time.getMinutes() === 0 && (
               <small className="time-input-hour">
                 {time.toLocaleTimeString([], {
-                  hour: "2-digit",
+                  hour: "numeric",
                 })}
               </small>
             )}
             <div
+              style={colorMap ? colorMap(time.toISOString()) : emptyObj}
               // use a function of time cell to return highlight class name
               className={`time-input-cell ${highlightClassName(
                 time.toISOString()

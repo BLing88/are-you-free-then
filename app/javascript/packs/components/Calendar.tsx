@@ -854,10 +854,10 @@ const Calendar = (): JSX.Element => {
         >
           <button
             type="button"
-            className="select-btn"
+            className="select-date-btn"
             onClick={() => dispatch({ type: SELECT_DATES })}
           >
-            Back
+            Close
           </button>
         </TimeSelector>
       )}

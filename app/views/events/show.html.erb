@@ -4,7 +4,8 @@
 
   <%= tag.div id: "react-event-calendar", 
     "data-suggested-times": @event.suggested_times.to_json(only: [:start_time, :end_time]),
-    "data-participant-times": @times.to_json %>
+    "data-participant-times": @times.to_json,
+    "data-participant-count": @event.participants.count  %>
   <div class="event-details">
     <span><b class="event-code-title">Event code:</b> <small><%= @event.event_code %></small> </span>
     <% if @current_user == @event.host%>

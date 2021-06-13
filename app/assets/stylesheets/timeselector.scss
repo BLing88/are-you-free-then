@@ -17,7 +17,7 @@
 }
 
 .time-input-cell {
-    height: calc(var(--time-selector-row-width) - 1);
+    height: calc(var(--time-selector-row-width) - 1px);
     border-bottom: solid 1px var(--action-text-color);
     border-right: solid 1px var(--action-text-color);
     text-align: center;
@@ -31,11 +31,10 @@
 }
 
 .highlight-cell {
-    background-color: var(--action-color);
+    background-color: var(--foreground-color);
 }
 
 .suggested-time-cell {
-    background: darkblue;
 }
 
 .time-input-minutes {
@@ -43,6 +42,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     justify-items: center;
+    border-bottom: 1px solid var(--action-text-color);
 }
 
 .time-input-minutes,
@@ -53,7 +53,7 @@
 
 .time-input-hour {
     display: inline-flex;
-    justify-content: end;
+    justify-content: flex-end;
     padding-right: 2px;
     height: var(--time-selector-row-width);
     border-right: 1px solid var(--action-text-color);

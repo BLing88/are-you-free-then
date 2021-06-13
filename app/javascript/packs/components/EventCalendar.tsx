@@ -1,4 +1,5 @@
 import React, { useReducer, useMemo } from "react";
+import { scaleLinear } from "d3-scale";
 import { TimeSelector } from "./TimeSelector";
 import { BackButton } from "./BackButton";
 import {
@@ -290,6 +291,7 @@ const EventCalendar = (): JSX.Element => {
     [suggestedTimesDataset]
   );
   const participantTimesDataset = dataContainer.dataset["participantTimes"];
+  const participantCount: number = +dataContainer.dataset["participantCount"];
   const participantTimes = useMemo(
     () =>
       JSON.parse(participantTimesDataset).map(
@@ -331,6 +333,21 @@ const EventCalendar = (): JSX.Element => {
       className += "suggested-time-cell ";
     }
     return className;
+  };
+
+  const colorScale = scaleLinear<string>()
+    .domain([0, participantCount])
+    .range(["#222730", "#09CF54"]);
+
+  const colorMap = (time: string) => {
+    const style = { backgroundColor: "var(--background-color)" };
+    const count = state.timeInputCellsToHighlight
+      .get(state.dateSelected)
+      ?.get(time);
+    if (count) {
+      style.backgroundColor = colorScale(count);
+    }
+    return style;
   };
 
   const maxNumRowsFirstMonth =
@@ -567,6 +584,7 @@ const EventCalendar = (): JSX.Element => {
           date={state.dateSelected}
           title={"View times"}
           highlightClassName={highlightClassName}
+          colorMap={colorMap}
           onPointerLeaveHandler={null}
           onPointerUpHandler={null}
           onPointerCancelHandler={null}
@@ -575,10 +593,10 @@ const EventCalendar = (): JSX.Element => {
         >
           <button
             type="button"
-            className="select-btn"
+            className="select-date-btn"
             onClick={() => dispatch({ type: SELECT_DATES })}
           >
-            Back
+            Close
           </button>
         </TimeSelector>
       )}
