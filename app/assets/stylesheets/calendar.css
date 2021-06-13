@@ -125,10 +125,15 @@
 
 .select-btn {
     grid-area: select-btn;
+    background: none;
+    color: #098643;
 }
 
-.submit-btn {
+input[type='submit'].submit-btn {
     grid-area: other;
+    font-weight: bold;
+    background: none;
+    color: #098643;
 }
 
 .date-select-message {

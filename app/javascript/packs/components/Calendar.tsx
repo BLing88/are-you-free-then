@@ -7,6 +7,7 @@ import {
 } from "../util/time-intervals";
 import { BackButton } from "./BackButton";
 import { ForwardButton } from "./ForwardButton";
+import { ClockIcon } from "./ClockIcon";
 
 function getDateFromDateString(str: string): number {
   return +str.slice(-2);
@@ -877,8 +878,9 @@ const Calendar = (): JSX.Element => {
             type="button"
             className="select-btn"
             onClick={() => dispatch({ type: SELECT_TIMES })}
+            aria-label="Select times"
           >
-            Times
+            <ClockIcon />
           </button>
           <input
             className="submit-btn"
