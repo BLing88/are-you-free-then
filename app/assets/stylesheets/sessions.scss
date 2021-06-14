@@ -54,7 +54,18 @@
     height: 4rem;
     justify-self: end; 
     grid-area: login-btn;
+    font-weight: bold;
+    transition-property: background, color;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: ease-in;
 }
+
+.login-btn:hover,
+.login-btn:focus {
+    color: var(--background-color);
+    background: var(--foreground-color);
+}
+
 
 .signup-link {
     color: #000;
