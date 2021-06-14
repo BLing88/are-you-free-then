@@ -1,7 +1,7 @@
 <%= form_with model: @event, class: "event-form" do |f|%>
   <%= render 'shared/error_messages', object: f.object %>
   <%= f.label :name, class: "event-name-label" do %>
-    <span>Event name</span>
+    <b>Event name</b>
     <%= f.text_field :name %>
   <% end %>
 
