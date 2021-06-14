@@ -16,7 +16,7 @@ class UsersController < ApplicationController
       reset_session
       log_in @user
       flash[:success] = "Welcome!"
-      redirect_to @user
+      redirect_to root_url
     else
       render :new
     end
