@@ -1,8 +1,31 @@
 // Place all the styles related to the Sessions controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: https://sass-lang.com/
-.app-logo {
+.welcome-signup-link,
+.login-link {
+    background: var(--action-color);
+    padding: 0.5rem;
+    width: Min(calc(100% - 1rem), 360px);
+    text-align: center;
+    display: block;
+    color: var(--action-text-color);
+    border-radius: 1rem;
+    text-decoration: none;
     font-weight: bold;
+    transition-property: background, color;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: ease-in;
+}
+
+.welcome-signup-link:hover,
+.login-link:hover, .welcome-signup-link:focus,
+.login-link:focus {
+    background: var(--foreground-color);
+    color: var(--background-color);
+}
+
+.welcome-signup-link {
+    margin: 3rem 0 2rem 0;
 }
 
 .login-form {
