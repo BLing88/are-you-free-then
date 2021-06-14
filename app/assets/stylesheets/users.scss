@@ -1,6 +1,10 @@
 // Place all the styles related to the Users controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: https://sass-lang.com/
+.signup-header {
+    margin-top: 0;
+}
+
 .user-form {
   display: flex;
   flex-direction: column;
