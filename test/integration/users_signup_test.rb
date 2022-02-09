@@ -23,7 +23,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
                                          password_confirmation: "bar"
                                         } }
     end
-    assert_select "h1", text: /Sign up/i
+    assert_select "h2", text: /Sign up/i
     assert_select "div", text: /form contains \d+? errors./i
   end
 
@@ -39,7 +39,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     end
     follow_redirect!
     assert is_logged_in?
-    assert_select 'div', text: /#{name}/i
+    assert_select 'h2', text: /#{name}/i
     assert_not flash.empty?
   end
 end
