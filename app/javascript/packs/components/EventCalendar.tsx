@@ -337,7 +337,7 @@ const EventCalendar = (): JSX.Element => {
 
   const colorScale = scaleLinear<string>()
     .domain([0, participantCount])
-    .range(["#222730", "#09CF54"]);
+    .range(["#222730", "#00ff5d"]);
 
   const colorMap = (time: string) => {
     const style = { backgroundColor: "var(--background-color)" };
