@@ -3,15 +3,19 @@
 alice_bob:
   requestor: alice
   requested: bob
+  status: Accepted
 
 alice_eve:
   requestor: alice
   requested: eve
+  status: Pending
 
 greg_alice:
   requestor: greg
   requested: alice
+  status: Accepted
 
 bob_greg:
   requestor: bob
   requested: greg
+  status: Accepted

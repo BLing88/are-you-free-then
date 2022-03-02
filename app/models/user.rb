@@ -16,24 +16,29 @@ class User < ApplicationRecord
   has_many :participations, dependent: :destroy
   has_many :events, through: :participations
 
-  has_many :relationships, ->(user) { unscope(:where).where(requestor_id: user.id).or(Relationship.where(requested_id: user.id)) }, dependent: :destroy
+  has_many :sent_relationships, class_name: "Relationship", dependent: :destroy, foreign_key: :requestor_id
 
-  # note the unscope call to remove default relationship.user_id = user.id check, which doesn't exist
-  has_many :friendships, ->(user) { joins(:relationship_status).unscope(:where).where(relationship_statuses: { name: "Accepted" }).where(requestor_id: user.id).or(Relationship.where(relationship_statuses: { name: "Accepted" }).where(requested_id: user.id)) }, class_name: :Relationship
+  # friends you sent a friend request to
+  has_many :requested_friends, -> { where(relationships: { status: "Accepted" }) }, class_name: "User", through: :sent_relationships, source: :requested
 
-  has_many :requested_friends, ->(user) { where.not(relationships: { requestor_id: user.id }) }, through: :friendships, source: :requestor
-
-  has_many :accepted_friends, ->(user) { where.not(relationships: { requested_id: user.id })  }, through: :friendships, source: :requested
-
-  has_many :sent_pending_friends, ->(user) { Relationship.joins(:relationship_status).unscope(:where).where(relationship_statuses: { name: "Pending" }).where(requestor_id: user.id) }, through: :relationships, source: :requested
+  has_many :sent_pending_friends, -> { where(relationships: { status: "Pending" }) }, class_name: "User", through: :sent_relationships, source: :requested
   
-  has_many :received_pending_friends, ->(user) { Relationship.joins(:relationship_status).unscope(:where).where(relationship_statuses: { name: "Pending" }).where(requested_id: user.id) }, through: :relationships, source: :requestor
+  has_many :received_relationships, class_name: "Relationship", dependent: :destroy, foreign_key: :requested_id
+  
+  # friends who sent you a request
+  has_many :accepted_friends, -> { where(relationships: { status: "Accepted" }) }, class_name: "User", through: :received_relationships, source: :requestor
 
   has_many :event_invites, dependent: :destroy, foreign_key: :invitee_id
 
   def friends
-    requested_friends + accepted_friends
+    accepted_friends + requested_friends
   end
+
+  #def sent_pending_friends
+  #  User.joins(" INNER JOIN (#{sent_relationships.to_sql}) as relationships" \
+  #             " ON users.id = relationships.requested_id").
+  #             where(relationships: { status: "Pending" })
+  #end
   
   # Returns the hash digest of the given string
   def self.digest(string)
