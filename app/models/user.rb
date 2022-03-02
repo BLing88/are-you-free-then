@@ -31,7 +31,7 @@ class User < ApplicationRecord
   has_many :event_invites, dependent: :destroy, foreign_key: :invitee_id
 
   def friends
-    accepted_friends + requested_friends
+    User.from("(#{accepted_friends.to_sql} UNION #{requested_friends.to_sql}) users")
   end
 
   #def sent_pending_friends
