@@ -7,7 +7,7 @@
 
   <%= f.hidden_field :host_id, value: current_user.id %>
   <%= tag.div id: "react-calendar-input", 
-    "data-free_times" => @event.suggested_times.to_json(only: [:start_time, :end_time]),
+    "data-free_times" => @event.suggested_event_times.to_json(only: [:start_time, :end_time]),
     "data-update-btn-message" => update_btn_message || nil %>
 
   <% if !@event.id.nil? %>

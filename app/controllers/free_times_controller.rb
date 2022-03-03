@@ -4,21 +4,17 @@ class FreeTimesController < ApplicationController
 
   def create
     begin
-      TimeInterval.transaction do
+      FreeTime.transaction do
         if !params[:create_intervals].nil?
           params[:create_intervals].each do |interval|
             start_time, end_time = start_and_end_times(interval)
-            time_interval = TimeInterval.find_by(start_time: start_time, end_time: end_time)
-            if time_interval.nil?
-              time_interval = TimeInterval.create!(
-                start_time: start_time,   
-                end_time: end_time)
-            end
 
             if (!FreeTime.exists?(user_id: current_user.id, 
-                time_interval_id: time_interval.id))
+                                  start_time: start_time,
+                                  end_time: end_time))
               FreeTime.create!(user_id: current_user.id,
-                               time_interval_id: time_interval.id)
+                               start_time: start_time,
+                               end_time: end_time)
             end
           end
         end
@@ -26,9 +22,10 @@ class FreeTimesController < ApplicationController
         if !params[:delete_intervals].nil?
           params[:delete_intervals].each do |interval|
             start_time, end_time = start_and_end_times(interval)
-            time_interval = TimeInterval.find_by(start_time: start_time, end_time: end_time)
 
-            FreeTime.find_by(user_id: current_user.id, time_interval_id: time_interval.id).destroy
+            FreeTime.find_by(user_id: current_user.id, 
+                             start_time: start_time, 
+                             end_time: end_time).destroy
           end
         end
       end

@@ -3,7 +3,7 @@
   <h1 class="event-name"><%= @event.name %></h1>
 
   <%= tag.div id: "react-event-calendar", 
-    "data-suggested-times": @event.suggested_times.to_json(only: [:start_time, :end_time]),
+    "data-suggested-times": @event.suggested_event_times.to_json(only: [:start_time, :end_time]),
     "data-participant-times": @times.to_json,
     "data-participant-count": @event.participants.count  %>
   <div class="event-details">

@@ -9,8 +9,7 @@ class User < ApplicationRecord
   has_secure_password
   validates :password, presence: true, length: { minimum: 8 }, allow_nil: true
 
-  has_many :free_times, dependent: :destroy
-  has_many :time_intervals, -> { order :start_time }, through: :free_times
+  has_many :free_times, -> { order :start_time }, dependent: :destroy
 
   has_many :hosting_events, class_name: :Event, foreign_key: :host_id, dependent: :destroy
   has_many :participations, dependent: :destroy
