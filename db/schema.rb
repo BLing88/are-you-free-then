@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_02_223719) do
+ActiveRecord::Schema.define(version: 2022_03_03_191409) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,6 +45,7 @@ ActiveRecord::Schema.define(version: 2022_03_02_223719) do
     t.datetime "updated_at", precision: 6, null: false
     t.datetime "start_time"
     t.datetime "end_time"
+    t.index ["start_time", "end_time"], name: "index_free_times_on_start_time_and_end_time", unique: true
     t.index ["user_id"], name: "index_free_times_on_user_id"
   end
 
@@ -76,6 +77,7 @@ ActiveRecord::Schema.define(version: 2022_03_02_223719) do
     t.datetime "start_time"
     t.datetime "end_time"
     t.index ["event_id"], name: "index_suggested_event_times_on_event_id"
+    t.index ["start_time", "end_time"], name: "index_suggested_event_times_on_start_time_and_end_time", unique: true
   end
 
   create_table "users", force: :cascade do |t|
