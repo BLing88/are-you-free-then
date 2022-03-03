@@ -2,22 +2,27 @@
 
 one:
   user: alice
-  time_interval: morning
+  start_time: "2021-05-06T09:00:00.000Z"
+  end_time: "2021-05-06T10:30:00.000Z"
 
 two: 
   user: alice
-  time_interval: afternoon
+  start_time: "2022-06-26T12:00:00.000Z"
+  end_time: "2022-06-26T14:30:00.000Z"
 
 three:
   user: alice
-  time_interval: evening
+  start_time: "2021-11-17T18:00:00.000Z"
+  end_time: "2021-11-17T22:45:00.000Z"
 
 four:
   user: bob
-  time_interval: breakfast
+  start_time: "2021-01-07T08:00:00.000Z"
+  end_time: "2021-01-07T09:45:00.000Z"
 
 five:
   user: bob
-  time_interval: lunch
+  start_time: "2021-01-30T11:00:00.000Z"
+  end_time: "2021-01-30T12:45:00.000Z"
 
 

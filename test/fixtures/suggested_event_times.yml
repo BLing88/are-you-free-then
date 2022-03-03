@@ -2,8 +2,6 @@
 
 one:
   event: one
-  time_interval: one
 
 two:
   event: two
-  time_interval: two

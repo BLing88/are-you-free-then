@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_09_173140) do
+ActiveRecord::Schema.define(version: 2022_03_02_223719) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,10 +41,10 @@ ActiveRecord::Schema.define(version: 2022_02_09_173140) do
 
   create_table "free_times", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "time_interval_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["time_interval_id"], name: "index_free_times_on_time_interval_id"
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.index ["user_id"], name: "index_free_times_on_user_id"
   end
 
@@ -71,19 +71,11 @@ ActiveRecord::Schema.define(version: 2022_02_09_173140) do
 
   create_table "suggested_event_times", force: :cascade do |t|
     t.bigint "event_id", null: false
-    t.bigint "time_interval_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["event_id"], name: "index_suggested_event_times_on_event_id"
-    t.index ["time_interval_id"], name: "index_suggested_event_times_on_time_interval_id"
-  end
-
-  create_table "time_intervals", force: :cascade do |t|
     t.datetime "start_time"
     t.datetime "end_time"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["start_time", "end_time"], name: "index_time_intervals_on_start_time_and_end_time", unique: true
+    t.index ["event_id"], name: "index_suggested_event_times_on_event_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -100,10 +92,8 @@ ActiveRecord::Schema.define(version: 2022_02_09_173140) do
   add_foreign_key "event_invites", "events"
   add_foreign_key "event_invites", "users", column: "invitee_id"
   add_foreign_key "events", "users", column: "host_id"
-  add_foreign_key "free_times", "time_intervals"
   add_foreign_key "free_times", "users"
   add_foreign_key "participations", "events"
   add_foreign_key "participations", "users"
   add_foreign_key "suggested_event_times", "events"
-  add_foreign_key "suggested_event_times", "time_intervals"
 end
