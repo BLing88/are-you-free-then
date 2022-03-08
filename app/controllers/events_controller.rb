@@ -38,25 +38,13 @@ class EventsController < ApplicationController
   end
 
   def create
-    @event = @current_user.events.build(event_params)
+    host_id, name = event_params.values_at(:host_id, :name)
+    @event = @current_user.events.build({ host_id: host_id, name: name })
     begin
       if @event.save!
-        SuggestedEventTime.transaction do
-          #@event.reload
-          if !params[:create_intervals].nil?
-            params[:create_intervals].each do |interval|
-              start_time, end_time = start_and_end_times(interval)
-
-              if (!SuggestedEventTime.exists?(event_id: @event.id, 
-                  start_time: start_time,
-                  end_time: end_time))
-                SuggestedEventTime.create!(event_id: @event.id,
-                                           start_time: start_time,
-                                           end_time: end_time)
-              end
-            end
-          end
-        end
+        SuggestedEventTime.create_intervals(event_params[:create_intervals],
+                                            :event_id,
+                                            @event.id)
 
         flash[:success] = "Event created!"
         redirect_to @event
@@ -73,35 +61,13 @@ class EventsController < ApplicationController
 
 
   def update
-    event_id = params[:event][:event_id]
+    event_id, name = event_params.values_at(:event_id, :name)
     begin
-      SuggestedEventTime.transaction do
-        if !params[:create_intervals].nil?
-          params[:create_intervals].each do |interval|
-            start_time, end_time = start_and_end_times(interval)
-
-            if (!SuggestedEventTime.exists?(event_id: event_id, 
-                  start_time: start_time,
-                  end_time: end_time))
-              SuggestedEventTime.create!(event_id: event_id,
-                  start_time: start_time,
-                  end_time: end_time)
-            end
-          end
-        end
-
-        if !params[:delete_intervals].nil?
-          params[:delete_intervals].each do |interval|
-            start_time, end_time = start_and_end_times(interval)
-
-            SuggestedEventTime.find_by(event_id: event_id,
-                                       start_time: start_time,
-                                       end_time: end_time).destroy
-
-          end
-        end
-      end
-      @event.update!(event_params) unless event_params.nil?
+      SuggestedEventTime.update_intervals(event_params[:create_intervals],
+                                         event_params[:delete_intervals],
+                                         :event_id,
+                                         event_id)
+      @event.update!(name: name) unless event_params.nil?
       flash[:success] = "Update successful!"
       redirect_to @event
     rescue => e
@@ -115,7 +81,7 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.require(:event).permit(:host_id, :name)
+    params.require(:event).permit(:host_id, :event_id, :name, :create_intervals => [], :delete_intervals => [])
   end
 
   def suggested_time_params

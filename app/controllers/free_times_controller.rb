@@ -4,31 +4,10 @@ class FreeTimesController < ApplicationController
 
   def create
     begin
-      FreeTime.transaction do
-        if !params[:create_intervals].nil?
-          params[:create_intervals].each do |interval|
-            start_time, end_time = start_and_end_times(interval)
-
-            if (!FreeTime.exists?(user_id: current_user.id, 
-                                  start_time: start_time,
-                                  end_time: end_time))
-              FreeTime.create!(user_id: current_user.id,
-                               start_time: start_time,
-                               end_time: end_time)
-            end
-          end
-        end
-
-        if !params[:delete_intervals].nil?
-          params[:delete_intervals].each do |interval|
-            start_time, end_time = start_and_end_times(interval)
-
-            FreeTime.find_by(user_id: current_user.id, 
-                             start_time: start_time, 
-                             end_time: end_time).destroy
-          end
-        end
-      end
+      FreeTime.update_intervals(params[:create_intervals],
+                                params[:delete_intervals],
+                                :user_id,
+                                current_user.id)
       flash[:success] = "Update successful!"
       redirect_to free_times_user_path(current_user)
     rescue => e
@@ -43,9 +22,5 @@ class FreeTimesController < ApplicationController
 
   def free_time_params
     params.permit("create_intervals[]", "delete_intervals[]")
-  end
-
-  def start_and_end_times(str)
-    str.split("_")
   end
 end
