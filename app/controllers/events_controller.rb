@@ -42,7 +42,7 @@ class EventsController < ApplicationController
     @event = @current_user.events.build({ host_id: host_id, name: name })
     begin
       if @event.save!
-        SuggestedEventTime.create_intervals(event_params[:create_intervals],
+        SuggestedEventTime.create_intervals(params[:create_intervals],
                                             :event_id,
                                             @event.id)
 
@@ -63,8 +63,8 @@ class EventsController < ApplicationController
   def update
     event_id, name = event_params.values_at(:event_id, :name)
     begin
-      SuggestedEventTime.update_intervals(event_params[:create_intervals],
-                                         event_params[:delete_intervals],
+      SuggestedEventTime.update_intervals(params[:create_intervals],
+                                         params[:delete_intervals],
                                          :event_id,
                                          event_id)
       @event.update!(name: name) unless event_params.nil?
@@ -81,7 +81,7 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.require(:event).permit(:host_id, :event_id, :name, :create_intervals => [], :delete_intervals => [])
+    params.require(:event).permit(:host_id, :event_id, :name)
   end
 
   def suggested_time_params
