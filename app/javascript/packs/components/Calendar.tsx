@@ -684,6 +684,7 @@ const Calendar = (): JSX.Element => {
     ][0].getDate() === 1
       ? 1
       : 0);
+
   const isInGrid = (index: number, page: number, numRows: number): boolean =>
     index >= 0 &&
     index < dates.length &&
@@ -768,7 +769,7 @@ const Calendar = (): JSX.Element => {
             data-disable-with="Update"
           />
 
-          {state.page < 12 && (
+          {state.page <= 8 && (
             <ForwardButton
               onClickHandler={() =>
                 dispatch({
