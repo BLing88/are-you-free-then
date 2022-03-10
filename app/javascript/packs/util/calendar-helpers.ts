@@ -1,3 +1,5 @@
+import { intervalIsLessThan } from "./time-intervals";
+
 export function getDateFromDateString(str: string): number {
   return +str.slice(-2);
 }
@@ -38,3 +40,38 @@ export const formatDate = (date: Date): string =>
   `${date.getFullYear()}-${(date.getMonth() + 1)
     .toString()
     .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+
+export const initializeFreeTimes = (freeTimesDataset: string) => {
+  JSON.parse(freeTimesDataset)
+    .map(
+      ({ start_time, end_time }: { start_time: string; end_time: string }) => ({
+        start_time: new Date(start_time),
+        end_time: new Date(end_time),
+      })
+    )
+    .sort(
+      (
+        { start_time: startTimeA, end_time: endTimeA },
+        { start_time: startTimeB, end_time: endTimeB }
+      ) => {
+        if (startTimeA.toISOString() < startTimeB.toISOString()) {
+          return -1;
+        }
+        if (startTimeA.toISOString() > startTimeB.toISOString()) {
+          return 1;
+        }
+        if (
+          intervalIsLessThan(
+            startTimeA.toISOString(),
+            endTimeA.toISOString(),
+            startTimeB.toISOString(),
+            endTimeB.toISOString()
+          )
+        ) {
+          return -1;
+        } else {
+          return 1;
+        }
+      }
+    );
+};
