@@ -53,6 +53,11 @@
     touch-action: none;
 }
 
+.calendar-cell.today {
+    color: green;
+    font-weight: bold;
+}
+
 .flat-top {
     border-top-left-radius: 0;
     border-top-right-radius: 0; 
@@ -105,6 +110,11 @@
 .calendar-highlight-cell {
     color: var(--action-text-color);
     background-color: var(--background-color);
+}
+
+.calendar-highlight-cell.today {
+    color: #0F0;
+    font-weight: bold;
 }
 
 .btns {
