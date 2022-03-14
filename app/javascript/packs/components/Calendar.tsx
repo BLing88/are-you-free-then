@@ -1,4 +1,10 @@
-import React, { useReducer, useMemo, Dispatch } from "react";
+import React, {
+  useReducer,
+  useMemo,
+  Dispatch,
+  useRef,
+  PointerEvent,
+} from "react";
 import { TimeSelector } from "./TimeSelector";
 import {
   mergedIntervals,
@@ -7,7 +13,6 @@ import {
 } from "../util/time-intervals";
 import { BackButton } from "./BackButton";
 import { ForwardButton } from "./ForwardButton";
-import { ClockIcon } from "./ClockIcon";
 import {
   getDateFromDateString,
   getDayFromDate,
@@ -22,7 +27,7 @@ interface RowProps {
   rowIndex: number;
   cellsToHighlight: string[];
   onPointerDown: (date: string) => void;
-  onPointerUp: () => void;
+  onPointerUp: (date: string) => void;
   onPointerEnter: (date: string) => void;
   onPointerLeave: (date: string) => void;
 }
@@ -47,10 +52,20 @@ const Row = ({
           <span
             className={`calendar-cell ${cellsToHighlight[i]}`}
             key={date.getTime()}
-            onPointerDown={() => onPointerDown(formattedDate)}
-            onPointerUp={onPointerUp}
-            onPointerEnter={() => onPointerEnter(formattedDate)}
-            onPointerLeave={() => onPointerLeave(formattedDate)}
+            onPointerDown={(e: PointerEvent<HTMLSpanElement>) => {
+              //e.preventDefault();
+              (e.target as HTMLSpanElement).releasePointerCapture(e.pointerId);
+              onPointerDown(formattedDate);
+            }}
+            onPointerUp={() => onPointerUp(formattedDate)}
+            onPointerEnter={(e) => {
+              e.preventDefault();
+              onPointerEnter(formattedDate);
+            }}
+            onPointerLeave={(e) => {
+              e.preventDefault();
+              onPointerLeave(formattedDate);
+            }}
             //style={
             // highlight ? { color: "#FFFFFF", backgroundColor: "#222730" } : {}
             //}
@@ -76,10 +91,13 @@ interface CalendarState {
   pointerDown: boolean;
   timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
   initialDateTimeDown: string | null;
+  showTimes: boolean;
+  isLongPressing: boolean;
 }
 
 const actionTypes = {
-  setCellDown: "SET_CELL_DOWN",
+  clickDate: "CLICK_DATE",
+  longPressing: "LONG_PRESSING",
   cellUp: "CELL_UP",
   onEnterCell: "ON_ENTER_CELL",
   onPointerLeave: "ON_POINTER_LEAVE",
@@ -93,7 +111,17 @@ const actionTypes = {
 } as const;
 
 interface ChangeSelectionAction {
-  type: typeof actionTypes.setCellDown | typeof actionTypes.onPointerLeave;
+  type: typeof actionTypes.onPointerLeave;
+  date: string;
+}
+
+interface ClickDateAction {
+  type: typeof actionTypes.clickDate;
+  date: string;
+}
+
+interface LongPressingAction {
+  type: typeof actionTypes.longPressing;
   date: string;
 }
 
@@ -134,6 +162,8 @@ interface TimeInputPointerUpAction {
 }
 
 export type ReducerAction =
+  | ClickDateAction
+  | LongPressingAction
   | ChangeSelectionAction
   | EnterCellAction
   | PointerUpAction
@@ -166,7 +196,7 @@ const CalendarMonth = ({
   page,
 }: CalendarMonthProps) => {
   const endOfFirstWeek: Date = dateRows[0][6];
-
+  const longPressRef = useRef<number | null>(null);
   return (
     <div className="calendar-grid">
       <p className="calendar-month">
@@ -227,17 +257,33 @@ const CalendarMonth = ({
               rowIndex={rowIndex}
               cellsToHighlight={classNames}
               onPointerDown={(date: string) => {
-                dispatch({ type: actionTypes.setCellDown, date });
+                longPressRef.current = window.setTimeout(() => {
+                  longPressRef.current = null;
+                  dispatch({ type: actionTypes.longPressing, date });
+                }, 250);
+                //dispatch({ type: actionTypes.setCellDown, date });
               }}
               onPointerEnter={(date: string) =>
                 dispatch({ type: actionTypes.onEnterCell, date, dates })
               }
-              onPointerUp={() => {
-                dispatch({ type: actionTypes.cellUp });
+              onPointerUp={(date: string) => {
+                if (longPressRef.current) {
+                  // single click if timer hasn't been cleared yet
+                  window.clearTimeout(longPressRef.current);
+                  longPressRef.current = null;
+                  dispatch({ type: actionTypes.clickDate, date });
+                } else {
+                  // long pressing
+                  dispatch({ type: actionTypes.cellUp });
+                }
               }}
-              onPointerLeave={(date: string) =>
-                dispatch({ type: actionTypes.onPointerLeave, date })
-              }
+              onPointerLeave={(date: string) => {
+                //      if (longPressRef.current) {
+                //        window.clearTimeout(longPressRef.current);
+                //        longPressRef.current = null;
+                //      }
+                dispatch({ type: actionTypes.onPointerLeave, date });
+              }}
             />
           );
         })}
@@ -251,52 +297,67 @@ const reducer = (
   action: ReducerAction
 ): CalendarState => {
   switch (action.type) {
-    case actionTypes.setCellDown: {
+    case actionTypes.clickDate: {
+      // bring up time selector for date clicked on, highlighting the date if not already
+      const newMap = new Map(state.cellsToHighlight);
+      const today = new Date();
+      // set to 3 AM for comparison to avoid issues with DST
+      //today.setHours(3, 0, 0, 0);
       if (
-        !state.selectDates &&
-        state.dateSelected === null &&
-        state.cellsToHighlight.get(action.date)
+        getYearFromDate(action.date) > today.getFullYear() ||
+        (getYearFromDate(action.date) === today.getFullYear() &&
+          (getMonthFromDate(action.date) > today.getMonth() ||
+            (getMonthFromDate(action.date) === today.getMonth() &&
+              getDateFromDateString(action.date) >= today.getDate())))
       ) {
-        const newTimeInputCellsToHighlight = new Map(
-          state.timeInputCellsToHighlight
-        );
-        newTimeInputCellsToHighlight.set(
-          action.date,
-          new Map<string, boolean>(
-            state.timeInputCellsToHighlight.get(action.date)
-          )
-        );
-        return {
-          ...state,
-          dateSelected: action.date,
-          timeInputCellsToHighlight: newTimeInputCellsToHighlight,
-        };
-      } else if (state.selectDates) {
-        const newHighlight =
-          state.cellsToHighlight.get(action.date) === undefined
-            ? true
-            : !state.cellsToHighlight.get(action.date);
-        const newMap = new Map(state.cellsToHighlight);
-        const today = new Date();
-        // set to 3 AM for comparison to avoid issues with DST
-        //today.setHours(3, 0, 0, 0);
-        if (
-          getYearFromDate(action.date) > today.getFullYear() ||
-          (getYearFromDate(action.date) === today.getFullYear() &&
-            (getMonthFromDate(action.date) > today.getMonth() ||
-              (getMonthFromDate(action.date) === today.getMonth() &&
-                getDateFromDateString(action.date) >= today.getDate())))
-        ) {
-          newMap.set(action.date, newHighlight);
-        }
-        return {
-          ...state,
-          cellsToHighlight: newMap,
-          cellDown: action.date,
-        };
-      } else {
-        return { ...state };
+        newMap.set(action.date, true);
       }
+
+      // set time input cell map for the selected date
+      const newTimeInputCellsToHighlight = new Map(
+        state.timeInputCellsToHighlight
+      );
+      newTimeInputCellsToHighlight.set(
+        action.date,
+        new Map<string, boolean>(
+          state.timeInputCellsToHighlight.get(action.date)
+        )
+      );
+
+      return {
+        ...state,
+        cellsToHighlight: newMap,
+        showTimes: true,
+        dateSelected: action.date,
+        cellDown: null,
+        timeInputCellsToHighlight: newTimeInputCellsToHighlight,
+      };
+    }
+    case actionTypes.longPressing: {
+      // you're selecting a date
+      const newHighlight =
+        state.cellsToHighlight.get(action.date) === undefined
+          ? true
+          : !state.cellsToHighlight.get(action.date);
+      const newMap = new Map(state.cellsToHighlight);
+      const today = new Date();
+      // set to 3 AM for comparison to avoid issues with DST
+      //today.setHours(3, 0, 0, 0);
+      if (
+        getYearFromDate(action.date) > today.getFullYear() ||
+        (getYearFromDate(action.date) === today.getFullYear() &&
+          (getMonthFromDate(action.date) > today.getMonth() ||
+            (getMonthFromDate(action.date) === today.getMonth() &&
+              getDateFromDateString(action.date) >= today.getDate())))
+      ) {
+        newMap.set(action.date, newHighlight);
+      }
+      return {
+        ...state,
+        isLongPressing: true,
+        cellDown: action.date,
+        cellsToHighlight: newMap,
+      };
     }
     case actionTypes.onPointerLeave:
       if (state.cellDown !== null) {
@@ -309,6 +370,7 @@ const reducer = (
     case actionTypes.cellUp:
       return {
         ...state,
+        isLongPressing: false,
         cellDown: null,
         fromDate: null,
       };
@@ -414,21 +476,32 @@ const reducer = (
         ...state,
         selectDates: false,
       };
-    case actionTypes.selectDates:
+    case actionTypes.selectDates: {
+      const newMap = new Map(state.cellsToHighlight);
+      if (state.timeInputCellsToHighlight.get(state.dateSelected).size === 0) {
+        newMap.set(state.dateSelected, false);
+      }
       return {
         ...state,
-        selectDates: true,
+        //selectDates: true,
+        showTimes: false,
         dateSelected: null,
+        cellsToHighlight: newMap,
       };
+    }
     case actionTypes.timeInputPointerDown: {
       const oldHighlight = state.timeInputCellsToHighlight
         .get(state.dateSelected)
         .get(action.dateTime);
       const newHighlight = oldHighlight === undefined ? true : !oldHighlight;
       const newCellsToHighlight = new Map(state.timeInputCellsToHighlight);
-      newCellsToHighlight
-        .get(state.dateSelected)
-        .set(action.dateTime, newHighlight);
+      if (newHighlight) {
+        newCellsToHighlight
+          .get(state.dateSelected)
+          .set(action.dateTime, newHighlight);
+      } else {
+        newCellsToHighlight.get(state.dateSelected).delete(action.dateTime);
+      }
       return {
         ...state,
         pointerDown: true,
@@ -444,9 +517,14 @@ const reducer = (
         .get(state.initialDateTimeDown);
 
       const newCellsToHighlight = new Map(state.timeInputCellsToHighlight);
-      newCellsToHighlight
-        .get(state.dateSelected)
-        .set(action.dateTime, newHighlight);
+      if (newHighlight) {
+        newCellsToHighlight
+          .get(state.dateSelected)
+          .set(action.dateTime, newHighlight);
+      } else {
+        newCellsToHighlight.get(state.dateSelected).delete(action.dateTime);
+      }
+
       return {
         ...state,
         timeInputCellsToHighlight: newCellsToHighlight,
@@ -481,6 +559,8 @@ const initializeState = ({
     timeInputCellsToHighlight: new Map<string, Map<string, boolean>>(),
     pointerDown: false,
     initialDateTimeDown: null,
+    showTimes: false,
+    isLongPressing: false,
   } as CalendarState;
 
   for (let { start_time, end_time } of initialFreeTimes) {
@@ -581,7 +661,6 @@ const Calendar = (): JSX.Element => {
   const selectedDates = Array.from(state.cellsToHighlight.entries())
     .filter(([_, isSelected]) => isSelected)
     .map(([date, _]) => date);
-  const hasSelectedDates = selectedDates.length > 0;
 
   const selectedTimes = [];
   for (const date of selectedDates) {
@@ -721,26 +800,29 @@ const Calendar = (): JSX.Element => {
         page={state.page + 1}
       />
 
-      {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
-        <TimeSelector
-          date={state.dateSelected}
-          title={"Select times"}
-          highlightClassName={highlightClassName}
-          onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
-          onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
-          onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
-          onPointerDownHandler={onTimeInputPointerDownHandler}
-          onPointerEnterHandler={onTimeInputPointerEnterHandler}
-        >
-          <button
-            type="button"
-            className="select-date-btn"
-            onClick={() => dispatch({ type: actionTypes.selectDates })}
+      {
+        //!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
+        state.showTimes && (
+          <TimeSelector
+            date={state.dateSelected}
+            title={"Select times"}
+            highlightClassName={highlightClassName}
+            onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
+            onPointerDownHandler={onTimeInputPointerDownHandler}
+            onPointerEnterHandler={onTimeInputPointerEnterHandler}
           >
-            Close
-          </button>
-        </TimeSelector>
-      )}
+            <button
+              type="button"
+              className="select-date-btn"
+              onClick={() => dispatch({ type: actionTypes.selectDates })}
+            >
+              Close
+            </button>
+          </TimeSelector>
+        )
+      }
       {state.selectDates && (
         <div className="btns">
           {state.page > 0 && (
@@ -753,14 +835,6 @@ const Calendar = (): JSX.Element => {
             />
           )}
 
-          <button
-            type="button"
-            className="select-btn"
-            onClick={() => dispatch({ type: actionTypes.selectTimes })}
-            aria-label="Select times"
-          >
-            <ClockIcon />
-          </button>
           <input
             className="submit-btn"
             type="submit"
@@ -769,7 +843,7 @@ const Calendar = (): JSX.Element => {
             data-disable-with="Update"
           />
 
-          {state.page <= 8 && (
+          {state.page < 10 && (
             <ForwardButton
               onClickHandler={() =>
                 dispatch({
