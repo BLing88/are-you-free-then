@@ -15,11 +15,11 @@ import { BackButton } from "./BackButton";
 import { ForwardButton } from "./ForwardButton";
 import {
   getDateFromDateString,
-  getDayFromDate,
   getMonthFromDate,
   getYearFromDate,
-  getTimeFromDate,
   formatDate,
+  getRectangularSelection,
+  addDatesToHighlight,
 } from "../util/calendar-helpers";
 
 interface RowProps {
@@ -91,6 +91,7 @@ type NumberOfPages = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 interface CalendarState {
   selectDates: boolean;
   cellsToHighlight: Map<string, boolean>;
+  originalCellsToHighlight: Map<string, boolean>;
   cellDown: string | null;
   fromDate: string | null;
   page: NumberOfPages;
@@ -265,8 +266,8 @@ const CalendarMonth = ({
               cellsToHighlight={classNames}
               onPointerDown={(date: string) => {
                 longPressRef.current = window.setTimeout(() => {
-                  longPressRef.current = null;
                   dispatch({ type: actionTypes.longPressing, date });
+                  longPressRef.current = null;
                 }, 250);
                 //dispatch({ type: actionTypes.setCellDown, date });
               }}
@@ -350,20 +351,22 @@ const reducer = (
       const today = new Date();
       // set to 3 AM for comparison to avoid issues with DST
       //today.setHours(3, 0, 0, 0);
-      if (
+      const isNotInPast =
         getYearFromDate(action.date) > today.getFullYear() ||
         (getYearFromDate(action.date) === today.getFullYear() &&
           (getMonthFromDate(action.date) > today.getMonth() ||
             (getMonthFromDate(action.date) === today.getMonth() &&
-              getDateFromDateString(action.date) >= today.getDate())))
-      ) {
+              getDateFromDateString(action.date) >= today.getDate())));
+      if (isNotInPast) {
         newMap.set(action.date, newHighlight);
       }
+
       return {
         ...state,
         isLongPressing: true,
         cellDown: action.date,
         cellsToHighlight: newMap,
+        originalCellsToHighlight: new Map(state.cellsToHighlight),
       };
     }
     case actionTypes.onPointerLeave:
@@ -382,88 +385,14 @@ const reducer = (
         fromDate: null,
       };
     case actionTypes.onEnterCell:
-      if (
-        state.cellDown !== null &&
-        action.date !== state.cellDown &&
-        state.fromDate !== null
-      ) {
-        const newMap = new Map(state.cellsToHighlight);
-
-        // calculate the cells added/removed when entering a cell, based
-        // on cellDown, then only need to toggle the change (the symmetric difference of the final and initial rectangular selections)
-
-        const earlierInitialDate =
-          getTimeFromDate(state.cellDown) > getTimeFromDate(state.fromDate)
-            ? state.fromDate
-            : state.cellDown;
-        const laterInitialDate =
-          getTimeFromDate(state.cellDown) > getTimeFromDate(state.fromDate)
-            ? state.cellDown
-            : state.fromDate;
-        const earlierFinalDate =
-          getTimeFromDate(state.cellDown) > getTimeFromDate(action.date)
-            ? action.date
-            : state.cellDown;
-        const laterFinalDate =
-          getTimeFromDate(state.cellDown) > getTimeFromDate(action.date)
-            ? state.cellDown
-            : action.date;
-
-        const firstInitialDayOfWeek = Math.min(
-          getDayFromDate(earlierInitialDate), // earlierInitialDate.getDay(),
-          getDayFromDate(laterInitialDate) // laterInitialDate.getDay()
-        );
-        const lastInitialDayOfWeek = Math.max(
-          getDayFromDate(earlierInitialDate), // earlierInitialDate.getDay(),
-          getDayFromDate(laterInitialDate) // laterInitialDate.getDay()
-        );
-
-        const firstFinalDayOfWeek = Math.min(
-          getDayFromDate(earlierFinalDate), // earlierFinalDate.getDay(),
-          getDayFromDate(laterFinalDate) // laterFinalDate.getDay()
-        );
-        const lastFinalDayOfWeek = Math.max(
-          getDayFromDate(earlierFinalDate), // earlierFinalDate.getDay(),
-          getDayFromDate(laterFinalDate) // laterFinalDate.getDay()
-        );
-
-        const symmetricDiff = action.dates.reduce((dates, date) => {
-          const dayOfWeek = date.getDay();
-          const initialIsWithinDays =
-            firstInitialDayOfWeek <= dayOfWeek &&
-            dayOfWeek <= lastInitialDayOfWeek;
-          const initialIsWithinWeeks =
-            getTimeFromDate(earlierInitialDate) <= date.getTime() &&
-            date.getTime() <= getTimeFromDate(laterInitialDate);
-          const finalIsWithinDays =
-            firstFinalDayOfWeek <= dayOfWeek && dayOfWeek <= lastFinalDayOfWeek;
-          const finalIsWithinWeeks =
-            getTimeFromDate(earlierFinalDate) <= date.getTime() &&
-            date.getTime() <= getTimeFromDate(laterFinalDate);
-          if (
-            (initialIsWithinDays && initialIsWithinWeeks) !==
-            (finalIsWithinDays && finalIsWithinWeeks)
-          ) {
-            dates.push(date);
-          }
-
-          return dates;
-        }, [] as Date[]);
-
-        const today = new Date();
-        // set to midnight
-        today.setHours(3, 0, 0, 0);
-        for (const date of symmetricDiff) {
-          if (date >= today) {
-            newMap.set(
-              formatDate(date),
-              state.cellsToHighlight.get(state.cellDown)
-            );
-          }
-        }
+      if (state.cellDown !== null && state.fromDate !== null) {
         return {
           ...state,
-          cellsToHighlight: newMap,
+          cellsToHighlight: addDatesToHighlight(
+            new Map(state.originalCellsToHighlight),
+            getRectangularSelection(state.cellDown, action.date, action.dates),
+            state.cellsToHighlight.get(state.cellDown)
+          ),
         };
       } else {
         return state;
