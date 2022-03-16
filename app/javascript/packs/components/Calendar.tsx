@@ -193,7 +193,7 @@ interface CalendarMonthProps {
   page: number;
 }
 
-const CalendarMonth = ({
+export const CalendarMonth = ({
   dispatch,
   indexOfRowWithFirstDayOfMonth,
   dateRows,
@@ -202,7 +202,7 @@ const CalendarMonth = ({
   isInGrid,
   dates,
   page,
-}: CalendarMonthProps) => {
+}: CalendarMonthProps): JSX.Element => {
   const endOfFirstWeek: Date = dateRows[0][6];
   const longPressRef = useRef<number | null>(null);
   return (
@@ -748,6 +748,7 @@ const Calendar = (): JSX.Element => {
             onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
             onPointerDownHandler={onTimeInputPointerDownHandler}
             onPointerEnterHandler={onTimeInputPointerEnterHandler}
+            className={"time-selector"}
           >
             <button
               type="button"
