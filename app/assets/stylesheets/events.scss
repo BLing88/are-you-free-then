@@ -71,6 +71,35 @@
     margin-top: 0;
 }
 
+.event-display {
+    --time-selector-row-width: 23px;
+    --time-selector-border-radius: 1rem;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: Min(100%, 340px);
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas: "times participants";
+    background-color: var(--action-text-color);
+    color: var(--background-color);
+    z-index: 1;
+    //border-radius: var(--time-selector-border-radius);
+    box-shadow: 0 0 1rem var(--background-color);
+    height: 610px;
+    overflow: hidden;
+}
+
+.event-times-display {
+  grid-area: times;
+  display: flex;
+  flex-direction: column;
+  height: 610px;
+  padding-top: 0.4rem;
+  padding-right: 0.5rem;
+}
+
 @media (min-width: 450px) {
     .event-page {
         display: grid;
@@ -95,5 +124,9 @@
 
     .event-details {
         margin: 0 auto;
+    }
+    
+    .event-display {
+        top: calc(var(--header-height) + 0.5rem);
     }
 }

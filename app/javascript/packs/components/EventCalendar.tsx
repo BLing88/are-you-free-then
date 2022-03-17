@@ -44,6 +44,57 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
   );
 };
 
+interface TimeInputCellStyle {
+  backgroundColor: string;
+}
+
+interface EventTimesDisplayProps {
+  dispatch: React.Dispatch<ReducerAction>;
+  dateSelected: string;
+  highlightClassName: (time: string) => string;
+  colorMap: (time: string) => TimeInputCellStyle;
+}
+
+const EventTimesDisplay = ({
+  dispatch,
+  dateSelected,
+  highlightClassName,
+  colorMap,
+}: EventTimesDisplayProps) => {
+  return (
+    <div className="event-display">
+      <TimeSelector
+        date={dateSelected}
+        title={"View times"}
+        highlightClassName={highlightClassName}
+        colorMap={colorMap}
+        onPointerLeaveHandler={null}
+        onPointerUpHandler={null}
+        onPointerCancelHandler={null}
+        onPointerDownHandler={null}
+        onPointerEnterHandler={null}
+        className={"event-times-display"}
+      >
+        <button
+          type="button"
+          className="select-date-btn"
+          onClick={() => dispatch({ type: SELECT_DATES })}
+        >
+          Close
+        </button>
+      </TimeSelector>
+      <ul>
+        <li>
+          <h3>Available participants</h3>
+        </li>
+        <li>
+          <h3>Unavailable participants</h3>
+        </li>
+      </ul>
+    </div>
+  );
+};
+
 interface CalendarState {
   selectDates: boolean;
   cellsToHighlight: Map<string, boolean>;
@@ -229,9 +280,8 @@ const initializeState = ({
         timeInputCellsToHighlight.set(formattedDate, new Map());
       }
       const dateStr = date.toISOString();
-      const timeInputCellsForDate = timeInputCellsToHighlight.get(
-        formattedDate
-      );
+      const timeInputCellsForDate =
+        timeInputCellsToHighlight.get(formattedDate);
       timeInputCellsForDate.set(
         dateStr,
         timeInputCellsForDate.get(dateStr)
@@ -291,7 +341,7 @@ const EventCalendar = (): JSX.Element => {
     [suggestedTimesDataset]
   );
   const participantTimesDataset = dataContainer.dataset["participantTimes"];
-  const participantCount: number = +dataContainer.dataset["participantCount"];
+  //const participantCount: number = +dataContainer.dataset["participantCount"];
   const participantTimes = useMemo(
     () =>
       JSON.parse(participantTimesDataset).map(
@@ -335,12 +385,16 @@ const EventCalendar = (): JSX.Element => {
     return className;
   };
 
-  const colorScale = scaleLinear<string>()
-    .domain([0, participantCount])
-    .range(["#222730", "#00ff5d"]);
-
   const colorMap = (time: string) => {
-    const style = { backgroundColor: "var(--background-color)" };
+    const maxNumberOverlapping = Math.max(
+      ...Array.from(
+        state.timeInputCellsToHighlight.get(state.dateSelected).values()
+      )
+    );
+    const colorScale = scaleLinear<string>()
+      .domain([1, maxNumberOverlapping])
+      .range(["#cef1dd", "#34AD66"]);
+    const style = { backgroundColor: "" };
     const count = state.timeInputCellsToHighlight
       .get(state.dateSelected)
       ?.get(time);
@@ -579,27 +633,16 @@ const EventCalendar = (): JSX.Element => {
         </div>
       </div>
 
-      {!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
-        <TimeSelector
-          date={state.dateSelected}
-          title={"View times"}
-          highlightClassName={highlightClassName}
-          colorMap={colorMap}
-          onPointerLeaveHandler={null}
-          onPointerUpHandler={null}
-          onPointerCancelHandler={null}
-          onPointerDownHandler={null}
-          onPointerEnterHandler={null}
-        >
-          <button
-            type="button"
-            className="select-date-btn"
-            onClick={() => dispatch({ type: SELECT_DATES })}
-          >
-            Close
-          </button>
-        </TimeSelector>
-      )}
+      {!state.selectDates &&
+        hasSelectedDates &&
+        state.dateSelected !== null && (
+          <EventTimesDisplay
+            dispatch={dispatch}
+            highlightClassName={highlightClassName}
+            colorMap={colorMap}
+            dateSelected={state.dateSelected}
+          />
+        )}
       {state.selectDates && (
         <div className="btns">
           {state.page > 0 && (
