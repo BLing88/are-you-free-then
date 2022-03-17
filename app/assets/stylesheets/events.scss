@@ -96,8 +96,21 @@
   display: flex;
   flex-direction: column;
   height: 610px;
-  padding-top: 0.4rem;
-  padding-right: 0.5rem;
+  padding: 0.4rem 0.5rem 0 0.25rem;
+}
+
+.participant-lists {
+  overflow: scroll;
+  padding: 0;
+  ul {
+    padding: 0;
+  }
+}
+
+.participant-lists {
+  h3 {
+    margin-bottom: 0.5rem;
+  }
 }
 
 @media (min-width: 450px) {

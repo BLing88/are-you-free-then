@@ -53,14 +53,40 @@ interface EventTimesDisplayProps {
   dateSelected: string;
   highlightClassName: (time: string) => string;
   colorMap: (time: string) => TimeInputCellStyle;
+  availableParticipants: string[];
+  unavailableParticipants: string[];
+  selectedTimeInterval: string;
 }
+
+// eslint-disable-next-line
+const noop = () => {};
+
+const timeIntervalStringFor = (time: string) => {
+  const start = new Date();
+  start.setUTCFullYear(+time.slice(0, 4));
+  start.setUTCMonth(+time.slice(5, 7));
+  start.setUTCDate(+time.slice(8, 10));
+  start.setUTCHours(+time.slice(11, 13));
+  start.setUTCMinutes(+time.slice(14, 16));
+
+  const end = new Date(start.getTime() + 900000);
+  return `${start.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "numeric",
+  })} to ${end.toLocaleTimeString([], { hour: "numeric", minute: "numeric" })}`;
+};
 
 const EventTimesDisplay = ({
   dispatch,
   dateSelected,
   highlightClassName,
   colorMap,
+  availableParticipants,
+  unavailableParticipants,
+  selectedTimeInterval,
 }: EventTimesDisplayProps) => {
+  const totalParticipantCount =
+    availableParticipants.length + unavailableParticipants.length;
   return (
     <div className="event-display">
       <TimeSelector
@@ -71,8 +97,10 @@ const EventTimesDisplay = ({
         onPointerLeaveHandler={null}
         onPointerUpHandler={null}
         onPointerCancelHandler={null}
-        onPointerDownHandler={null}
-        onPointerEnterHandler={null}
+        onPointerDownHandler={noop}
+        onPointerEnterHandler={(time: string) => {
+          dispatch({ type: "SELECT_TIME_INTERVAL", time });
+        }}
         className={"event-times-display"}
       >
         <button
@@ -83,12 +111,33 @@ const EventTimesDisplay = ({
           Close
         </button>
       </TimeSelector>
-      <ul>
+      <ul className="participant-lists">
+        <span>{timeIntervalStringFor(selectedTimeInterval)}</span>
         <li>
-          <h3>Available participants</h3>
+          <h3>
+            Available{" "}
+            <small>
+              ({`${availableParticipants.length}/${totalParticipantCount}`})
+            </small>
+          </h3>
+          <ul>
+            {availableParticipants.map((participant) => {
+              return <li key={participant}>{participant}</li>;
+            })}
+          </ul>
         </li>
         <li>
-          <h3>Unavailable participants</h3>
+          <h3>
+            Unavailable{" "}
+            <small>
+              ({`${unavailableParticipants.length}/${totalParticipantCount}`})
+            </small>
+          </h3>
+          <ul>
+            {unavailableParticipants.map((participant) => {
+              return <li key={participant}>{participant}</li>;
+            })}
+          </ul>
         </li>
       </ul>
     </div>
@@ -102,8 +151,9 @@ interface CalendarState {
   fromDate: string | null;
   page: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   dateSelected: string | null;
+  timeSelected: string | null;
   pointerDown: boolean;
-  timeInputCellsToHighlight: Map<string, Map<string, number>>;
+  timeInputCellsToHighlight: Map<string, Map<string, string[]>>;
   suggestedTimes: Map<string, boolean>;
   initialDateTimeDown: string | null;
   timesParticipantsMap: Map<string, string[]>;
@@ -128,6 +178,11 @@ interface PointerUpAction {
   type: typeof CELL_UP;
 }
 
+interface SelectTimeIntervalAction {
+  type: "SELECT_TIME_INTERVAL";
+  time: string;
+}
+
 const MOVE_BACK = "MOVE_BACK";
 const MOVE_FORWARD = "MOVE_FORWARD";
 
@@ -145,7 +200,8 @@ export type ReducerAction =
   | EnterCellAction
   | PointerUpAction
   | PaginateAction
-  | SelectDatesAction;
+  | SelectDatesAction
+  | SelectTimeIntervalAction;
 
 type NumberOfWeeks = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
@@ -172,6 +228,12 @@ const reducer = (
       } else {
         return { ...state };
       }
+    }
+    case "SELECT_TIME_INTERVAL": {
+      return {
+        ...state,
+        timeSelected: action.time,
+      };
     }
     case MOVE_FORWARD:
       return {
@@ -215,7 +277,8 @@ const initializeState = ({
     fromDate: null,
     page: 0,
     dateSelected: null,
-    timeInputCellsToHighlight: new Map<string, Map<string, number>>(),
+    timeSelected: null,
+    timeInputCellsToHighlight: new Map<string, Map<string, string[]>>(),
     suggestedTimes: new Map<string, boolean>(),
     pointerDown: false,
     initialDateTimeDown: null,
@@ -282,12 +345,13 @@ const initializeState = ({
       const dateStr = date.toISOString();
       const timeInputCellsForDate =
         timeInputCellsToHighlight.get(formattedDate);
-      timeInputCellsForDate.set(
-        dateStr,
-        timeInputCellsForDate.get(dateStr)
-          ? timeInputCellsForDate.get(dateStr) + 1
-          : 1
-      );
+      if (!timeInputCellsForDate.has(dateStr)) {
+        timeInputCellsForDate.set(dateStr, []);
+      }
+      for (const participant of participants) {
+        timeInputCellsForDate.get(dateStr).push(participant);
+      }
+      timeInputCellsForDate.set(dateStr, timeInputCellsForDate.get(dateStr));
       timesParticipantsMap.set(dateStr, participants);
       date = new Date(date.getTime() + fifteenMinsInMilliseconds);
     }
@@ -348,16 +412,30 @@ const EventCalendar = (): JSX.Element => {
         ({
           start_time,
           end_time,
+          participants,
         }: {
           start_time: string;
           end_time: string;
+          participants: string[];
         }) => ({
           start_time: new Date(start_time),
           end_time: new Date(end_time),
+          participants,
         })
       ),
     [participantTimesDataset]
   );
+  const participants: Set<string> = useMemo(() => {
+    return participantTimes.reduce(
+      (participantSet: Set<string>, { participants }) => {
+        participants.forEach((participant: string) =>
+          participantSet.add(participant)
+        );
+        return participantSet;
+      },
+      new Set<string>()
+    );
+  }, [participantTimes]);
   const todaysDate = new Date().getDay();
   const [dates, dateRows, firstOfEachMonth] = useMemo(
     () => getDatesAndRowsOfDates(),
@@ -389,7 +467,7 @@ const EventCalendar = (): JSX.Element => {
     const maxNumberOverlapping = Math.max(
       ...Array.from(
         state.timeInputCellsToHighlight.get(state.dateSelected).values()
-      )
+      ).map((arr) => arr.length)
     );
     const colorScale = scaleLinear<string>()
       .domain([1, maxNumberOverlapping])
@@ -397,7 +475,7 @@ const EventCalendar = (): JSX.Element => {
     const style = { backgroundColor: "" };
     const count = state.timeInputCellsToHighlight
       .get(state.dateSelected)
-      ?.get(time);
+      ?.get(time)?.length;
     if (count) {
       style.backgroundColor = colorScale(count);
     }
@@ -428,6 +506,22 @@ const EventCalendar = (): JSX.Element => {
     dateRows[firstOfEachMonth[page]][0].getTime() <= dates[index].getTime() &&
     dates[index].getTime() <=
       dateRows[firstOfEachMonth[page] + numRows - 1][6].getTime();
+
+  const availableParticipants: string[] = state.timeSelected
+    ? state.timeInputCellsToHighlight
+        .get(state.dateSelected)
+        ?.get(state.timeSelected) ?? []
+    : Array.from(participants);
+  const unavailableParticipants = state.timeSelected
+    ? Array.from(participants).filter(
+        (participant) =>
+          !state.timeInputCellsToHighlight
+            .get(state.dateSelected)
+            ?.get(state.timeSelected)
+            ?.includes(participant)
+      )
+    : [];
+
   return (
     <>
       <div className="calendar-grid">
@@ -641,6 +735,9 @@ const EventCalendar = (): JSX.Element => {
             highlightClassName={highlightClassName}
             colorMap={colorMap}
             dateSelected={state.dateSelected}
+            availableParticipants={availableParticipants}
+            unavailableParticipants={unavailableParticipants}
+            selectedTimeInterval={state.timeSelected ?? state.dateSelected}
           />
         )}
       {state.selectDates && (
