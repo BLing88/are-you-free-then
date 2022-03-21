@@ -308,6 +308,9 @@ const reducer = (
 ): CalendarState => {
   switch (action.type) {
     case actionTypes.clickDate: {
+      if (state.showTimes) {
+        return { ...state };
+      }
       // bring up time selector for date clicked on, highlighting the date if not already
       const newMap = new Map(state.cellsToHighlight);
       const today = new Date();
@@ -387,6 +390,9 @@ const reducer = (
         fromDate: null,
       };
     case actionTypes.onEnterCell:
+      if (state.showTimes) {
+        return { ...state };
+      }
       if (state.cellDown !== null && state.fromDate !== null) {
         return {
           ...state,
