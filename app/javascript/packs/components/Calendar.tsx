@@ -20,6 +20,7 @@ import {
   formatDate,
   getRectangularSelection,
   addDatesToHighlight,
+  parseDateTime,
 } from "../util/calendar-helpers";
 
 interface RowProps {
@@ -98,6 +99,7 @@ interface CalendarState {
   dateSelected: string | null;
   pointerDown: boolean;
   timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
+  originalTimeInputCellsToHighlight: Map<string, Map<string, boolean>> | null;
   initialDateTimeDown: string | null;
   showTimes: boolean;
   isLongPressing: boolean;
@@ -441,6 +443,9 @@ const reducer = (
       return {
         ...state,
         pointerDown: true,
+        originalTimeInputCellsToHighlight: new Map(
+          state.timeInputCellsToHighlight
+        ),
         timeInputCellsToHighlight: newCellsToHighlight,
         initialDateTimeDown: action.dateTime,
       };
@@ -452,13 +457,32 @@ const reducer = (
         .get(state.dateSelected)
         .get(state.initialDateTimeDown);
 
-      const newCellsToHighlight = new Map(state.timeInputCellsToHighlight);
-      if (newHighlight) {
+      // need to make copies of maps to avoid issues with
+      // mutability
+      const newCellsToHighlight = new Map(
+        state.originalTimeInputCellsToHighlight
+      );
+      for (const [date, map] of newCellsToHighlight.entries()) {
+        newCellsToHighlight.set(date, new Map(map));
+      }
+      const timeEntered = parseDateTime(action.dateTime);
+      const initialTimeSelected = parseDateTime(state.initialDateTimeDown);
+      const earlierTime =
+        timeEntered.getTime() > initialTimeSelected.getTime()
+          ? initialTimeSelected
+          : timeEntered;
+      const laterTime =
+        timeEntered.getTime() > initialTimeSelected.getTime()
+          ? timeEntered
+          : initialTimeSelected;
+      for (
+        let time = earlierTime.getTime();
+        time <= laterTime.getTime();
+        time += fifteenMinsInMilliseconds
+      ) {
         newCellsToHighlight
           .get(state.dateSelected)
-          .set(action.dateTime, newHighlight);
-      } else {
-        newCellsToHighlight.get(state.dateSelected).delete(action.dateTime);
+          .set(new Date(time).toISOString(), newHighlight);
       }
 
       return {
@@ -471,6 +495,7 @@ const reducer = (
         ...state,
         pointerDown: false,
         initialDateTimeDown: null,
+        originalTimeInputCellsToHighlight: null,
       };
     default:
       return state;

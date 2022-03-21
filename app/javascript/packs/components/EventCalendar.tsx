@@ -7,6 +7,7 @@ import {
   getDatesAndRowsOfDates,
 } from "../util/time-intervals";
 import { ForwardButton } from "./ForwardButton";
+import { parseDateTime } from "../util/calendar-helpers";
 
 const formatDate = (date: Date) =>
   `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -62,12 +63,7 @@ interface EventTimesDisplayProps {
 const noop = () => {};
 
 const timeIntervalStringFor = (time: string) => {
-  const start = new Date();
-  start.setUTCFullYear(+time.slice(0, 4));
-  start.setUTCMonth(+time.slice(5, 7));
-  start.setUTCDate(+time.slice(8, 10));
-  start.setUTCHours(+time.slice(11, 13));
-  start.setUTCMinutes(+time.slice(14, 16));
+  const start = parseDateTime(time);
 
   const end = new Date(start.getTime() + 900000);
   return `${start.toLocaleTimeString([], {

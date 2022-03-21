@@ -34,6 +34,18 @@ export function getTimeFromDate(str: string): number {
   return timeFromDateMemo.get(str);
 }
 
+export const parseDateTime = (str: string): Date => {
+  const date = new Date();
+  date.setUTCFullYear(+str.slice(0, 4));
+  date.setUTCMonth(+str.slice(5, 7) - 1);
+  date.setUTCDate(+str.slice(8, 10));
+  date.setUTCHours(+str.slice(11, 13));
+  date.setUTCMinutes(+str.slice(14, 16));
+  date.setUTCSeconds(0);
+  date.setUTCMilliseconds(0);
+  return date;
+};
+
 export const formatDate = (date: Date): string =>
   `${date.getFullYear()}-${(date.getMonth() + 1)
     .toString()
