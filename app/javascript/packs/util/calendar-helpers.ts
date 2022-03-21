@@ -1,3 +1,5 @@
+import { intervalIsLessThan } from "./time-intervals";
+
 export function getDateFromDateString(str: string): number {
   return +str.slice(-2);
 }
@@ -176,3 +178,68 @@ export const addDatesToHighlight = (
   }
   return baseMap;
 };
+interface Interval {
+  start_time: Date;
+  end_time: Date;
+}
+
+export function getNewAndDeleteIntervals(
+  selectedTimeIntervals: [string, string][],
+  initialTimes: Interval[]
+): [string[], Interval[]] {
+  let deleteTimeIntervals = [];
+  let newTimeIntervals = [];
+  if (initialTimes.length === 0) {
+    newTimeIntervals = selectedTimeIntervals.slice();
+  } else if (selectedTimeIntervals.length === 0) {
+    deleteTimeIntervals = initialTimes.slice();
+  } else {
+    let newTimesPointer = 0;
+    let oldTimesPointer = 0;
+    while (
+      newTimesPointer < selectedTimeIntervals.length &&
+      oldTimesPointer < initialTimes.length
+    ) {
+      const oldInterval = initialTimes[oldTimesPointer];
+      const newInterval = selectedTimeIntervals[newTimesPointer];
+      if (
+        oldInterval.start_time.toISOString() !== newInterval[0] ||
+        oldInterval.end_time.toISOString() !== newInterval[1]
+      ) {
+        if (
+          intervalIsLessThan(
+            oldInterval.start_time.toISOString(),
+            oldInterval.end_time.toISOString(),
+            newInterval[0],
+            newInterval[1]
+          )
+        ) {
+          deleteTimeIntervals.push(oldInterval);
+          oldTimesPointer++;
+        } else {
+          newTimeIntervals.push(newInterval);
+          newTimesPointer++;
+        }
+      } else {
+        oldTimesPointer++;
+        newTimesPointer++;
+      }
+    }
+    if (
+      newTimesPointer === selectedTimeIntervals.length &&
+      oldTimesPointer < initialTimes.length
+    ) {
+      deleteTimeIntervals.splice(-1, 0, ...initialTimes.slice(oldTimesPointer));
+    } else if (
+      oldTimesPointer === initialTimes.length &&
+      newTimesPointer < selectedTimeIntervals.length
+    ) {
+      newTimeIntervals.splice(
+        -1,
+        0,
+        ...selectedTimeIntervals.slice(newTimesPointer)
+      );
+    }
+  }
+  return [newTimeIntervals, deleteTimeIntervals];
+}

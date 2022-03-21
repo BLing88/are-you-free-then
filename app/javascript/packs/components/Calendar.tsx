@@ -21,6 +21,7 @@ import {
   getRectangularSelection,
   addDatesToHighlight,
   parseDateTime,
+  getNewAndDeleteIntervals,
 } from "../util/calendar-helpers";
 
 interface RowProps {
@@ -642,65 +643,11 @@ const Calendar = (): JSX.Element => {
   }
 
   const selectedTimeIntervals = mergedIntervals(selectedTimes);
+  const [newTimeIntervals, deleteTimeIntervals] = getNewAndDeleteIntervals(
+    selectedTimeIntervals,
+    initialFreeTimes
+  );
 
-  let deleteTimeIntervals = [];
-  let newTimeIntervals = [];
-  if (initialFreeTimes.length === 0) {
-    newTimeIntervals = selectedTimeIntervals.slice();
-  } else if (selectedTimeIntervals.length === 0) {
-    deleteTimeIntervals = initialFreeTimes.slice();
-  } else {
-    let newTimesPointer = 0;
-    let oldTimesPointer = 0;
-    while (
-      newTimesPointer < selectedTimeIntervals.length &&
-      oldTimesPointer < initialFreeTimes.length
-    ) {
-      const oldInterval = initialFreeTimes[oldTimesPointer];
-      const newInterval = selectedTimeIntervals[newTimesPointer];
-      if (
-        oldInterval.start_time.toISOString() !== newInterval[0] ||
-        oldInterval.end_time.toISOString() !== newInterval[1]
-      ) {
-        if (
-          intervalIsLessThan(
-            oldInterval.start_time.toISOString(),
-            oldInterval.end_time.toISOString(),
-            newInterval[0],
-            newInterval[1]
-          )
-        ) {
-          deleteTimeIntervals.push(oldInterval);
-          oldTimesPointer++;
-        } else {
-          newTimeIntervals.push(newInterval);
-          newTimesPointer++;
-        }
-      } else {
-        oldTimesPointer++;
-        newTimesPointer++;
-      }
-    }
-    if (
-      newTimesPointer === selectedTimeIntervals.length &&
-      oldTimesPointer < initialFreeTimes.length
-    ) {
-      deleteTimeIntervals.splice(
-        -1,
-        0,
-        ...initialFreeTimes.slice(oldTimesPointer)
-      );
-    } else if (
-      oldTimesPointer === initialFreeTimes.length &&
-      newTimesPointer < selectedTimeIntervals.length
-    ) {
-      newTimeIntervals.splice(
-        -1,
-        0,
-        ...selectedTimeIntervals.slice(newTimesPointer)
-      );
-    }
-  }
   const highlightClassName = (time: string) => {
     let className = "";
     if (state.timeInputCellsToHighlight.get(state.dateSelected)?.get(time)) {
