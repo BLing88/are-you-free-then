@@ -428,7 +428,6 @@ const reducer = (
           action.date,
           action.dates
         );
-        console.log(rectangularSelection);
 
         const newTimeInputCellsToHighlight = new Map(
           state.timeInputCellsToHighlight
@@ -588,12 +587,17 @@ const reducer = (
           if (!newCellsToHighlight.has(date)) {
             newCellsToHighlight.set(date, new Map());
           }
+          const dateMap = newCellsToHighlight.get(date);
           const dateObj = parseDate(date);
           dateObj.setHours(hour);
           dateObj.setMinutes(min);
-          newCellsToHighlight
-            .get(date)
-            .set(dateObj.toISOString(), newHighlight);
+
+          const dateStr = dateObj.toISOString();
+          if (newHighlight) {
+            dateMap.set(dateStr, newHighlight);
+          } else {
+            dateMap.delete(dateStr);
+          }
         }
       }
 
