@@ -11,13 +11,13 @@ interface TimeInputCellStyle {
 }
 
 interface HourCellProps {
-  hour: Date;
-  onPointerDownHandler: ((time: string) => void) | null;
-  onPointerEnterHandler: ((time: string) => void) | null;
+  hour: number;
+  onPointerDownHandler: ((hour: number, min: number) => void) | null;
+  onPointerEnterHandler: ((hour: number, min: number) => void) | null;
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
-  highlightClassName: (time: string) => string;
-  colorMap?: (time: string) => TimeInputCellStyle;
+  highlightClassName: (hour: number, min: number) => string;
+  colorMap?: (hour: number, min: number) => TimeInputCellStyle;
 }
 
 const HourCell = React.forwardRef(
@@ -33,20 +33,17 @@ const HourCell = React.forwardRef(
     }: HourCellProps,
     ref: Ref<HTMLElement>
   ) => {
-    const times = [hour];
+    const times = [new Date(new Date().getFullYear(), 0, 1, hour)];
     for (let i = 15; i < 60; i += 15) {
-      const date = new Date(hour.getTime());
+      const date = new Date(times[0].getTime());
       date.setMinutes(i);
       times.push(date);
     }
 
     return (
       <div className="hour-cell">
-        <span
-          className="time-input-hour"
-          {...(hour.getHours() === 9 && { ref })}
-        >
-          {hour.toLocaleTimeString([], {
+        <span className="time-input-hour" {...(hour === 9 && { ref })}>
+          {times[0].toLocaleTimeString([], {
             hour: "numeric",
           })}
         </span>
@@ -54,9 +51,10 @@ const HourCell = React.forwardRef(
           const onPointerHandlers = {
             onPointerDown: (e: PointerEvent<HTMLDivElement>) => {
               (e.target as HTMLDivElement).releasePointerCapture(e.pointerId);
-              onPointerDownHandler(time.toISOString());
+              onPointerDownHandler(time.getHours(), time.getMinutes());
             },
-            onPointerEnter: () => onPointerEnterHandler(time.toISOString()),
+            onPointerEnter: () =>
+              onPointerEnterHandler(time.getHours(), time.getMinutes()),
             onPointerUp: onPointerUpHandler,
             onPointerCancel: onPointerCancelHandler,
           };
@@ -65,12 +63,16 @@ const HourCell = React.forwardRef(
               key={time.getTime()}
               style={
                 colorMap
-                  ? { ...colorMap(time.toISOString()), gridArea: `cell-${i}` }
+                  ? {
+                      ...colorMap(time.getHours(), time.getMinutes()),
+                      gridArea: `cell-${i}`,
+                    }
                   : { gridArea: `cell-${i}` }
               }
               // use a function of time cell to return highlight class name
               className={`time-input-cell ${highlightClassName(
-                time.toISOString()
+                time.getHours(),
+                time.getMinutes()
               )} `}
               {...(onPointerDownHandler !== null && onPointerHandlers)}
             ></div>
@@ -83,20 +85,20 @@ const HourCell = React.forwardRef(
 HourCell.displayName = "HourCell";
 
 interface TimeSelectorProps {
-  date: string;
-  onPointerDownHandler: ((time: string) => void) | null;
+  date?: Date;
+  onPointerDownHandler: ((hour: number, min: number) => void) | null;
   onPointerLeaveHandler: (() => void) | null;
-  onPointerEnterHandler: ((time: string) => void) | null;
+  onPointerEnterHandler: ((hour: number, min: number) => void) | null;
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
   title: string;
-  highlightClassName: (time: string) => string;
-  colorMap?: (time: string) => TimeInputCellStyle;
+  highlightClassName: (hour: number, min: number) => string;
+  colorMap?: (hour: number, min: number) => TimeInputCellStyle;
   children: ReactElement;
   className: string;
 }
 
-const numMinsInADay = 1440;
+//const numMinsInADay = 1440;
 const TimeSelector = ({
   date,
   onPointerDownHandler,
@@ -109,18 +111,19 @@ const TimeSelector = ({
   children,
   className,
 }: TimeSelectorProps): JSX.Element => {
-  const times = [] as Date[];
-  const dateObj = new Date(
-    +date.slice(0, 4),
-    +date.slice(5, 7) - 1,
-    +date.slice(-2)
-  );
-  for (let i = 0; i < numMinsInADay; i += 60) {
-    dateObj.setHours(Math.floor(i / 60));
-    dateObj.setMinutes(i % 60);
-    times.push(new Date(dateObj.getTime()));
+  const times = [] as number[];
+  //const dateObj = new Date(
+  //  +date.slice(0, 4),
+  //  +date.slice(5, 7) - 1,
+  //  +date.slice(-2)
+  //);
+  for (let hour = 0; hour < 24; hour += 1) {
+    //dateObj.setHours(Math.floor(i / 60));
+    //dateObj.setMinutes(i % 60);
+    //times.push(new Date(dateObj.getTime()));
+    times.push(hour);
   }
-  const todaysDate = dateObj.toDateString();
+  const todaysDate = date?.toDateString() ?? "Multiple dates selected";
   const startingHourCellRef = useRef<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     if (startingHourCellRef.current) {
@@ -137,11 +140,11 @@ const TimeSelector = ({
     >
       <span className="time-input-date">{todaysDate}</span>
       <div className="time-cells">
-        {times.map((time) => {
+        {times.map((hour) => {
           return (
             <HourCell
-              key={time.getTime()}
-              hour={time}
+              key={hour}
+              hour={hour}
               onPointerEnterHandler={onPointerEnterHandler}
               onPointerDownHandler={onPointerDownHandler}
               onPointerUpHandler={onPointerUpHandler}

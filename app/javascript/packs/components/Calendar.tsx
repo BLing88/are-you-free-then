@@ -22,6 +22,8 @@ import {
   addDatesToHighlight,
   parseDateTime,
   getNewAndDeleteIntervals,
+  getDateTime,
+  parseDate,
 } from "../util/calendar-helpers";
 
 interface RowProps {
@@ -97,7 +99,7 @@ interface CalendarState {
   cellDown: string | null;
   fromDate: string | null;
   page: NumberOfPages;
-  dateSelected: string | null;
+  datesSelected: string[];
   pointerDown: boolean;
   timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
   originalTimeInputCellsToHighlight: Map<string, Map<string, boolean>> | null;
@@ -160,12 +162,16 @@ interface SelectDatesAction {
 
 interface TimeInputPointerDownAction {
   type: typeof actionTypes.timeInputPointerDown;
-  dateTime: string;
+  //dateTime: string;
+  hour: number;
+  min: number;
 }
 
 interface TimeInputEnterCellAction {
   type: typeof actionTypes.timeInputOnEnterCell;
-  dateTime: string;
+  //dateTime: string
+  hour: number;
+  min: number;
 }
 
 interface TimeInputPointerUpAction {
@@ -217,7 +223,7 @@ export const CalendarMonth = ({
 
       <div
         className="calendar"
-        onPointerLeave={() => dispatch({ type: actionTypes.cellUp })}
+        //onPointerLeave={() => dispatch({ type: actionTypes.cellUp })}
       >
         {dateRows.map((row, rowIndex) => {
           const classNames = row.map((date, index) => {
@@ -303,6 +309,7 @@ export const CalendarMonth = ({
   );
 };
 
+const dateForMultipleDatesSelected = "2000-01-01";
 const reducer = (
   state: CalendarState,
   action: ReducerAction
@@ -342,7 +349,7 @@ const reducer = (
         ...state,
         cellsToHighlight: newMap,
         showTimes: true,
-        dateSelected: action.date,
+        datesSelected: [action.date],
         cellDown: null,
         timeInputCellsToHighlight: newTimeInputCellsToHighlight,
       };
@@ -365,15 +372,18 @@ const reducer = (
               getDateFromDateString(action.date) >= today.getDate())));
       if (isNotInPast) {
         newMap.set(action.date, newHighlight);
+        return {
+          ...state,
+          isLongPressing: true,
+          cellDown: action.date,
+          cellsToHighlight: newMap,
+          originalCellsToHighlight: new Map(state.cellsToHighlight),
+        };
+      } else {
+        return {
+          ...state,
+        };
       }
-
-      return {
-        ...state,
-        isLongPressing: true,
-        cellDown: action.date,
-        cellsToHighlight: newMap,
-        originalCellsToHighlight: new Map(state.cellsToHighlight),
-      };
     }
     case actionTypes.onPointerLeave:
       if (state.cellDown !== null) {
@@ -383,25 +393,63 @@ const reducer = (
         };
       }
       return state;
-    case actionTypes.cellUp:
+    case actionTypes.cellUp: {
+      const newTimeInputCellsToHighlight = new Map(
+        state.timeInputCellsToHighlight
+      );
+      if (
+        !state.fromDate &&
+        !state.timeInputCellsToHighlight.has(state.cellDown)
+      ) {
+        newTimeInputCellsToHighlight.set(state.cellDown, new Map());
+      }
       return {
         ...state,
         isLongPressing: false,
         cellDown: null,
         fromDate: null,
+        showTimes:
+          // only show times if you have long pressed and the initial date is being selected
+          // note that the initial date (cellDown) was already set to be highlighted
+          // in the longPressing action preceding the cellUp action
+          state.isLongPressing && state.cellsToHighlight.get(state.cellDown), //|| (!state.isLongPressing && !state.showTimes),
+        // if long pressing just one date the time selector should show
+        datesSelected: !state.fromDate ? [state.cellDown] : state.datesSelected,
+        timeInputCellsToHighlight: newTimeInputCellsToHighlight,
       };
+    }
     case actionTypes.onEnterCell:
       if (state.showTimes) {
         return { ...state };
       }
       if (state.cellDown !== null && state.fromDate !== null) {
+        const rectangularSelection = getRectangularSelection(
+          state.cellDown,
+          action.date,
+          action.dates
+        );
+        console.log(rectangularSelection);
+
+        const newTimeInputCellsToHighlight = new Map(
+          state.timeInputCellsToHighlight
+        );
+        const datesSelected = rectangularSelection.map((date) =>
+          formatDate(date)
+        );
+        for (const date of datesSelected) {
+          if (!newTimeInputCellsToHighlight.has(date)) {
+            newTimeInputCellsToHighlight.set(date, new Map());
+          }
+        }
         return {
           ...state,
           cellsToHighlight: addDatesToHighlight(
             new Map(state.originalCellsToHighlight),
-            getRectangularSelection(state.cellDown, action.date, action.dates),
+            rectangularSelection,
             state.cellsToHighlight.get(state.cellDown)
           ),
+          datesSelected,
+          timeInputCellsToHighlight: newTimeInputCellsToHighlight,
         };
       } else {
         return state;
@@ -423,29 +471,66 @@ const reducer = (
       };
     case actionTypes.selectDates: {
       const newMap = new Map(state.cellsToHighlight);
-      if (state.timeInputCellsToHighlight.get(state.dateSelected).size === 0) {
-        newMap.set(state.dateSelected, false);
+      for (const date of state.datesSelected) {
+        if (state.timeInputCellsToHighlight.get(date).size === 0) {
+          newMap.set(date, false);
+        }
       }
+
+      // reset times for multiple-date-selection dummy date
+      const newTimeInputCellsToHighlight = new Map(
+        state.timeInputCellsToHighlight
+      );
+      if (state.datesSelected.length > 1) {
+        newTimeInputCellsToHighlight.set(
+          dateForMultipleDatesSelected,
+          new Map()
+        );
+      }
+
       return {
         ...state,
         //selectDates: true,
         showTimes: false,
-        dateSelected: null,
+        datesSelected: [],
         cellsToHighlight: newMap,
+        timeInputCellsToHighlight: newTimeInputCellsToHighlight,
       };
     }
     case actionTypes.timeInputPointerDown: {
+      // either a specific date is selected or multiple dates
+      const date =
+        state.datesSelected.length === 1
+          ? state.datesSelected[0]
+          : dateForMultipleDatesSelected;
+      const dateStr = getDateTime(date, action.hour, action.min);
       const oldHighlight = state.timeInputCellsToHighlight
-        .get(state.dateSelected)
-        .get(action.dateTime);
+        .get(date)
+        .get(dateStr);
+
       const newHighlight = oldHighlight === undefined ? true : !oldHighlight;
       const newCellsToHighlight = new Map(state.timeInputCellsToHighlight);
+      for (const date of state.datesSelected) {
+        if (!newCellsToHighlight.has(date)) {
+          newCellsToHighlight.set(date, new Map());
+        }
+      }
       if (newHighlight) {
-        newCellsToHighlight
-          .get(state.dateSelected)
-          .set(action.dateTime, newHighlight);
+        newCellsToHighlight.get(date).set(dateStr, newHighlight);
+
+        // also update actual dates selected
+        const hour = parseDateTime(dateStr).getHours(); //+dateStr.slice(11, 13);
+        const min = parseDateTime(dateStr).getMinutes(); //+dateStr.slice(14, 16);
+        for (const date of state.datesSelected) {
+          const dateObj = parseDate(date);
+          dateObj.setHours(hour);
+          dateObj.setMinutes(min);
+          newCellsToHighlight
+            .get(date)
+            .set(dateObj.toISOString(), newHighlight);
+        }
       } else {
-        newCellsToHighlight.get(state.dateSelected).delete(action.dateTime);
+        newCellsToHighlight.get(date).delete(dateStr);
       }
       return {
         ...state,
@@ -454,14 +539,20 @@ const reducer = (
           state.timeInputCellsToHighlight
         ),
         timeInputCellsToHighlight: newCellsToHighlight,
-        initialDateTimeDown: action.dateTime,
+        initialDateTimeDown: dateStr,
       };
     }
     case actionTypes.timeInputOnEnterCell: {
       if (!state.pointerDown) return { ...state };
 
+      const date =
+        state.datesSelected.length === 1
+          ? state.datesSelected[0]
+          : dateForMultipleDatesSelected;
+      const dateStr = getDateTime(date, action.hour, action.min);
+
       const newHighlight = !!state.timeInputCellsToHighlight
-        .get(state.dateSelected)
+        .get(date)
         .get(state.initialDateTimeDown);
 
       // need to make copies of maps to avoid issues with
@@ -472,7 +563,7 @@ const reducer = (
       for (const [date, map] of newCellsToHighlight.entries()) {
         newCellsToHighlight.set(date, new Map(map));
       }
-      const timeEntered = parseDateTime(action.dateTime);
+      const timeEntered = parseDateTime(dateStr);
       const initialTimeSelected = parseDateTime(state.initialDateTimeDown);
       const earlierTime =
         timeEntered.getTime() > initialTimeSelected.getTime()
@@ -487,9 +578,23 @@ const reducer = (
         time <= laterTime.getTime();
         time += fifteenMinsInMilliseconds
       ) {
-        newCellsToHighlight
-          .get(state.dateSelected)
-          .set(new Date(time).toISOString(), newHighlight);
+        const datetime = new Date(time); //.toISOString();
+        newCellsToHighlight.get(date).set(datetime.toISOString(), newHighlight);
+
+        // also update actual dates selected
+        const hour = datetime.getHours(); // +datetime.slice(11, 13);
+        const min = datetime.getMinutes(); //.slice(14, 16);
+        for (const date of state.datesSelected) {
+          if (!newCellsToHighlight.has(date)) {
+            newCellsToHighlight.set(date, new Map());
+          }
+          const dateObj = parseDate(date);
+          dateObj.setHours(hour);
+          dateObj.setMinutes(min);
+          newCellsToHighlight
+            .get(date)
+            .set(dateObj.toISOString(), newHighlight);
+        }
       }
 
       return {
@@ -523,7 +628,7 @@ const initializeState = ({
     cellDown: null as string | null,
     fromDate: null,
     page: 0,
-    dateSelected: null,
+    datesSelected: [],
     timeInputCellsToHighlight: new Map<string, Map<string, boolean>>(),
     pointerDown: false,
     initialDateTimeDown: null,
@@ -557,6 +662,11 @@ const initializeState = ({
       date = new Date(date.getTime() + fifteenMinsInMilliseconds);
     }
   }
+
+  initialState.timeInputCellsToHighlight.set(
+    dateForMultipleDatesSelected,
+    new Map()
+  );
   return initialState;
 };
 
@@ -619,10 +729,10 @@ const Calendar = (): JSX.Element => {
     { initialFreeTimes, dates },
     initializeState
   );
-  const onTimeInputPointerDownHandler = (time: string) =>
-    dispatch({ type: actionTypes.timeInputPointerDown, dateTime: time });
-  const onTimeInputPointerEnterHandler = (time: string) =>
-    dispatch({ type: actionTypes.timeInputOnEnterCell, dateTime: time });
+  const onTimeInputPointerDownHandler = (hour: number, min: number) =>
+    dispatch({ type: actionTypes.timeInputPointerDown, hour, min });
+  const onTimeInputPointerEnterHandler = (hour: number, min: number) =>
+    dispatch({ type: actionTypes.timeInputOnEnterCell, hour, min });
   const onTimeInputPointerUpOrLeaveHandler = () =>
     dispatch({ type: actionTypes.timeInputPointerUp });
 
@@ -648,10 +758,26 @@ const Calendar = (): JSX.Element => {
     initialFreeTimes
   );
 
-  const highlightClassName = (time: string) => {
+  const highlightClassName = (hour: number, min: number) => {
     let className = "";
-    if (state.timeInputCellsToHighlight.get(state.dateSelected)?.get(time)) {
-      className += "highlight-cell";
+    if (state.datesSelected.length === 1) {
+      const time = getDateTime(state.datesSelected[0], hour, min);
+      if (
+        state.timeInputCellsToHighlight.get(state.datesSelected[0])?.get(time)
+      ) {
+        className += "highlight-cell";
+      }
+    } else if (
+      state.timeInputCellsToHighlight.get(dateForMultipleDatesSelected)
+    ) {
+      // choose the date 2000-01-01 to act as a dummy date for multiple dates selected
+      if (
+        state.timeInputCellsToHighlight
+          .get(dateForMultipleDatesSelected)
+          .get(getDateTime(dateForMultipleDatesSelected, hour, min))
+      ) {
+        className += "highlight-cell";
+      }
     }
     return className;
   };
@@ -718,7 +844,11 @@ const Calendar = (): JSX.Element => {
         //!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
         state.showTimes && (
           <TimeSelector
-            date={state.dateSelected}
+            date={
+              state.datesSelected.length === 1
+                ? parseDate(state.datesSelected[0])
+                : null
+            }
             title={"Select times"}
             highlightClassName={highlightClassName}
             onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
@@ -770,7 +900,7 @@ const Calendar = (): JSX.Element => {
         </div>
       )}
 
-      {!state.selectDates && state.dateSelected === null && (
+      {!state.selectDates && state.datesSelected.length === 0 && (
         <div className="date-select-message">
           <span>Select a date to view</span>
           <BackButton

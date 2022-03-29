@@ -48,6 +48,10 @@ export const parseDateTime = (str: string): Date => {
   return date;
 };
 
+export const parseDate = (str: string): Date => {
+  return new Date(+str.slice(0, 4), +str.slice(5, 7) - 1, +str.slice(8, 10), 3);
+};
+
 export const formatDate = (date: Date): string =>
   `${date.getFullYear()}-${(date.getMonth() + 1)
     .toString()
@@ -242,4 +246,19 @@ export function getNewAndDeleteIntervals(
     }
   }
   return [newTimeIntervals, deleteTimeIntervals];
+}
+
+// getDateTime takes a string like  2021-03-23 and an hour and min
+// where min is a multiple of 15 represent a start of a 15-min interval
+// i.e. hour = 14 min = 15 represents 14:15 to 14:30
+export function getDateTime(
+  dateStr: string,
+  hour: number,
+  min: number
+): string {
+  const year = +dateStr.slice(0, 4);
+  const month = +dateStr.slice(5, 7) - 1;
+  const day = +dateStr.slice(8, 10);
+
+  return new Date(year, month, day, hour, min, 0).toISOString();
 }

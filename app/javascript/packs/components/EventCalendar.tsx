@@ -7,7 +7,11 @@ import {
   getDatesAndRowsOfDates,
 } from "../util/time-intervals";
 import { ForwardButton } from "./ForwardButton";
-import { parseDateTime } from "../util/calendar-helpers";
+import {
+  parseDateTime,
+  parseDate,
+  getDateTime,
+} from "../util/calendar-helpers";
 
 const formatDate = (date: Date) =>
   `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -52,8 +56,8 @@ interface TimeInputCellStyle {
 interface EventTimesDisplayProps {
   dispatch: React.Dispatch<ReducerAction>;
   dateSelected: string;
-  highlightClassName: (time: string) => string;
-  colorMap: (time: string) => TimeInputCellStyle;
+  highlightClassName: (hour: number, min: number) => string;
+  colorMap: (hour: number, min: number) => TimeInputCellStyle;
   availableParticipants: string[];
   unavailableParticipants: string[];
   selectedTimeInterval: string;
@@ -86,7 +90,7 @@ const EventTimesDisplay = ({
   return (
     <div className="event-display">
       <TimeSelector
-        date={dateSelected}
+        date={parseDate(dateSelected)}
         title={"View times"}
         highlightClassName={highlightClassName}
         colorMap={colorMap}
@@ -94,8 +98,8 @@ const EventTimesDisplay = ({
         onPointerUpHandler={null}
         onPointerCancelHandler={null}
         onPointerDownHandler={noop}
-        onPointerEnterHandler={(time: string) => {
-          dispatch({ type: "SELECT_TIME_INTERVAL", time });
+        onPointerEnterHandler={(hour: number, min: number) => {
+          dispatch({ type: "SELECT_TIME_INTERVAL", hour, min });
         }}
         className={"event-times-display"}
       >
@@ -176,7 +180,8 @@ interface PointerUpAction {
 
 interface SelectTimeIntervalAction {
   type: "SELECT_TIME_INTERVAL";
-  time: string;
+  hour: number;
+  min: number;
 }
 
 const MOVE_BACK = "MOVE_BACK";
@@ -226,9 +231,10 @@ const reducer = (
       }
     }
     case "SELECT_TIME_INTERVAL": {
+      const datetime = getDateTime(state.dateSelected, action.hour, action.min);
       return {
         ...state,
-        timeSelected: action.time,
+        timeSelected: datetime,
       };
     }
     case MOVE_FORWARD:
@@ -448,8 +454,9 @@ const EventCalendar = (): JSX.Element => {
     .filter(([_, isSelected]) => isSelected)
     .map(([date, _]) => date);
   const hasSelectedDates = selectedDates.length > 0;
-  const highlightClassName = (time: string) => {
+  const highlightClassName = (hour: number, min: number) => {
     let className = "";
+    const time = getDateTime(state.dateSelected, hour, min);
     if (state.timeInputCellsToHighlight.get(state.dateSelected)?.get(time)) {
       className += "highlight-cell ";
     }
@@ -459,7 +466,8 @@ const EventCalendar = (): JSX.Element => {
     return className;
   };
 
-  const colorMap = (time: string) => {
+  const colorMap = (hour: number, min: number) => {
+    const time = getDateTime(state.dateSelected, hour, min);
     const maxNumberOverlapping = Math.max(
       ...Array.from(
         state.timeInputCellsToHighlight.get(state.dateSelected).values()
