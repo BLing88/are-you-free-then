@@ -216,10 +216,17 @@ const reducer = (
         state.dateSelected === null &&
         state.cellsToHighlight.get(action.date)
       ) {
+        const newTimeInputCellsToHighlight = new Map(
+          state.timeInputCellsToHighlight
+        );
+        if (!newTimeInputCellsToHighlight.has(action.date)) {
+          newTimeInputCellsToHighlight.set(action.date, new Map());
+        }
         return {
           ...state,
           dateSelected: action.date,
           selectDates: false,
+          timeInputCellsToHighlight: newTimeInputCellsToHighlight,
         };
       } else if (state.selectDates) {
         return {
@@ -454,6 +461,7 @@ const EventCalendar = (): JSX.Element => {
     .filter(([_, isSelected]) => isSelected)
     .map(([date, _]) => date);
   const hasSelectedDates = selectedDates.length > 0;
+
   const highlightClassName = (hour: number, min: number) => {
     let className = "";
     const time = getDateTime(state.dateSelected, hour, min);
