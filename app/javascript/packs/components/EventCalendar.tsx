@@ -763,7 +763,7 @@ const EventCalendar = (): JSX.Element => {
               }
             />
           )}
-          {state.page < 12 && (
+          {state.page < 10 && (
             <ForwardButton
               onClickHandler={() =>
                 dispatch({
