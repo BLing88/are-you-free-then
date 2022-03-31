@@ -121,6 +121,7 @@ const actionTypes = {
   timeInputPointerDown: "TIME_INPUT_POINTER_DOWN",
   timeInputPointerUp: "TIME_INPUT_POINTER_UP",
   timeInputOnEnterCell: "TIME_INPUT_ON_ENTER_CELL",
+  calendarLeave: "CALENDAR_LEAVE",
 } as const;
 
 interface ChangeSelectionAction {
@@ -223,7 +224,7 @@ export const CalendarMonth = ({
 
       <div
         className="calendar"
-        //onPointerLeave={() => dispatch({ type: actionTypes.cellUp })}
+        onPointerLeave={() => dispatch({ type: actionTypes.cellUp })}
       >
         {dateRows.map((row, rowIndex) => {
           const classNames = row.map((date, index) => {
@@ -394,13 +395,21 @@ const reducer = (
       }
       return state;
     case actionTypes.cellUp: {
+      if (!state.isLongPressing || state.showTimes) {
+        // when leaving calendar, only change state when
+        // long pressing and not showing times
+        return { ...state };
+      }
       const newTimeInputCellsToHighlight = new Map(
         state.timeInputCellsToHighlight
       );
+      const selectedSingleDate =
+        !state.fromDate || state.datesSelected.length === 0;
       if (
-        !state.fromDate &&
+        selectedSingleDate &&
         !state.timeInputCellsToHighlight.has(state.cellDown)
       ) {
+        // if longPressing a single date
         newTimeInputCellsToHighlight.set(state.cellDown, new Map());
       }
       return {
@@ -412,9 +421,11 @@ const reducer = (
           // only show times if you have long pressed and the initial date is being selected
           // note that the initial date (cellDown) was already set to be highlighted
           // in the longPressing action preceding the cellUp action
-          state.isLongPressing && state.cellsToHighlight.get(state.cellDown), //|| (!state.isLongPressing && !state.showTimes),
+          state.isLongPressing && state.cellsToHighlight.get(state.cellDown),
         // if long pressing just one date the time selector should show
-        datesSelected: !state.fromDate ? [state.cellDown] : state.datesSelected,
+        datesSelected: selectedSingleDate
+          ? [state.cellDown]
+          : state.datesSelected,
         timeInputCellsToHighlight: newTimeInputCellsToHighlight,
       };
     }
