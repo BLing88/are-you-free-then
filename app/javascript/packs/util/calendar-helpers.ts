@@ -37,15 +37,13 @@ export function getTimeFromDate(str: string): number {
 }
 
 export const parseDateTime = (str: string): Date => {
-  const date = new Date();
-  date.setUTCFullYear(+str.slice(0, 4));
-  date.setUTCMonth(+str.slice(5, 7) - 1);
-  date.setUTCDate(+str.slice(8, 10));
-  date.setUTCHours(+str.slice(11, 13));
-  date.setUTCMinutes(+str.slice(14, 16));
-  date.setUTCSeconds(0);
-  date.setUTCMilliseconds(0);
-  return date;
+  const year = +str.slice(0, 4);
+  const month = +str.slice(5, 7) - 1;
+  const day = +str.slice(8, 10);
+  const hour = +str.slice(11, 13);
+  const min = +str.slice(14, 16);
+
+  return new Date(Date.UTC(year, month, day, hour, min, 0, 0));
 };
 
 export const parseDate = (str: string): Date => {
