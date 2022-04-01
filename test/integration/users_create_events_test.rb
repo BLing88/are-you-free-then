@@ -65,4 +65,20 @@ class UsersCreateEventsTest < ActionDispatch::IntegrationTest
     assert_select 'h1', text: new_event_name
     assert SuggestedEventTime.exists?(event_id: @alices_event.id, start_time: new_start, end_time: new_end)
   end
+
+  test "unsuccessful event creation" do
+    log_in_as @alice
+    get new_event_path
+    assert_no_difference ['Event.count', 'SuggestedEventTime.count'] do
+      post events_path, params: { event: { name: "", 
+                                           host_id: @alice.id
+                                            },
+                                  create_intervals: ["2022-12-05T12:45:00.000Z_2022-12-05T18:30:00.000Z"]}
+    end
+    assert_select 'p.flash-message'
+    assert_select "title", text: /Create event/i
+    assert_select "input[name=?]", 'event[name]'
+    assert_select 'label', /Event name/i
+    assert_select "input[name=?]", 'event[host_id]'
+  end
 end
