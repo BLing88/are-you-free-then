@@ -1,8 +1,6 @@
 <h2><%= @current_user.name %></h2>
 <%= tag.div id: "react-user-home-page",
   "data-events" => @events.to_json, 
-  "data-event-invites" => @event_invites.to_json,
   "data-user-id" => @current_user.id
-  # "data-friend-requests" => @friend_requests.to_json
 %>
-  
+ 

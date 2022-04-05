@@ -7,7 +7,6 @@
     "data-participant-times": @times.to_json,
     "data-participant-count": @event.participants.count  %>
   <div class="event-details">
-    <span><b class="event-code-title">Event code:</b> <small><%= @event.event_code %></small> </span>
     <% if @current_user == @event.host%>
       <%= link_to  edit_event_path(@event), class: 'edit-link' do %>
         <%= render 'shared/edit_link' %>
