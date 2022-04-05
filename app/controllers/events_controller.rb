@@ -59,14 +59,27 @@ class EventsController < ApplicationController
   def edit
   end
 
+  def join
+    begin
+      @event = Event.find(params[:id])
+      if @current_user == @event.host || @event.participants.include?(@current_user)
+        redirect_to @event 
+        return
+      end
+      @participation = @event.participations.build
+    rescue 
+      render 'not_found'
+    end
+  end
+
 
   def update
     event_id, name = event_params.values_at(:event_id, :name)
     begin
       SuggestedEventTime.update_intervals(params[:create_intervals],
-                                         params[:delete_intervals],
-                                         :event_id,
-                                         event_id)
+                                          params[:delete_intervals],
+                                          :event_id,
+                                          event_id)
       @event.update!(name: name) unless event_params.nil?
       flash[:success] = "Update successful!"
       redirect_to @event

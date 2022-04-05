@@ -23,6 +23,8 @@ Rails.application.routes.draw do
       #resources :event_invites, only: [:create, :new]
       get '/invite', to: 'event_invites#new'
       post '/invite', to: 'event_invites#create'
+      get '/join', to: 'events#join'
+      # resources :participations, only: [:show], path: :join
     end
   end
   resources :event_invites, only: [:destroy]

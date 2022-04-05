@@ -19,3 +19,9 @@ greg:
   name: Greg Bar
   email: greg@email.com
   password_digest: <%= User.digest('example_password') %>
+
+nonparticipant:
+  name: Not Participant
+  email: nonparticipant@example.com
+  password_digest: <%= User.digest('example_password') %>
+

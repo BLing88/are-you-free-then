@@ -1,0 +1,5 @@
+<p>Please confirm you’d like to join <%= @event.host.name %>’s event <%= @event.name %> </p>
+<%= form_with model: @participation do |f| %>
+  <%= f.hidden_field :event_id, value: @event.id %>
+  <%= f.submit value: "Confirm" %>
+<% end %>
