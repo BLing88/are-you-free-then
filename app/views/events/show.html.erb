@@ -9,7 +9,8 @@
   <div class="event-details">
     <% if @current_user == @event.host%>
       <%= link_to  edit_event_path(@event), class: 'edit-link' do %>
-        <%= render 'shared/edit_link' %>
+        <i class="edit-icon fa-solid fa-pen-to-square fa-2xl"></i>
+        <span>Edit</span>
       <% end %>
     <% end %> 
     <%#= link_to "Invite participants", invite_event_path(@event) %>

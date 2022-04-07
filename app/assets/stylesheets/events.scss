@@ -59,7 +59,15 @@
 .edit-link {
     position: fixed;
     right: 1rem;
-    bottom: calc(var(--header-height) + 0.5rem);
+    color: var(--action-color);
+    width: max-content;
+    text-decoration: none;
+    bottom: calc(var(--header-height) + 1rem);
+
+    span {
+      font-size: 1.25rem;
+      color: var(--background-color);
+    }
 }
 
 .participants-list-heading {

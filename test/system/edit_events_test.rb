@@ -16,7 +16,7 @@ class EditEventsTest < ApplicationSystemTestCase
     click_on "Login"
 
     visit event_url(@event)
-    click_link 'Edit event'
+    click_link 'Edit'
 
     assert_selector 'button', text: /participants/i
     assert_selector 'button', text: /details/i
@@ -33,7 +33,7 @@ class EditEventsTest < ApplicationSystemTestCase
     page.driver.browser.switch_to.alert.accept
     assert_selector 'li', text: @alice.name
     # wait for ajax to remove participant li
-    assert_not has_link?(href: participation_path(@gregs_participation), wait: 5)
+    assert_not has_link?(href: participation_path(@gregs_participation), wait: 10)
   end
 
   test "can delete events as host" do
@@ -45,7 +45,7 @@ class EditEventsTest < ApplicationSystemTestCase
     assert has_link? @event.name
 
     visit event_url(@event)
-    click_link 'Edit event'
+    click_link 'Edit'
     
     click_button 'Other'
     
