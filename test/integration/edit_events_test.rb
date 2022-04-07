@@ -4,6 +4,7 @@ class EditEventsTest < ActionDispatch::IntegrationTest
   def setup
     @event = events(:one)
     @alice = users(:alice)
+    @alices_participation = participations(:four)
     @bob = users(:bob)
     @bobs_participation = participations(:one)
     @greg = users(:greg)
@@ -67,6 +68,19 @@ class EditEventsTest < ActionDispatch::IntegrationTest
   end
 
   test "host can only delete themself as participant by deleting event" do
+    log_in_as @alice
+    assert @event.participants.include?(@alice)
+    assert_no_difference 'Participation.count' do
+      delete participation_path(@alices_participation)
+    end
+    assert @event.participants.include?(@alice)
+    assert_redirected_to @event
+
+    assert_difference 'Event.count', -1 do
+      delete event_path(@event)
+    end
+    
+    assert_not @alice.events.include?(@event)
   end
   
   test "can uninvite participants" do

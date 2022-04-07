@@ -35,4 +35,25 @@ class EditEventsTest < ApplicationSystemTestCase
     # wait for ajax to remove participant li
     assert_not has_link?(href: participation_path(@gregs_participation), wait: 5)
   end
+
+  test "can delete events as host" do
+    visit login_url
+    fill_in "session[email]", with: @alice.email
+    fill_in "session[password]", with: 'example_password'
+    click_on "Login"
+
+    assert has_link? @event.name
+
+    visit event_url(@event)
+    click_link 'Edit event'
+    
+    click_button 'Other'
+    
+    click_link "Delete this event"
+    page.driver.browser.switch_to.alert.accept
+
+    assert_not has_link?(@event.name, wait: 5)
+
+    assert_selector "p.flash-message", text: /event successfully deleted/i
+  end
 end

@@ -38,6 +38,10 @@ class ParticipationsController < ApplicationController
         redirect_to root_url
         return
       end
+      if @participation.user == @current_user
+        redirect_to @participation.event
+        return
+      end
       @participation.destroy
       respond_to do |format|
         format.html { redirect_to edit_event_url(@participation.event) }

@@ -7,11 +7,17 @@
       const participants = document.getElementById("edit-participants")
           participants.style.display = 'none'
 
+      const other = document.getElementById("edit-event-other")
+      other.style.display = "none"
+
       const detailsTab = document.querySelector(".edit-event-details")
       detailsTab.classList.add("current-tab")
 
       const participantsTab = document.querySelector(".edit-event-participants")
       participantsTab.classList.remove("current-tab")
+
+      const otherTab = document.querySelector(".edit-event-other-tab")
+      otherTab.classList.remove("current-tab")
     }
   function showEventParticipants() {
       const details = document.getElementById("edit-event")
@@ -20,11 +26,38 @@
       const participants = document.getElementById("edit-participants")
           participants.style.display = 'block'
 
+      const other = document.getElementById("edit-event-other")
+      other.style.display = "none"
+
       const detailsTab = document.querySelector(".edit-event-details")
       detailsTab.classList.remove("current-tab")
 
       const participantsTab = document.querySelector(".edit-event-participants")
       participantsTab.classList.add("current-tab")
+
+      const otherTab = document.querySelector(".edit-event-other-tab")
+      otherTab.classList.remove("current-tab")
+    }
+
+  function showEventOther() {
+      const details = document.getElementById("edit-event")
+        details.style.display = "none"
+
+      const participants = document.getElementById("edit-participants")
+          participants.style.display = 'none'
+
+      const other = document.getElementById("edit-event-other")
+      other.style.display = "block"
+
+      const detailsTab = document.querySelector(".edit-event-details")
+      detailsTab.classList.remove("current-tab")
+
+      const participantsTab = document.querySelector(".edit-event-participants")
+      participantsTab.classList.remove("current-tab")
+
+      const otherTab = document.querySelector(".edit-event-other-tab")
+      otherTab.classList.add("current-tab")
+
     }
 </script>
 
@@ -32,6 +65,7 @@
 <div class="edit-event-tabs">
   <button class='edit-event-details current-tab' onclick="showEventDetails()">Details</button>
   <button class='edit-event-participants' onclick="showEventParticipants()">Participants</button>
+  <button class='edit-event-other-tab' onclick="showEventOther()">Other</button>
 </div>
 
 <div id="edit-event" style="display: visible;">
@@ -51,5 +85,15 @@
       </li>
     <% end %>
   </ul>
+</div>
+
+<div id="edit-event-other">
+  <%= link_to("Delete this event", 
+              event_path(@event), 
+              method: :delete,
+              data: { confirm: "Delete #{@event.name}?" },
+              class: "delete-event-link"
+             )
+           %>
 </div>
 

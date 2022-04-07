@@ -119,13 +119,17 @@
   margin-bottom: 1rem;
 }
 
-.edit-event-details, .edit-event-participants {
+.edit-event-details, 
+.edit-event-participants,
+.edit-event-other-tab {
   background: none;
   color: var(--background-color);
   transition: color var(--transition-duration) ease-in;
 }
 
-.edit-event-details:hover, .edit-event-participants:hover {
+.edit-event-details:hover, 
+.edit-event-participants:hover,
+.edit-event-other-tab:hover {
   color: var(--action-color);
   cursor: pointer;
 }
@@ -135,7 +139,8 @@
   border-radius: 0;
 }
 
-#edit-participants {
+#edit-participants, 
+#edit-event-other{
   margin: 0 calc((100% - var(--calendar-width)) / 2);
 }
 
@@ -160,6 +165,21 @@
 
 .remove-participant:hover {
   color: var(--action-color);
+}
+
+#edit-event-other {
+  margin-top: 2rem;
+}
+
+.delete-event-link {
+  color: #B30000;
+  text-decoration: none;
+  border: solid 2px #B30000;
+  padding: 0.5rem;
+  border-radius: 0.5rem; 
+}
+
+.delete-event-link:hover {
 }
 
 @media (min-width: 450px) {

@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   before_action :logged_in_user
-  before_action :is_host?, only: [:edit, :update]
+  before_action :is_host?, only: [:edit, :update, :destroy]
   before_action :is_participant?, only: [:show]
 
   def new
@@ -90,6 +90,17 @@ class EventsController < ApplicationController
       logger.debug(e)
       flash.now[:danger] = "There was an error. Try again."
       render :edit
+    end
+  end
+
+  def destroy
+    event = Event.find(params[:id])
+    begin
+      event.destroy
+      flash[:success] = "Event successfully deleted."
+      redirect_to root_url
+    rescue
+      flash[:danger] = "There was an error. Try again."
     end
   end
 
