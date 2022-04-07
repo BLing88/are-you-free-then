@@ -68,7 +68,7 @@
   <button class='edit-event-other-tab' onclick="showEventOther()">Other</button>
 </div>
 
-<div id="edit-event" style="display: visible;">
+<div id="edit-event" style="display: block;">
   <%= render 'shared/event_form', update_btn_message: "Update" %>
 </div>
 <div id="edit-participants" style="display: none;">
@@ -87,7 +87,7 @@
   </ul>
 </div>
 
-<div id="edit-event-other">
+<div id="edit-event-other" style="display: none;">
   <%= link_to("Delete this event", 
               event_path(@event), 
               method: :delete,
