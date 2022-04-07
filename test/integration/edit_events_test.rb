@@ -5,6 +5,8 @@ class EditEventsTest < ActionDispatch::IntegrationTest
     @event = events(:one)
     @alice = users(:alice)
     @bob = users(:bob)
+    @bobs_participation = participations(:one)
+    @greg = users(:greg)
   end
 
   test "must be logged in to edit" do
@@ -46,7 +48,25 @@ class EditEventsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "can delete participant" do
+  test "can delete participants as host" do
+    log_in_as @alice
+    assert @event.participants.include?(@bob) 
+    assert_difference 'Participation.count', -1 do
+      delete participation_path(@bobs_participation)
+    end
+    assert_not @event.participants.include?(@bob) 
+  end
+
+  test "cannot delete participants if not host" do
+    log_in_as @greg
+    assert_no_difference 'Participation.count' do
+      delete participation_path(@bobs_participation)
+    end
+    assert @event.participants.include?(@bob) 
+    assert_redirected_to root_url
+  end
+
+  test "host can only delete themself as participant by deleting event" do
   end
   
   test "can uninvite participants" do

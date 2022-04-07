@@ -114,6 +114,54 @@
   }
 }
 
+.edit-event-tabs {
+  margin: 0 calc((100% - var(--calendar-width)) / 2);
+  margin-bottom: 1rem;
+}
+
+.edit-event-details, .edit-event-participants {
+  background: none;
+  color: var(--background-color);
+  transition: color var(--transition-duration) ease-in;
+}
+
+.edit-event-details:hover, .edit-event-participants:hover {
+  color: var(--action-color);
+  cursor: pointer;
+}
+
+.current-tab {
+  border-bottom: solid var(--action-color);
+  border-radius: 0;
+}
+
+#edit-participants {
+  margin: 0 calc((100% - var(--calendar-width)) / 2);
+}
+
+.edit-event-participants-list {
+  list-style: none;
+  padding: 0;
+}
+
+.participant {
+  margin-bottom: 0.25rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.remove-participant {
+  cursor: pointer;
+  color: var(--background-color);
+  text-decoration: none;
+  transition: color var(--transition-duration) ease-in;
+}
+
+.remove-participant:hover {
+  color: var(--action-color);
+}
+
 @media (min-width: 450px) {
     .event-page {
         display: grid;

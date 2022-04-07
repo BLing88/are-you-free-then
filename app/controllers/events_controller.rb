@@ -57,6 +57,8 @@ class EventsController < ApplicationController
   end
 
   def edit
+    @event = Event.includes(:participants).find(params[:id])
+    @participations = Participation.where(event: @event)
   end
 
   def join

@@ -31,6 +31,24 @@ class ParticipationsController < ApplicationController
     end
   end
 
+  def destroy
+    begin
+      @participation = Participation.find(params[:id])
+      if @current_user != @participation.event.host
+        redirect_to root_url
+        return
+      end
+      @participation.destroy
+      respond_to do |format|
+        format.html { redirect_to edit_event_url(@participation.event) }
+        format.js
+      end
+    rescue
+      flash.now[:danger] = "There was an error removing participant."
+      render "events/edit"
+    end
+  end
+
   private
 
   def participation_params

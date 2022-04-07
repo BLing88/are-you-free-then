@@ -24,10 +24,9 @@ Rails.application.routes.draw do
       get '/invite', to: 'event_invites#new'
       post '/invite', to: 'event_invites#create'
       get '/join', to: 'events#join'
-      # resources :participations, only: [:show], path: :join
     end
   end
   resources :event_invites, only: [:destroy]
-  resources :participations, only: [:create]
+  resources :participations, only: [:create, :destroy]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

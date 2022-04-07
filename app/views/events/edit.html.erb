@@ -1,3 +1,55 @@
 <% provide(:title, "Edit event") %>
+<script>
+  function showEventDetails() {
+      const details = document.getElementById("edit-event")
+        details.style.display = "block"
+
+      const participants = document.getElementById("edit-participants")
+          participants.style.display = 'none'
+
+      const detailsTab = document.querySelector(".edit-event-details")
+      detailsTab.classList.add("current-tab")
+
+      const participantsTab = document.querySelector(".edit-event-participants")
+      participantsTab.classList.remove("current-tab")
+    }
+  function showEventParticipants() {
+      const details = document.getElementById("edit-event")
+        details.style.display = "none"
+
+      const participants = document.getElementById("edit-participants")
+          participants.style.display = 'block'
+
+      const detailsTab = document.querySelector(".edit-event-details")
+      detailsTab.classList.remove("current-tab")
+
+      const participantsTab = document.querySelector(".edit-event-participants")
+      participantsTab.classList.add("current-tab")
+    }
+</script>
+
 <h1 class="edit-event-header">Edit <%= @event.name %></h1>
-<%= render 'shared/event_form', update_btn_message: "Update" %>
+<div class="edit-event-tabs">
+  <button class='edit-event-details current-tab' onclick="showEventDetails()">Details</button>
+  <button class='edit-event-participants' onclick="showEventParticipants()">Participants</button>
+</div>
+
+<div id="edit-event" style="display: visible;">
+  <%= render 'shared/event_form', update_btn_message: "Update" %>
+</div>
+<div id="edit-participants" style="display: none;">
+  <ul class="edit-event-participants-list">
+    <% @participations.each do |participation| %>
+      <li class="participant">
+        <%= participation.user.name %>
+        <%= link_to("remove", participation_path(participation.id), 
+                    method: :delete, 
+                    remote: true, 
+                    data: { confirm: "Remove #{participation.user.name}?" },
+                    class: "remove-participant" 
+                   ) unless participation.user == @event.host %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
