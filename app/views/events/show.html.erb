@@ -12,6 +12,14 @@
         <i class="edit-icon fa-solid fa-pen-to-square fa-2xl"></i>
         <span>Edit</span>
       <% end %>
+
+    <% else %>
+      <%= link_to 'Leave event', 
+        participation_path(@participation), 
+        method: :delete, 
+        class: "leave-event-link",
+        data: { confirm: "Leave #{@event.name}?" }
+      %>
     <% end %> 
     <%#= link_to "Invite participants", invite_event_path(@event) %>
     <h2 class="participants-list-heading">Participants</h2>

@@ -82,22 +82,4 @@ class UsersCreateEventsTest < ActionDispatch::IntegrationTest
     assert_select 'label', /Event name/i
     assert_select "input[name=?]", 'event[host_id]'
   end
-
-  test "only hosts can delete events" do
-    log_in_as @bob
-    assert_no_difference 'Event.count' do
-      delete event_path(@alices_event)
-    end
-    assert_redirected_to root_url
-    follow_redirect!
-    assert_select 'p.flash-message', text: /Only hosts can edit events./i
-
-    log_in_as @alice
-    assert_difference -> { Event.count } => -1, -> { Participation.count } =>  -(@alices_event.participants.count) do
-      delete event_path(@alices_event)
-    end
-    assert_redirected_to root_url
-    follow_redirect!
-    assert_select 'p.flash-message', text: /event successfully deleted/i 
-  end
 end

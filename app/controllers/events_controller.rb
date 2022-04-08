@@ -35,6 +35,10 @@ class EventsController < ApplicationController
     end  
     #logger.debug("@times: #{@times}")
     @times = @times.values
+
+    if (@current_user != @event.host)
+      @participation = Participation.find_by(user: @current_user, event: @event)
+    end
   end
 
   def create

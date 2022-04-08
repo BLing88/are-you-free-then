@@ -51,6 +51,8 @@
 
 .event-details {
     grid-area: details;
+    display: flex;
+    flex-direction: column;
     width: var(--calendar-width);
     margin: 1rem auto 0 auto;
     position: relative;
@@ -190,6 +192,22 @@
 .delete-event-link:hover {
 }
 
+.leave-event-link {
+  order: 10;
+  display: block;
+  align-self: center;
+  border: 1px solid gray;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  text-decoration: none;
+  color: var(--background-color);
+  transition: background-color var(--transition-duration) ease-in;
+}
+
+.leave-event-link:hover {
+  background-color: #dedede;
+}
+
 @media (min-width: 450px) {
     .event-page {
         display: grid;
@@ -204,7 +222,11 @@
         text-align: left;
     }
 
-    .edit-link {
+    .leave-event-link {
+      order: 1;
+    }
+
+    .edit-link, .leave-event-link {
         position: absolute;
         right: auto;
         bottom: auto;

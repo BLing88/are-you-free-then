@@ -34,17 +34,18 @@ class ParticipationsController < ApplicationController
   def destroy
     begin
       @participation = Participation.find(params[:id])
-      if @current_user != @participation.event.host
+      host = @participation.event.host
+      if @current_user != host && @participation.user != @current_user
         redirect_to root_url
         return
       end
-      if @participation.user == @current_user
+      if @current_user == host && @participation.user == @current_user
         redirect_to @participation.event
         return
       end
       @participation.destroy
       respond_to do |format|
-        format.html { redirect_to edit_event_url(@participation.event) }
+        format.html { redirect_to event_url(@participation.event) }
         format.js
       end
     rescue
