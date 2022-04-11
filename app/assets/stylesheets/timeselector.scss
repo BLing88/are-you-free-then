@@ -90,8 +90,13 @@
 
 
 .time-input-date {
-    font-size: 1.2rem;
+    // font-size: 1.2rem;
     margin-bottom: 0.75rem;
+    font-weight: bold;
+}
+
+.time-string {
+  font-weight: bold;
 }
 
 .time-input-back-btn {

@@ -91,7 +91,7 @@
     transform: translateX(-50%);
     width: Min(100%, 340px);
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto 170px;
     grid-template-areas: "times participants";
     background-color: var(--action-text-color);
     color: var(--background-color);
@@ -100,6 +100,7 @@
     box-shadow: 0 0 1rem var(--background-color);
     height: 610px;
     overflow: hidden;
+    padding: 0.5rem;
 }
 
 .event-times-display {
@@ -112,9 +113,17 @@
 
 .participant-lists {
   overflow: scroll;
-  padding: 0;
+  padding: 0.4rem 0 0 0;
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto 1fr 1fr;
   ul {
     padding: 0;
+  }
+
+  h4 {
+    margin: 0.5rem 0;
   }
 }
 
@@ -122,6 +131,12 @@
   h3 {
     margin-bottom: 0.5rem;
   }
+}
+
+.available-participants-list,
+.unavailable-participants-list {
+  max-height: 220px;
+  overflow: scroll;
 }
 
 .edit-event-tabs {

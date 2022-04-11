@@ -112,28 +112,30 @@ const EventTimesDisplay = ({
         </button>
       </TimeSelector>
       <ul className="participant-lists">
-        <span>{timeIntervalStringFor(selectedTimeInterval)}</span>
+        <span className="time-string">
+          {timeIntervalStringFor(selectedTimeInterval)}
+        </span>
         <li>
-          <h3>
+          <h4>
             Available{" "}
             <small>
               ({`${availableParticipants.length}/${totalParticipantCount}`})
             </small>
-          </h3>
-          <ul>
+          </h4>
+          <ul className="available-participants-list">
             {availableParticipants.map((participant) => {
               return <li key={participant}>{participant}</li>;
             })}
           </ul>
         </li>
         <li>
-          <h3>
+          <h4>
             Unavailable{" "}
             <small>
               ({`${unavailableParticipants.length}/${totalParticipantCount}`})
             </small>
-          </h3>
-          <ul>
+          </h4>
+          <ul className="unavailable-participants-list">
             {unavailableParticipants.map((participant) => {
               return <li key={participant}>{participant}</li>;
             })}

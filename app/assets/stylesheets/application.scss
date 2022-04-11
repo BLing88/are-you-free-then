@@ -127,7 +127,7 @@ input[type='checkbox']:hover {
 
 @media (max-width: 392px) {
     body {
-        padding: 0 0.5rem calc(var(--header-height) + 1rem) 0.5rem;
+        padding: 0 0.5rem calc(2 * var(--header-height)) 0.5rem;
     }
     
     .flash-message-container {
