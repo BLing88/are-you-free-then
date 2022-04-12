@@ -873,13 +873,15 @@ const Calendar = (): JSX.Element => {
             onPointerEnterHandler={onTimeInputPointerEnterHandler}
             className={"time-selector"}
           >
-            <button
-              type="button"
-              className="select-date-btn"
-              onClick={() => dispatch({ type: actionTypes.selectDates })}
-            >
-              Close
-            </button>
+            <div className="time-input-back-btn">
+              <button
+                type="button"
+                className="select-date-btn"
+                onClick={() => dispatch({ type: actionTypes.selectDates })}
+              >
+                Close
+              </button>
+            </div>
           </TimeSelector>
         )
       }

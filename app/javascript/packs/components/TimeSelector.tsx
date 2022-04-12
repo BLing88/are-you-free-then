@@ -94,7 +94,7 @@ interface TimeSelectorProps {
   title: string;
   highlightClassName: (hour: number, min: number) => string;
   colorMap?: (hour: number, min: number) => TimeInputCellStyle;
-  children: ReactElement;
+  children?: ReactElement;
   className: string;
 }
 
@@ -156,7 +156,7 @@ const TimeSelector = ({
           );
         })}
       </div>
-      <div className="time-input-back-btn">{children}</div>
+      {children}
     </div>
   );
 };

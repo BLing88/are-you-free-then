@@ -36,9 +36,9 @@
 }
 
 .time-cells {
-  overflow: scroll;
+  overflow-y: scroll;
   position: relative;
-  height: 615px;
+  //height: 615px;
   //scroll-snap-type: y proximity;
   padding: 0.5rem 0.5rem 0 0;
   display: flex;
@@ -101,6 +101,7 @@
 
 .time-input-back-btn {
     //grid-area: 26 / 4 / 27 / 6;
+    grid-area: close-btn;
 }
 
 .time-input-date,

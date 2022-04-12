@@ -102,15 +102,7 @@ const EventTimesDisplay = ({
           dispatch({ type: "SELECT_TIME_INTERVAL", hour, min });
         }}
         className={"event-times-display"}
-      >
-        <button
-          type="button"
-          className="select-date-btn"
-          onClick={() => dispatch({ type: SELECT_DATES })}
-        >
-          Close
-        </button>
-      </TimeSelector>
+      />
       <ul className="participant-lists">
         <span className="time-string">
           {timeIntervalStringFor(selectedTimeInterval)}
@@ -142,6 +134,15 @@ const EventTimesDisplay = ({
           </ul>
         </li>
       </ul>
+      <div className="time-input-back-btn">
+        <button
+          type="button"
+          className="select-date-btn"
+          onClick={() => dispatch({ type: SELECT_DATES })}
+        >
+          Close
+        </button>
+      </div>
     </div>
   );
 };

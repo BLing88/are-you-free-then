@@ -89,14 +89,16 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: Min(100%, 340px);
+    width: Min(100%, 370px);
     display: grid;
     grid-template-columns: auto 170px;
-    grid-template-areas: "times participants";
+    grid-template-rows: 1fr auto;
+    grid-template-areas: 
+      "times participants"
+      "close-btn close-btn";
     background-color: var(--action-text-color);
     color: var(--background-color);
     z-index: 1;
-    //border-radius: var(--time-selector-border-radius);
     box-shadow: 0 0 1rem var(--background-color);
     height: 610px;
     overflow: hidden;
@@ -107,17 +109,18 @@
   grid-area: times;
   display: flex;
   flex-direction: column;
-  height: 610px;
+  height: 570px;
   padding: 0.4rem 0.5rem 0 0.25rem;
 }
 
 .participant-lists {
-  overflow: scroll;
+  overflow-y: scroll;
   padding: 0.4rem 0 0 0;
   margin-top: 0;
   display: grid;
   grid-template-columns: auto;
   grid-template-rows: auto 1fr 1fr;
+  grid-area: participants;
   ul {
     padding: 0;
   }
@@ -136,7 +139,7 @@
 .available-participants-list,
 .unavailable-participants-list {
   max-height: 220px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 .edit-event-tabs {
@@ -255,5 +258,6 @@
     
     .event-display {
         top: calc(var(--header-height) + 0.5rem);
+        border-radius: var(--time-selector-border-radius);
     }
 }
