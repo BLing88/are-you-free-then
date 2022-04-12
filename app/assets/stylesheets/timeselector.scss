@@ -82,7 +82,6 @@
     justify-content: flex-end;
     padding-right: 2px;
     height: var(--time-selector-row-width);
-    border-right: 1px solid var(--action-text-color);
     grid-area: hour;
     position: relative;
     top: calc(-1 * var(--time-selector-row-width) / 2);

@@ -489,6 +489,9 @@ const EventCalendar = (): JSX.Element => {
     if (count) {
       style.backgroundColor = colorScale(count);
     }
+    if (time === state.timeSelected) {
+      style.boxShadow = "0 0 4px 2px grey";
+    }
     return style;
   };
 
