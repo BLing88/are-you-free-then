@@ -18,6 +18,9 @@ class EventsController < ApplicationController
     #logger.debug "suggested_days: #{@suggested_days}"
     @event_free_times = []
     participants = @event.participants
+    @participants = participants.map do |participant|
+      participant.name
+    end
     #logger.debug "participants: #{participants}"
     @times = {}
     participants.each do |participant| 
@@ -35,6 +38,7 @@ class EventsController < ApplicationController
     end  
     #logger.debug("@times: #{@times}")
     @times = @times.values
+
 
     if (@current_user != @event.host)
       @participation = Participation.find_by(user: @current_user, event: @event)

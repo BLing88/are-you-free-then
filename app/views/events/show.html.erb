@@ -5,7 +5,7 @@
   <%= tag.div id: "react-event-calendar", 
     "data-suggested-times": @event.suggested_event_times.to_json(only: [:start_time, :end_time]),
     "data-participant-times": @times.to_json,
-    "data-participant-count": @event.participants.count  %>
+    "data-participants": @participants.to_json  %>
   <div class="event-details">
     <% if @current_user == @event.host%>
       <%= link_to  edit_event_path(@event), class: 'edit-link' do %>

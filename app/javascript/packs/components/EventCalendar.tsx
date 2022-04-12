@@ -60,6 +60,7 @@ interface EventTimesDisplayProps {
   colorMap: (hour: number, min: number) => TimeInputCellStyle;
   availableParticipants: string[];
   unavailableParticipants: string[];
+  totalParticipantCount: number;
   selectedTimeInterval: string;
 }
 
@@ -83,10 +84,9 @@ const EventTimesDisplay = ({
   colorMap,
   availableParticipants,
   unavailableParticipants,
+  totalParticipantCount,
   selectedTimeInterval,
 }: EventTimesDisplayProps) => {
-  const totalParticipantCount =
-    availableParticipants.length + unavailableParticipants.length;
   return (
     <div className="event-display">
       <TimeSelector
@@ -105,7 +105,9 @@ const EventTimesDisplay = ({
       />
       <ul className="participant-lists">
         <span className="time-string">
-          {timeIntervalStringFor(selectedTimeInterval)}
+          {selectedTimeInterval.length > 10
+            ? timeIntervalStringFor(selectedTimeInterval)
+            : "Select a time"}
         </span>
         <li>
           <h4>
@@ -262,6 +264,7 @@ const reducer = (
         ...state,
         selectDates: true,
         dateSelected: null,
+        timeSelected: null,
       };
     default:
       return state;
@@ -417,7 +420,7 @@ const EventCalendar = (): JSX.Element => {
     [suggestedTimesDataset]
   );
   const participantTimesDataset = dataContainer.dataset["participantTimes"];
-  //const participantCount: number = +dataContainer.dataset["participantCount"];
+  const participantsDataset = JSON.parse(dataContainer.dataset["participants"]);
   const participantTimes = useMemo(
     () =>
       JSON.parse(participantTimesDataset).map(
@@ -438,16 +441,8 @@ const EventCalendar = (): JSX.Element => {
     [participantTimesDataset]
   );
   const participants: Set<string> = useMemo(() => {
-    return participantTimes.reduce(
-      (participantSet: Set<string>, { participants }) => {
-        participants.forEach((participant: string) =>
-          participantSet.add(participant)
-        );
-        return participantSet;
-      },
-      new Set<string>()
-    );
-  }, [participantTimes]);
+    return new Set(participantsDataset);
+  }, [participantsDataset]);
   const todaysDate = new Date().getDay();
   const [dates, dateRows, firstOfEachMonth] = useMemo(
     () => getDatesAndRowsOfDates(),
@@ -522,11 +517,10 @@ const EventCalendar = (): JSX.Element => {
     dates[index].getTime() <=
       dateRows[firstOfEachMonth[page] + numRows - 1][6].getTime();
 
-  const availableParticipants: string[] = state.timeSelected
-    ? state.timeInputCellsToHighlight
-        .get(state.dateSelected)
-        ?.get(state.timeSelected) ?? []
-    : Array.from(participants);
+  const availableParticipants: string[] =
+    state.timeInputCellsToHighlight
+      .get(state.dateSelected)
+      ?.get(state.timeSelected) ?? [];
   const unavailableParticipants = state.timeSelected
     ? Array.from(participants).filter(
         (participant) =>
@@ -752,6 +746,7 @@ const EventCalendar = (): JSX.Element => {
             dateSelected={state.dateSelected}
             availableParticipants={availableParticipants}
             unavailableParticipants={unavailableParticipants}
+            totalParticipantCount={participants.size}
             selectedTimeInterval={state.timeSelected ?? state.dateSelected}
           />
         )}
