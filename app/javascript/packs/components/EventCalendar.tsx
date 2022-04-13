@@ -505,6 +505,7 @@ const EventCalendar = (): JSX.Element => {
     }
     if (time === state.timeSelected) {
       style.boxShadow = "0 0 4px 2px grey";
+      style.zIndex = 2;
     }
     return style;
   };

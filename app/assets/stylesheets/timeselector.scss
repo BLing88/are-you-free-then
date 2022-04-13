@@ -57,6 +57,7 @@
     touch-action: none;
     cursor: pointer;
     width: 80px;
+    position: relative;
 }
 
 .time-input-cell:nth-child(5n) {
@@ -126,6 +127,7 @@
       "hour cell-2"
       "hour cell-3";
     //scroll-snap-align: start;
+    position: relative;
 }
 
 .hour-cell:first-of-type .time-input-cell:first-of-type {
