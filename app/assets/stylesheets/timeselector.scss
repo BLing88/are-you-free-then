@@ -23,7 +23,7 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 180px;  //Min(100%, 300px);
+  width: 220px;  //Min(100%, 300px);
   padding: 0.4rem 0 0 0;
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@
   background-color: var(--action-text-color);
   color: var(--background-color);
   z-index: 1;
-  //border-radius: var(--time-selector-border-radius);
+  border-radius: var(--time-selector-border-radius);
   box-shadow: 0 0 1rem var(--background-color);
 }
 
