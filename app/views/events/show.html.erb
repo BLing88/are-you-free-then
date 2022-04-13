@@ -1,4 +1,14 @@
 <% provide(:title, @event.name) %>
+<script>
+  function copyLink(link) {
+      navigator.clipboard.writeText(link).then(
+        function() {
+          console.log("success");
+        }, function(){
+            console.error("error")
+        })
+  }
+</script>
 <%= tag.div class: "event-page" do %>
   <h1 class="event-name"><%= @event.name %></h1>
 
@@ -12,6 +22,19 @@
         <i class="edit-icon fa-solid fa-pen-to-square fa-2xl"></i>
         <span>Edit</span>
       <% end %>
+      <section class="share-event-link-section">
+        <h2>Share</h2>
+          <span class="share-event-link">
+            <%= join_event_url(@event) %>
+          </span>
+          <button 
+                type="button" 
+                class="copy-share-event-link-btn"
+                onclick='copyLink("<%= join_event_url @event %>")'
+          >
+            Copy link
+          </button>
+      </section>
 
     <% else %>
       <%= link_to 'Leave event', 
