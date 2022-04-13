@@ -166,16 +166,17 @@ export const getRectangularSelection = (
 };
 
 export const addDatesToHighlight = (
-  baseMap: Map<string, boolean>,
+  baseMap: Map<string, string>,
   datesToMergeIn: Date[],
-  highlight: boolean
-): Map<string, boolean> => {
+  nameToAdd: string
+): Map<string, string> => {
   const today = new Date();
   // set to 3 AM for comparison to avoid issues with DST
   today.setHours(3, 0, 0, 0);
   for (const date of datesToMergeIn) {
+    const formattedDate = formatDate(date);
     if (date >= today) {
-      baseMap.set(formatDate(date), highlight);
+      baseMap.set(formattedDate, `${baseMap.get(formattedDate)} ${nameToAdd}`);
     }
   }
   return baseMap;

@@ -92,14 +92,17 @@ const Row = ({
 
 type NumberOfPages = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 
+type DateString = string;
+
 interface CalendarState {
   selectDates: boolean;
-  cellsToHighlight: Map<string, boolean>;
-  originalCellsToHighlight: Map<string, boolean>;
+  cellsToHighlight: Map<string, string>;
+  originalCellsToHighlight: Map<string, string>;
   cellDown: string | null;
   fromDate: string | null;
   page: NumberOfPages;
   datesSelected: string[];
+  rectangularSelection: DateString[];
   pointerDown: boolean;
   timeInputCellsToHighlight: Map<string, Map<string, boolean>>;
   originalTimeInputCellsToHighlight: Map<string, Map<string, boolean>> | null;
@@ -196,7 +199,7 @@ interface CalendarMonthProps {
   dispatch: Dispatch<ReducerAction>;
   indexOfRowWithFirstDayOfMonth: number;
   dateRows: Date[][];
-  cellsToHighlight: Map<string, boolean>;
+  cellsToHighlight: Map<string, string>;
   numRowsNeeded: number;
   isInGrid: (index: number, page: number, numRows: number) => boolean;
   dates: Date[];
@@ -228,11 +231,12 @@ export const CalendarMonth = ({
       >
         {dateRows.map((row, rowIndex) => {
           const classNames = row.map((date, index) => {
-            if (!cellsToHighlight.get(formatDate(date))) {
+            const formattedDate = formatDate(date);
+            if (!cellsToHighlight.get(formattedDate)) {
               return "";
             }
             let className =
-              "calendar-highlight-cell " +
+              `${cellsToHighlight.get(formattedDate)} ` +
               (date.getMonth() !== endOfFirstWeek.getMonth()
                 ? "not-same-month "
                 : "");
@@ -310,6 +314,10 @@ export const CalendarMonth = ({
   );
 };
 
+const highlightClassName = "calendar-highlight-cell";
+const willSelectCellClassName = "will-select-cell";
+const willUnselectCellClassName = "will-unselect-cell";
+
 const dateForMultipleDatesSelected = "2000-01-01";
 const reducer = (
   state: CalendarState,
@@ -332,7 +340,7 @@ const reducer = (
             (getMonthFromDate(action.date) === today.getMonth() &&
               getDateFromDateString(action.date) >= today.getDate())))
       ) {
-        newMap.set(action.date, true);
+        newMap.set(action.date, highlightClassName);
       }
 
       // set time input cell map for the selected date
@@ -357,10 +365,11 @@ const reducer = (
     }
     case actionTypes.longPressing: {
       // you're selecting a date
+      const currentHighlight = state.cellsToHighlight.get(action.date);
       const newHighlight =
-        state.cellsToHighlight.get(action.date) === undefined
-          ? true
-          : !state.cellsToHighlight.get(action.date);
+        currentHighlight === undefined || currentHighlight === ""
+          ? willSelectCellClassName
+          : willUnselectCellClassName;
       const newMap = new Map(state.cellsToHighlight);
       const today = new Date();
       // set to 3 AM for comparison to avoid issues with DST
@@ -372,11 +381,15 @@ const reducer = (
             (getMonthFromDate(action.date) === today.getMonth() &&
               getDateFromDateString(action.date) >= today.getDate())));
       if (isNotInPast) {
-        newMap.set(action.date, newHighlight);
+        newMap.set(
+          action.date,
+          `${state.cellsToHighlight.get(action.date)} ${newHighlight}`
+        );
         return {
           ...state,
           isLongPressing: true,
           cellDown: action.date,
+          rectangularSelection: [action.date],
           cellsToHighlight: newMap,
           originalCellsToHighlight: new Map(state.cellsToHighlight),
         };
@@ -412,16 +425,32 @@ const reducer = (
         // if longPressing a single date
         newTimeInputCellsToHighlight.set(state.cellDown, new Map());
       }
+      // remove color overlay for selection
+      const newCellsToHighlight = new Map(state.cellsToHighlight);
+      for (const date of state.rectangularSelection) {
+        const currentClass = newCellsToHighlight.get(date);
+        newCellsToHighlight.set(
+          date,
+          currentClass.includes(willSelectCellClassName)
+            ? highlightClassName
+            : ""
+        );
+      }
       return {
         ...state,
         isLongPressing: false,
         cellDown: null,
         fromDate: null,
+        rectangularSelection: [],
+        cellsToHighlight: newCellsToHighlight,
         showTimes:
           // only show times if you have long pressed and the initial date is being selected
           // note that the initial date (cellDown) was already set to be highlighted
           // in the longPressing action preceding the cellUp action
-          state.isLongPressing && state.cellsToHighlight.get(state.cellDown),
+          state.isLongPressing &&
+          state.cellsToHighlight
+            .get(state.cellDown)
+            .includes(willSelectCellClassName),
         // if long pressing just one date the time selector should show
         datesSelected: selectedSingleDate
           ? [state.cellDown]
@@ -456,7 +485,14 @@ const reducer = (
           cellsToHighlight: addDatesToHighlight(
             new Map(state.originalCellsToHighlight),
             rectangularSelection,
-            state.cellsToHighlight.get(state.cellDown)
+            state.cellsToHighlight
+              .get(state.cellDown)
+              .includes(willSelectCellClassName)
+              ? willSelectCellClassName
+              : willUnselectCellClassName
+          ),
+          rectangularSelection: rectangularSelection.map((date) =>
+            formatDate(date)
           ),
           datesSelected,
           timeInputCellsToHighlight: newTimeInputCellsToHighlight,
@@ -483,7 +519,7 @@ const reducer = (
       const newMap = new Map(state.cellsToHighlight);
       for (const date of state.datesSelected) {
         if (state.timeInputCellsToHighlight.get(date).size === 0) {
-          newMap.set(date, false);
+          newMap.set(date, "");
         }
       }
 
@@ -639,11 +675,12 @@ const initializeState = ({
 }): CalendarState => {
   const initialState = {
     selectDates: true,
-    cellsToHighlight: new Map<string, boolean>(),
+    cellsToHighlight: new Map<string, string>(),
     cellDown: null as string | null,
     fromDate: null,
     page: 0,
     datesSelected: [],
+    rectangularSelection: [],
     timeInputCellsToHighlight: new Map<string, Map<string, boolean>>(),
     pointerDown: false,
     initialDateTimeDown: null,
@@ -668,7 +705,7 @@ const initializeState = ({
     while (date < end_time) {
       const formattedDate = formatDate(date);
       if (!initialState.cellsToHighlight.has(formattedDate)) {
-        initialState.cellsToHighlight.set(formattedDate, true);
+        initialState.cellsToHighlight.set(formattedDate, highlightClassName);
         initialState.timeInputCellsToHighlight.set(formattedDate, new Map());
       }
       initialState.timeInputCellsToHighlight
