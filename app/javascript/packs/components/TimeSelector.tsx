@@ -1,14 +1,11 @@
 import React, {
+  CSSProperties,
   PointerEvent,
   ReactElement,
   Ref,
   useLayoutEffect,
   useRef,
 } from "react";
-
-interface TimeInputCellStyle {
-  backgroundColor: string;
-}
 
 interface HourCellProps {
   hour: number;
@@ -17,7 +14,9 @@ interface HourCellProps {
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
   highlightClassName: (hour: number, min: number) => string;
-  colorMap?: (hour: number, min: number) => TimeInputCellStyle;
+  isSelectedClassName?: string;
+  isSelectedChild?: JSX.Element;
+  colorMap?: (hour: number, min: number) => CSSProperties;
 }
 
 const HourCell = React.forwardRef(
@@ -29,6 +28,8 @@ const HourCell = React.forwardRef(
       onPointerUpHandler,
       onPointerCancelHandler,
       highlightClassName,
+      isSelectedClassName,
+      isSelectedChild,
       colorMap,
     }: HourCellProps,
     ref: Ref<HTMLElement>
@@ -58,6 +59,12 @@ const HourCell = React.forwardRef(
             onPointerUp: onPointerUpHandler,
             onPointerCancel: onPointerCancelHandler,
           };
+          const classNames = highlightClassName(
+            time.getHours(),
+            time.getMinutes()
+          );
+
+          const isSelected = new RegExp(isSelectedClassName).test(classNames);
           return (
             <div
               key={time.getTime()}
@@ -70,12 +77,11 @@ const HourCell = React.forwardRef(
                   : { gridArea: `cell-${i}` }
               }
               // use a function of time cell to return highlight class name
-              className={`time-input-cell ${highlightClassName(
-                time.getHours(),
-                time.getMinutes()
-              )} `}
+              className={`time-input-cell ${classNames} `}
               {...(onPointerDownHandler !== null && onPointerHandlers)}
-            ></div>
+            >
+              {isSelected && isSelectedChild}
+            </div>
           );
         })}
       </div>
@@ -93,7 +99,9 @@ interface TimeSelectorProps {
   onPointerCancelHandler: (() => void) | null;
   title: string;
   highlightClassName: (hour: number, min: number) => string;
-  colorMap?: (hour: number, min: number) => TimeInputCellStyle;
+  isSelectedClassName?: string;
+  isSelectedChild?: JSX.Element;
+  colorMap?: (hour: number, min: number) => CSSProperties;
   children?: ReactElement;
   className: string;
 }
@@ -107,6 +115,8 @@ const TimeSelector = ({
   onPointerUpHandler,
   onPointerCancelHandler,
   highlightClassName,
+  isSelectedChild,
+  isSelectedClassName,
   colorMap,
   children,
   className,
@@ -152,6 +162,8 @@ const TimeSelector = ({
               {...(colorMap && { colorMap })}
               highlightClassName={highlightClassName}
               ref={startingHourCellRef}
+              isSelectedChild={isSelectedChild}
+              isSelectedClassName={isSelectedClassName}
             />
           );
         })}
