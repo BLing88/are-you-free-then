@@ -282,7 +282,7 @@ export const CalendarMonth = ({
                 longPressRef.current = window.setTimeout(() => {
                   dispatch({ type: actionTypes.longPressing, date });
                   longPressRef.current = null;
-                }, 250);
+                }, 200);
                 //dispatch({ type: actionTypes.setCellDown, date });
               }}
               onPointerEnter={(date: string) =>
@@ -300,11 +300,15 @@ export const CalendarMonth = ({
                 }
               }}
               onPointerLeave={(date: string) => {
-                //      if (longPressRef.current) {
-                //        window.clearTimeout(longPressRef.current);
-                //        longPressRef.current = null;
-                //      }
-                dispatch({ type: actionTypes.onPointerLeave, date });
+                if (longPressRef.current) {
+                  // prevent pointer leave event from firing before long press finishes
+                  // if dragging out of initial cell too quickly
+                  window.clearTimeout(longPressRef.current);
+                  longPressRef.current = null;
+                  dispatch({ type: actionTypes.cellUp });
+                } else {
+                  dispatch({ type: actionTypes.onPointerLeave, date });
+                }
               }}
             />
           );
