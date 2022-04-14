@@ -943,7 +943,7 @@ const Calendar = (): JSX.Element => {
             type="submit"
             name="commit"
             value={updateBtnMessage}
-            data-disable-with="Update"
+            data-disable-with={updateBtnMessage}
           />
 
           {state.page < 10 && (
