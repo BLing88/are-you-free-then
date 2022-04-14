@@ -248,6 +248,30 @@
   background-color: #dedede;
 }
 
+.share-event-link-section {
+  #share-event-link-error {
+    margin-top: 0.5rem;
+    display: grid;
+    grid-template-areas: "message close-btn";
+    grid-template-columns: 1fr auto;
+    gap: 0.25rem;
+    color: lightcoral;
+    background: var(--background-color);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    
+    .close-share-event-error-btn {
+      background: none;
+      color: inherit;
+      font-size: 2.5rem;
+      align-self: center;
+      grid-area: close-btn;
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+}
+
 @media (min-width: 450px) {
     .event-page {
         display: grid;

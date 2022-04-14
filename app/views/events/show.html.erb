@@ -1,12 +1,34 @@
 <% provide(:title, @event.name) %>
 <script>
   function copyLink(link) {
+      function closeErrorMsg() {
+          const errorMsg = document.getElementById("share-event-link-error")
+          errorMsg.remove()
+      }
+
       navigator.clipboard.writeText(link).then(
         function() {
-          console.log("success");
+            const section = document.querySelector(".share-event-link-section")
+            const template = document.getElementById("share-event-error-template")
+            section.appendChild(template.content.cloneNode(true))
+
+            const closeBtn = document.querySelector(".close-share-event-error-btn")
+            closeBtn.addEventListener("click", () => {
+                closeBtn.remove("click", closeErrorMsg)
+                closeErrorMsg()
+              })
         }, function(){
-            console.error("error")
-        })
+            const section = document.querySelector(".share-event-link-section")
+            const template = document.getElementById("share-event-error-template")
+            section.appendChild(template.content)
+
+            const closeBtn = document.querySelector(".close-share-event-error-btn")
+            const errorMsg = document.getElementById("share-event-link-error")
+            closeBtn.addEventListener("click", () => {
+              errorMsg.remove()
+            })
+          })
+
   }
 </script>
 <%= tag.div class: "event-page" do %>
@@ -34,6 +56,14 @@
           >
             Copy link
           </button>
+          <template id="share-event-error-template">
+          <section id="share-event-link-error">
+            <strong>
+              The link couldn’t be copied to the clipboard.
+            </strong>
+            <button type="reset" class='close-share-event-error-btn' aria-label="Close">&times;</button>
+          </section>
+          </template>
       </section>
 
     <% else %>
