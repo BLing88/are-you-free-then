@@ -33,10 +33,17 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
       {/*<span className="calendar-month">{month}</span>*/}
       {dates.map((date, i) => {
         const formattedDate = formatDate(date);
+        const today = new Date();
+        const isToday =
+          date.getDate() === today.getDate() &&
+          date.getMonth() === today.getMonth() &&
+          date.getFullYear() === today.getFullYear();
         //const highlight = cellsToHighlight.get(formattedDate);
         return (
           <span
-            className={`calendar-cell ${cellsToHighlight[i]}`}
+            className={`calendar-cell ${cellsToHighlight[i]} ${
+              isToday ? "today" : ""
+            }`}
             key={date.getTime()}
             onPointerDown={() => onPointerDown(formattedDate)}
           >
