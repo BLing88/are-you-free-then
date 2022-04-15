@@ -124,7 +124,7 @@
     justify-content: space-between;
     grid-template-columns: repeat(4, calc(100% / 4 - 5px));
     grid-template-areas: 
-        "back-btn select-btn other forward-btn";
+        "back-btn instructions-btn other forward-btn";
 }
 
 .back-btn {
@@ -139,17 +139,66 @@
     background: none;
 }
 
-.select-btn {
-    grid-area: select-btn;
-    background: none;
-    color: #098643;
-}
 
 input[type='submit'].submit-btn {
     grid-area: other;
     font-weight: bold;
     background: none;
     color: #098643;
+}
+
+.instructions-button {
+  background: none;
+  grid-area: instructions-btn;
+  width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  opacity: 0.8;
+}
+
+.calendar-instructions {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: Min(100%, 370px);
+  z-index: 1;
+  box-shadow: 0 0 1rem var(--background-color);
+  padding: 0 1rem;
+  height: calc(100vh - var(--header-height));
+  background-color: var(--action-text-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.calendar-instructions h1 {
+  margin-bottom: 0;
+}
+
+.calendar-instructions p { 
+  margin-top: 0;
+}
+
+.calendar-instructions-icon {
+  fill: var(--background-color);
+}
+
+.close-instructions-button {
+  margin-top: auto;
+  margin-bottom: 1rem;
+  background: none;
+  color: var(--background-color);
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+}
+
+.close-icon {
+  font-size: 2rem;
+  margin-left: 0.25rem;
 }
 
 .date-select-message {
@@ -178,3 +227,10 @@ input[type='submit'].submit-btn {
   background-blend-mode: overlay;
 }
 
+@media (min-width: 450px) {
+  .calendar-instructions {
+    top: calc(var(--header-height) + 0.5rem);
+    border-radius: 1rem;
+    height: 610px;
+  }
+}
