@@ -1,21 +1,22 @@
 <ul>
   <li>
-    <%= link_to root_path do%>
-      <%= render 'layouts/home_icon' %>
+    <%= link_to root_path, 'aria-label': "home page" do%>
+      <%= render 'layouts/home_icon', 
+        classname: current_page?(controller: "static_pages", action: "welcome") || (params[:controller] == 'events' && params[:action] != "new")  ?  "current-page-icon"  : "" %>
     <% end %>
   </li>
   <li>
-    <%= link_to free_times_user_path(@current_user) do %>
-      <%= render 'layouts/calendar_icon' %>
+    <%= link_to free_times_user_path(@current_user), 'aria-label': "Your free times" do %>
+      <%= render 'layouts/calendar_icon', classname: params[:controller] == "users" && params[:action] == "free_times" ? "current-page-icon" : "" %>
     <% end%>
   </li>
   <li>
-    <%= link_to new_event_path do %>
-      <%= render 'layouts/create_event_icon' %>
+    <%= link_to new_event_path, 'aria-label': "Create a new event" do %>
+      <%= render 'layouts/create_event_icon', classname: current_page?(controller: "events", action: "new") ? "current-page-icon" : ""%>
     <% end %>
   </li>
   
-  <li class="header-menu-li">
+  <li class="header-menu-li" aria-label="click for more options">
     <%= render 'layouts/header_menu_icon' %>
     <ul class="header-menu" style="visibility: hidden;">
       <li>

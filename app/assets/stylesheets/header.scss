@@ -53,6 +53,11 @@ nav > ul {
   }
 }
 
+.current-page-icon {
+  // filter: drop-shadow(1px 1px 0.2rem white);
+  fill: white;
+}
+
 @media (min-width: 450px) {
     header {
       top: 0;
