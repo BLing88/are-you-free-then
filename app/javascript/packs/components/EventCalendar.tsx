@@ -25,6 +25,8 @@ interface RowProps {
   onPointerDown: (date: string) => void;
 }
 
+const clickDateKey = "w";
+
 const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
   //const month = dates[0].toLocaleString("default", { month: "short" });
   //const year = dates[dates.length - 1].getFullYear();
@@ -46,6 +48,12 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
             }`}
             key={date.getTime()}
             onPointerDown={() => onPointerDown(formattedDate)}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === clickDateKey) {
+                onPointerDown(formattedDate);
+              }
+            }}
+            tabIndex={0}
           >
             {date.getDate()}
           </span>

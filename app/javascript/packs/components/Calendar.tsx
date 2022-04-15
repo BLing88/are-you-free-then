@@ -4,6 +4,7 @@ import React, {
   Dispatch,
   useRef,
   PointerEvent,
+  useLayoutEffect,
 } from "react";
 import { TimeSelector } from "./TimeSelector";
 import {
@@ -27,6 +28,8 @@ import {
   parseDate,
 } from "../util/calendar-helpers";
 
+type Direction = string;
+
 interface RowProps {
   dates: Date[];
   rowIndex: number;
@@ -35,7 +38,15 @@ interface RowProps {
   onPointerUp: (date: string) => void;
   onPointerEnter: (date: string) => void;
   onPointerLeave: (date: string) => void;
+  onKeyDownHandler: (date: Date, direction: Direction | null) => void;
+  onKeyUpHandler: () => void;
+  onFocusHandler: (date: Date) => void;
+  clickDateHandler: (date: Date) => void;
 }
+
+let keyIsDown = false;
+const startSelectionKey = "q";
+const clickDateKey = "w";
 
 const Row = ({
   dates,
@@ -44,6 +55,10 @@ const Row = ({
   onPointerUp,
   onPointerEnter,
   onPointerLeave,
+  onKeyDownHandler,
+  onKeyUpHandler,
+  onFocusHandler,
+  clickDateHandler,
 }: RowProps) => {
   //const month = dates[0].toLocaleString("default", { month: "short" });
   //const year = dates[dates.length - 1].getFullYear();
@@ -78,9 +93,36 @@ const Row = ({
               e.preventDefault();
               onPointerLeave(formattedDate);
             }}
-            //style={
-            // highlight ? { color: "#FFFFFF", backgroundColor: "#222730" } : {}
-            //}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (!keyIsDown && e.key === startSelectionKey) {
+                keyIsDown = true;
+                onKeyDownHandler(date, null);
+              }
+              if (!keyIsDown && e.key === clickDateKey) {
+                clickDateHandler(date);
+              }
+              if (
+                keyIsDown &&
+                (e.key === "ArrowLeft" ||
+                  e.key === "ArrowRight" ||
+                  e.key === "ArrowUp" ||
+                  e.key === "ArrowDown")
+              ) {
+                onKeyDownHandler(date, e.key);
+              }
+            }}
+            onKeyUp={(e: React.KeyboardEvent) => {
+              if (e.key === startSelectionKey) {
+                keyIsDown = false;
+                onKeyUpHandler();
+              }
+            }}
+            onFocus={() => {
+              if (keyIsDown) {
+                onFocusHandler(date);
+              }
+            }}
+            tabIndex={0}
           >
             {date.getDate()}
           </span>
@@ -318,6 +360,57 @@ export const CalendarMonth = ({
                   dispatch({ type: actionTypes.onPointerLeave, date });
                 }
               }}
+              onKeyDownHandler={(date: Date, direction: Direction | null) => {
+                if (direction === null) {
+                  dispatch({
+                    type: actionTypes.longPressing,
+                    date: formatDate(date),
+                  });
+                }
+
+                function simulatePointerEvents(index: number) {
+                  if (isInGrid(index, page, numRowsNeeded)) {
+                    dispatch({
+                      type: actionTypes.onPointerLeave,
+                      date: formatDate(date),
+                    });
+                    dispatch({
+                      type: actionTypes.onEnterCell,
+                      dates,
+                      date: formatDate(dates[index]),
+                    });
+                  } else {
+                    dispatch({ type: actionTypes.cellUp });
+                  }
+                }
+
+                const indexInDatesArr =
+                  row.indexOf(date) +
+                  7 * (indexOfRowWithFirstDayOfMonth + rowIndex);
+                if (direction === "ArrowUp") {
+                  simulatePointerEvents(indexInDatesArr - 7);
+                } else if (direction === "ArrowLeft") {
+                  simulatePointerEvents(indexInDatesArr - 1);
+                } else if (direction === "ArrowRight") {
+                  simulatePointerEvents(indexInDatesArr + 1);
+                } else if (direction === "ArrowDown") {
+                  simulatePointerEvents(indexInDatesArr + 7);
+                }
+              }}
+              onKeyUpHandler={() => dispatch({ type: actionTypes.cellUp })}
+              clickDateHandler={(date: Date) => {
+                dispatch({
+                  type: actionTypes.clickDate,
+                  date: formatDate(date),
+                });
+              }}
+              onFocusHandler={(date: Date) => {
+                dispatch({
+                  type: actionTypes.onEnterCell,
+                  dates,
+                  date: formatDate(date),
+                });
+              }}
             />
           );
         })}
@@ -492,17 +585,23 @@ const reducer = (
             newTimeInputCellsToHighlight.set(date, new Map());
           }
         }
+        const newCellsToHighlight = addDatesToHighlight(
+          new Map(state.originalCellsToHighlight),
+          rectangularSelection,
+          state.cellsToHighlight
+            .get(state.cellDown)
+            .includes(willSelectCellClassName)
+            ? willSelectCellClassName
+            : willUnselectCellClassName
+        );
+
+        newCellsToHighlight.set(
+          action.date,
+          `${newCellsToHighlight.get(action.date)} focus-cell`
+        );
         return {
           ...state,
-          cellsToHighlight: addDatesToHighlight(
-            new Map(state.originalCellsToHighlight),
-            rectangularSelection,
-            state.cellsToHighlight
-              .get(state.cellDown)
-              .includes(willSelectCellClassName)
-              ? willSelectCellClassName
-              : willUnselectCellClassName
-          ),
+          cellsToHighlight: newCellsToHighlight,
           rectangularSelection: rectangularSelection.map((date) =>
             formatDate(date)
           ),
@@ -881,6 +980,10 @@ const Calendar = (): JSX.Element => {
     dateRows[firstOfEachMonth[page]][0].getTime() <= dates[index].getTime() &&
     dates[index].getTime() <=
       dateRows[firstOfEachMonth[page] + numRows - 1][6].getTime();
+
+  useLayoutEffect(() => {
+    (document.querySelector(".focus-cell") as HTMLElement)?.focus();
+  });
 
   return (
     <>
