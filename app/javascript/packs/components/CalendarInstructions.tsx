@@ -18,12 +18,12 @@ export const CalendarInstructions = ({
         appear blue.
       </p>
       <p>
-        To clear a date’s times, simply start a drag-selection with that date.
-        Other dates in that selection will be cleared as well. The selected
-        dates to be cleared will appear red.
+        To remove a date’s times, simply start a drag-selection with that date.
+        Other dates in that selection will be removed as well. The selected
+        dates to be removed will appear red.
       </p>
       <p>
-        If you accidentally cleared a date, simply reselect that date to restore
+        If you accidentally remove a date, simply reselect that date to restore
         the times. The times won’t actually be cleared until the update or
         create button is clicked, or if you’ve manually cleared them.
       </p>
