@@ -171,6 +171,7 @@ input[type='submit'].submit-btn {
   background-color: var(--action-text-color);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   overflow-y: scroll;
 }
 
