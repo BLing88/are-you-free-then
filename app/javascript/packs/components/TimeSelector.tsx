@@ -19,6 +19,9 @@ interface HourCellProps {
   colorMap?: (hour: number, min: number) => CSSProperties;
 }
 
+const selectTimeIntervalKey = "q";
+let keyIsDown = false;
+
 const HourCell = React.forwardRef(
   (
     {
@@ -58,6 +61,24 @@ const HourCell = React.forwardRef(
               onPointerEnterHandler(time.getHours(), time.getMinutes()),
             onPointerUp: onPointerUpHandler,
             onPointerCancel: onPointerCancelHandler,
+            onKeyDown: (e: React.KeyboardEvent) => {
+              if (!keyIsDown && e.key === selectTimeIntervalKey) {
+                keyIsDown = true;
+                onPointerDownHandler(time.getHours(), time.getMinutes());
+              }
+            },
+            onKeyUp: (e: React.KeyboardEvent) => {
+              if (keyIsDown && e.key === selectTimeIntervalKey) {
+                keyIsDown = false;
+                onPointerUpHandler();
+              }
+            },
+            onFocus: (e: React.FocusEvent) => {
+              if (keyIsDown) {
+                (e.target as HTMLElement).focus();
+                onPointerEnterHandler(time.getHours(), time.getMinutes());
+              }
+            },
           };
           const classNames = highlightClassName(
             time.getHours(),
@@ -68,6 +89,7 @@ const HourCell = React.forwardRef(
           return (
             <div
               key={time.getTime()}
+              tabIndex={0}
               style={
                 colorMap
                   ? {
