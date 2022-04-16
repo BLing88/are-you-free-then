@@ -86,9 +86,12 @@ const HourCell = React.forwardRef(
           );
 
           const isSelected = new RegExp(isSelectedClassName).test(classNames);
+          const isInitialFocusElement =
+            time.getHours() === 9 && time.getMinutes() === 0;
           return (
             <div
               key={time.getTime()}
+              {...(isInitialFocusElement && { id: "initial-focus-element" })}
               tabIndex={0}
               style={
                 colorMap
@@ -161,6 +164,10 @@ const TimeSelector = ({
     if (startingHourCellRef.current) {
       startingHourCellRef.current.scrollIntoView();
     }
+  }, []);
+
+  useLayoutEffect(() => {
+    document.getElementById("initial-focus-element").focus();
   }, []);
 
   return (
