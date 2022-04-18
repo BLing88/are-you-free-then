@@ -79,6 +79,7 @@ const Row = ({
               isToday ? "today" : ""
             }`}
             key={date.getTime()}
+            aria-label={date.toLocaleDateString()}
             onPointerDown={(e: PointerEvent<HTMLSpanElement>) => {
               //e.preventDefault();
               (e.target as HTMLSpanElement).releasePointerCapture(e.pointerId);
@@ -269,7 +270,10 @@ export const CalendarMonth = ({
   const endOfFirstWeek: Date = dateRows[0][6];
   const longPressRef = useRef<number | null>(null);
   return (
-    <div className="calendar-grid">
+    <div
+      className="calendar-grid"
+      aria-label="Calendar for selecting and viewing dates"
+    >
       <p className="calendar-month">
         {endOfFirstWeek.toLocaleString("default", { month: "long" })}
       </p>

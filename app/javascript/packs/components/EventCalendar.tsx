@@ -47,6 +47,7 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
               isToday ? "today" : ""
             }`}
             key={date.getTime()}
+            aria-label={date.toLocaleDateString()}
             onPointerDown={() => onPointerDown(formattedDate)}
             onKeyDown={(e: React.KeyboardEvent) => {
               if (e.key === clickDateKey) {
@@ -566,7 +567,10 @@ const EventCalendar = (): JSX.Element => {
 
   return (
     <>
-      <div className="calendar-grid">
+      <div
+        className="calendar-grid"
+        aria-label="Calendar for selecting and viewing dates"
+      >
         <p className="calendar-month">
           {dateRows[firstOfEachMonth[state.page]][6].toLocaleString("default", {
             month: "long",

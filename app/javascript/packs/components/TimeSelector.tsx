@@ -88,6 +88,14 @@ const HourCell = React.forwardRef(
           const isSelected = new RegExp(isSelectedClassName).test(classNames);
           const isInitialFocusElement =
             time.getHours() === 9 && time.getMinutes() === 0;
+
+          const ariaLabel = `${time.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "numeric",
+          })} to ${new Date(time.getTime() + 900000).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "numeric",
+          })}`;
           return (
             <div
               key={time.getTime()}
@@ -104,6 +112,7 @@ const HourCell = React.forwardRef(
               // use a function of time cell to return highlight class name
               className={`time-input-cell ${classNames} `}
               {...(onPointerDownHandler !== null && onPointerHandlers)}
+              aria-label={ariaLabel}
             >
               {isSelected && isSelectedChild}
             </div>
@@ -172,6 +181,7 @@ const TimeSelector = ({
 
   return (
     <div
+      aria-label={`Times for ${todaysDate}`}
       className={className}
       {...(onPointerLeaveHandler
         ? { onPointerLeave: onPointerLeaveHandler }
