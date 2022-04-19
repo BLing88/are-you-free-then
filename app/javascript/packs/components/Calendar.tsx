@@ -492,7 +492,7 @@ const reducer = (
       if (isNotInPast) {
         newMap.set(
           action.date,
-          `${state.cellsToHighlight.get(action.date)} ${newHighlight}`
+          `${state.cellsToHighlight.get(action.date) ?? ""} ${newHighlight}`
         );
         return {
           ...state,
@@ -601,7 +601,7 @@ const reducer = (
 
         newCellsToHighlight.set(
           action.date,
-          `${newCellsToHighlight.get(action.date)} focus-cell`
+          `${newCellsToHighlight.get(action.date) ?? ""} focus-cell`
         );
         return {
           ...state,

@@ -176,7 +176,10 @@ export const addDatesToHighlight = (
   for (const date of datesToMergeIn) {
     const formattedDate = formatDate(date);
     if (date >= today) {
-      baseMap.set(formattedDate, `${baseMap.get(formattedDate)} ${nameToAdd}`);
+      baseMap.set(
+        formattedDate,
+        `${baseMap.get(formattedDate) ?? ""} ${nameToAdd}`
+      );
     }
   }
   return baseMap;
