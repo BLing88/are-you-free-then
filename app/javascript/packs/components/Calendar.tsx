@@ -143,6 +143,7 @@ interface CalendarState {
   cellsToHighlight: Map<string, string>;
   originalCellsToHighlight: Map<string, string>;
   cellDown: string | null;
+  dateToFocus: string | null;
   fromDate: string | null;
   page: NumberOfPages;
   datesSelected: string[];
@@ -469,6 +470,7 @@ const reducer = (
         showTimes: true,
         datesSelected: [action.date],
         cellDown: null,
+        dateToFocus: action.date,
         timeInputCellsToHighlight: newTimeInputCellsToHighlight,
       };
     }
@@ -498,6 +500,7 @@ const reducer = (
           ...state,
           isLongPressing: true,
           cellDown: action.date,
+          dateToFocus: action.date,
           rectangularSelection: [action.date],
           cellsToHighlight: newMap,
           originalCellsToHighlight: new Map(state.cellsToHighlight),
@@ -807,6 +810,7 @@ const initializeState = ({
     initialDateTimeDown: null,
     showTimes: false,
     showInstructions: false,
+    dateToFocus: null,
     isLongPressing: false,
   } as CalendarState;
 
@@ -988,6 +992,18 @@ const Calendar = (): JSX.Element => {
   useLayoutEffect(() => {
     (document.querySelector(".focus-cell") as HTMLElement)?.focus();
   });
+
+  useLayoutEffect(() => {
+    if (state.dateToFocus && !state.showTimes) {
+      (
+        document.querySelector(
+          `span[aria-label="${parseDate(
+            state.dateToFocus
+          ).toLocaleDateString()}"]`
+        ) as HTMLElement
+      )?.focus();
+    }
+  }, [state.dateToFocus, state.showTimes]);
 
   return (
     <>
