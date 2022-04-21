@@ -60,11 +60,8 @@ const Row = ({
   onFocusHandler,
   clickDateHandler,
 }: RowProps) => {
-  //const month = dates[0].toLocaleString("default", { month: "short" });
-  //const year = dates[dates.length - 1].getFullYear();
   return (
     <>
-      {/*  <span className="calendar-month">{month}</span> */}
       {dates.map((date, i) => {
         const formattedDate = formatDate(date);
         const today = new Date();
@@ -72,7 +69,6 @@ const Row = ({
           date.getDate() === today.getDate() &&
           date.getMonth() === today.getMonth() &&
           date.getFullYear() === today.getFullYear();
-        // const highlight = cellsToHighlight.get(formattedDate);
         return (
           <span
             className={`calendar-cell ${cellsToHighlight[i]} ${
@@ -81,7 +77,6 @@ const Row = ({
             key={date.getTime()}
             aria-label={date.toLocaleDateString()}
             onPointerDown={(e: PointerEvent<HTMLSpanElement>) => {
-              //e.preventDefault();
               (e.target as HTMLSpanElement).releasePointerCapture(e.pointerId);
               onPointerDown(formattedDate);
             }}
@@ -129,7 +124,6 @@ const Row = ({
           </span>
         );
       })}
-      {/* <span className="calendar-year">{year}</span> */}
     </>
   );
 };
@@ -213,14 +207,12 @@ interface SelectDatesAction {
 
 interface TimeInputPointerDownAction {
   type: typeof actionTypes.timeInputPointerDown;
-  //dateTime: string;
   hour: number;
   min: number;
 }
 
 interface TimeInputEnterCellAction {
   type: typeof actionTypes.timeInputOnEnterCell;
-  //dateTime: string
   hour: number;
   min: number;
 }
@@ -338,7 +330,6 @@ export const CalendarMonth = ({
                   dispatch({ type: actionTypes.longPressing, date });
                   longPressRef.current = null;
                 }, 200);
-                //dispatch({ type: actionTypes.setCellDown, date });
               }}
               onPointerEnter={(date: string) =>
                 dispatch({ type: actionTypes.onEnterCell, date, dates })
@@ -441,8 +432,6 @@ const reducer = (
       // bring up time selector for date clicked on, highlighting the date if not already
       const newMap = new Map(state.cellsToHighlight);
       const today = new Date();
-      // set to 3 AM for comparison to avoid issues with DST
-      //today.setHours(3, 0, 0, 0);
       if (
         getYearFromDate(action.date) > today.getFullYear() ||
         (getYearFromDate(action.date) === today.getFullYear() &&
@@ -483,8 +472,6 @@ const reducer = (
           : willUnselectCellClassName;
       const newMap = new Map(state.cellsToHighlight);
       const today = new Date();
-      // set to 3 AM for comparison to avoid issues with DST
-      //today.setHours(3, 0, 0, 0);
       const isNotInPast =
         getYearFromDate(action.date) > today.getFullYear() ||
         (getYearFromDate(action.date) === today.getFullYear() &&
@@ -654,7 +641,6 @@ const reducer = (
 
       return {
         ...state,
-        //selectDates: true,
         showTimes: false,
         datesSelected: [],
         cellsToHighlight: newMap,
@@ -683,8 +669,8 @@ const reducer = (
         newCellsToHighlight.get(date).set(dateStr, newHighlight);
 
         // also update actual dates selected
-        const hour = parseDateTime(dateStr).getHours(); //+dateStr.slice(11, 13);
-        const min = parseDateTime(dateStr).getMinutes(); //+dateStr.slice(14, 16);
+        const hour = parseDateTime(dateStr).getHours();
+        const min = parseDateTime(dateStr).getMinutes();
         for (const date of state.datesSelected) {
           const dateObj = parseDate(date);
           dateObj.setHours(hour);
@@ -742,12 +728,12 @@ const reducer = (
         time <= laterTime.getTime();
         time += fifteenMinsInMilliseconds
       ) {
-        const datetime = new Date(time); //.toISOString();
+        const datetime = new Date(time);
         newCellsToHighlight.get(date).set(datetime.toISOString(), newHighlight);
 
         // also update actual dates selected
-        const hour = datetime.getHours(); // +datetime.slice(11, 13);
-        const min = datetime.getMinutes(); //.slice(14, 16);
+        const hour = datetime.getHours();
+        const min = datetime.getMinutes();
         for (const date of state.datesSelected) {
           if (!newCellsToHighlight.has(date)) {
             newCellsToHighlight.set(date, new Map());
@@ -1034,41 +1020,38 @@ const Calendar = (): JSX.Element => {
         page={state.page + 1}
       />
 
-      {
-        //!state.selectDates && hasSelectedDates && state.dateSelected !== null && (
-        state.showTimes && (
-          <TimeSelector
-            date={
-              state.datesSelected.length === 1
-                ? parseDate(state.datesSelected[0])
-                : null
+      {state.showTimes && (
+        <TimeSelector
+          date={
+            state.datesSelected.length === 1
+              ? parseDate(state.datesSelected[0])
+              : null
+          }
+          title={"Select times"}
+          highlightClassName={highlightClassName}
+          onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
+          onPointerDownHandler={onTimeInputPointerDownHandler}
+          onPointerEnterHandler={onTimeInputPointerEnterHandler}
+          onKeyPressHandler={(e: React.KeyboardEvent) => {
+            if (e.key === "Escape" || e.key === "Esc") {
+              dispatch({ type: actionTypes.selectDates });
             }
-            title={"Select times"}
-            highlightClassName={highlightClassName}
-            onPointerLeaveHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerUpHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
-            onPointerDownHandler={onTimeInputPointerDownHandler}
-            onPointerEnterHandler={onTimeInputPointerEnterHandler}
-            onKeyPressHandler={(e: React.KeyboardEvent) => {
-              if (e.key === "Escape" || e.key === "Esc") {
-                dispatch({ type: actionTypes.selectDates });
-              }
-            }}
-            className={"time-selector"}
-          >
-            <div className="time-input-back-btn">
-              <button
-                type="button"
-                className="select-date-btn"
-                onClick={() => dispatch({ type: actionTypes.selectDates })}
-              >
-                Close
-              </button>
-            </div>
-          </TimeSelector>
-        )
-      }
+          }}
+          className={"time-selector"}
+        >
+          <div className="time-input-back-btn">
+            <button
+              type="button"
+              className="select-date-btn"
+              onClick={() => dispatch({ type: actionTypes.selectDates })}
+            >
+              Close
+            </button>
+          </div>
+        </TimeSelector>
+      )}
       {state.selectDates && (
         <div className="btns">
           {state.page > 0 && (

@@ -28,11 +28,8 @@ interface RowProps {
 const clickDateKey = "w";
 
 const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
-  //const month = dates[0].toLocaleString("default", { month: "short" });
-  //const year = dates[dates.length - 1].getFullYear();
   return (
     <>
-      {/*<span className="calendar-month">{month}</span>*/}
       {dates.map((date, i) => {
         const formattedDate = formatDate(date);
         const today = new Date();
@@ -40,7 +37,6 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
           date.getDate() === today.getDate() &&
           date.getMonth() === today.getMonth() &&
           date.getFullYear() === today.getFullYear();
-        //const highlight = cellsToHighlight.get(formattedDate);
         return (
           <span
             className={`calendar-cell ${cellsToHighlight[i]} ${
@@ -63,7 +59,6 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
           </span>
         );
       })}
-      {/*<span className="calendar-year">{year}</span>*/}
     </>
   );
 };
@@ -355,11 +350,7 @@ const initializeState = ({
       const formattedDate = formatDate(date);
       if (!initialState.cellsToHighlight.has(formattedDate)) {
         initialState.cellsToHighlight.set(formattedDate, true);
-        // initialState.timeInputCellsToHighlight.set(formattedDate, new Map());
       }
-      //initialState.timeInputCellsToHighlight
-      //  .get(formattedDate)
-      //  .set(date.toISOString(), 1);
       initialState.suggestedTimes.set(date.toISOString(), true);
       date = new Date(date.getTime() + fifteenMinsInMilliseconds);
     }

@@ -181,7 +181,6 @@ interface TimeSelectorProps {
   className: string;
 }
 
-//const numMinsInADay = 1440;
 const TimeSelector = ({
   date,
   onPointerDownHandler,
@@ -199,15 +198,7 @@ const TimeSelector = ({
   className,
 }: TimeSelectorProps): JSX.Element => {
   const times = [] as number[];
-  //const dateObj = new Date(
-  //  +date.slice(0, 4),
-  //  +date.slice(5, 7) - 1,
-  //  +date.slice(-2)
-  //);
   for (let hour = 0; hour < 24; hour += 1) {
-    //dateObj.setHours(Math.floor(i / 60));
-    //dateObj.setMinutes(i % 60);
-    //times.push(new Date(dateObj.getTime()));
     times.push(hour);
   }
   const todaysDate = date?.toDateString() ?? "Multiple dates selected";
