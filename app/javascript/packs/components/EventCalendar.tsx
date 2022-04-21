@@ -119,7 +119,14 @@ const EventTimesDisplay = ({
   selectedTimeInterval,
 }: EventTimesDisplayProps) => {
   return (
-    <div className="event-display">
+    <div
+      className="event-display"
+      onKeyDown={(e: React.KeyboardEvent) => {
+        if (e.key === "Escape" || e.key === "Esc") {
+          dispatch({ type: SELECT_DATES });
+        }
+      }}
+    >
       <TimeSelector
         date={parseDate(dateSelected)}
         title={"View times"}
@@ -132,6 +139,7 @@ const EventTimesDisplay = ({
         onPointerEnterHandler={(hour: number, min: number) => {
           dispatch({ type: "SELECT_TIME_INTERVAL", hour, min });
         }}
+        onKeyPressHandler={null}
         isReadOnly={true}
         className={"event-times-display"}
         isSelectedClassName={"suggested-time-cell"}
@@ -199,7 +207,6 @@ interface CalendarState {
 }
 
 const SET_CELL_DOWN = "SET_CELL_DOWN";
-const CELL_UP = "CELL_UP";
 const ON_ENTER_CELL = "ON_ENTER_CELL";
 const ON_POINTER_LEAVE = "ON_POINTER_LEAVE";
 interface ChangeSelectionAction {
@@ -211,10 +218,6 @@ interface EnterCellAction {
   type: typeof ON_ENTER_CELL;
   date: string;
   dates: Date[];
-}
-
-interface PointerUpAction {
-  type: typeof CELL_UP;
 }
 
 interface SelectTimeIntervalAction {
@@ -583,10 +586,7 @@ const EventCalendar = (): JSX.Element => {
         <p className="calendar-year">
           {dateRows[firstOfEachMonth[state.page]][6].getFullYear()}
         </p>
-        <div
-          className="calendar"
-          onPointerLeave={() => dispatch({ type: CELL_UP })}
-        >
+        <div className="calendar">
           {dateRows
             .slice(
               firstOfEachMonth[state.page],
@@ -686,10 +686,7 @@ const EventCalendar = (): JSX.Element => {
           {dateRows[firstOfEachMonth[state.page + 1]][6].getFullYear()}
         </p>
 
-        <div
-          className="calendar"
-          onPointerLeave={() => dispatch({ type: CELL_UP })}
-        >
+        <div className="calendar">
           {dateRows
             .slice(
               firstOfEachMonth[state.page + 1],

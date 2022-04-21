@@ -170,6 +170,7 @@ interface TimeSelectorProps {
   onPointerEnterHandler: ((hour: number, min: number) => void) | null;
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
+  onKeyPressHandler: (e: React.KeyboardEvent) => void | null;
   isReadOnly?: boolean;
   title: string;
   highlightClassName: (hour: number, min: number) => string;
@@ -188,6 +189,7 @@ const TimeSelector = ({
   onPointerLeaveHandler,
   onPointerUpHandler,
   onPointerCancelHandler,
+  onKeyPressHandler,
   isReadOnly = false,
   highlightClassName,
   isSelectedChild,
@@ -226,6 +228,7 @@ const TimeSelector = ({
       {...(onPointerLeaveHandler
         ? { onPointerLeave: onPointerLeaveHandler }
         : {})}
+      onKeyDown={onKeyPressHandler}
     >
       <span className="time-input-date">{todaysDate}</span>
       <div className="time-cells">

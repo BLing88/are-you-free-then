@@ -1050,6 +1050,11 @@ const Calendar = (): JSX.Element => {
             onPointerCancelHandler={onTimeInputPointerUpOrLeaveHandler}
             onPointerDownHandler={onTimeInputPointerDownHandler}
             onPointerEnterHandler={onTimeInputPointerEnterHandler}
+            onKeyPressHandler={(e: React.KeyboardEvent) => {
+              if (e.key === "Escape" || e.key === "Esc") {
+                dispatch({ type: actionTypes.selectDates });
+              }
+            }}
             className={"time-selector"}
           >
             <div className="time-input-back-btn">
