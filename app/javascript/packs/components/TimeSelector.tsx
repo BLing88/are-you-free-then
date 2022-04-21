@@ -4,7 +4,9 @@ import React, {
   ReactElement,
   Ref,
   useLayoutEffect,
+  useImperativeHandle,
   useRef,
+  MutableRefObject,
 } from "react";
 
 interface HourCellProps {
@@ -13,10 +15,16 @@ interface HourCellProps {
   onPointerEnterHandler: ((hour: number, min: number) => void) | null;
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
+  isReadOnly?: boolean;
   highlightClassName: (hour: number, min: number) => string;
   isSelectedClassName?: string;
   isSelectedChild?: JSX.Element;
   colorMap?: (hour: number, min: number) => CSSProperties;
+}
+
+interface HourCellRef {
+  scrollIntoView: () => void;
+  focus: () => void;
 }
 
 const selectTimeIntervalKey = "q";
@@ -30,23 +38,51 @@ const HourCell = React.forwardRef(
       onPointerEnterHandler,
       onPointerUpHandler,
       onPointerCancelHandler,
+      isReadOnly,
       highlightClassName,
       isSelectedClassName,
       isSelectedChild,
       colorMap,
     }: HourCellProps,
-    ref: Ref<HTMLElement>
+    ref: Ref<HourCellRef>
   ) => {
-    const times = [new Date(new Date().getFullYear(), 0, 1, hour)];
+    const times = [new Date(new Date().getFullYear(), 0, 1, hour, 0, 0, 0)];
     for (let i = 15; i < 60; i += 15) {
       const date = new Date(times[0].getTime());
       date.setMinutes(i);
       times.push(date);
     }
+    const startingHourCellRef = useRef<HTMLDivElement>();
+    const focusRef = useRef<HTMLDivElement>();
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        // The ref hourCellRef in TimeSelector
+        // is passed to every HourCell
+        // and useImperativeHandle is called for each of them.
+        // We have to ensure the correct DOM elements are used
+        // by overwriting the scrollIntoView/focus values
+        // only if it's the correct element
+        scrollIntoView:
+          hour === 9
+            ? () => startingHourCellRef.current.scrollIntoView()
+            : (ref as MutableRefObject<HourCellRef>).current?.scrollIntoView,
+
+        focus:
+          focusRef.current === document.getElementById("initial-focus-element")
+            ? () => focusRef.current.focus()
+            : (ref as MutableRefObject<HourCellRef>).current?.focus,
+      }),
+      [hour, ref]
+    );
 
     return (
       <div className="hour-cell">
-        <span className="time-input-hour" {...(hour === 9 && { ref })}>
+        <span
+          className="time-input-hour"
+          {...(hour === 9 && { ref: startingHourCellRef })}
+        >
           {times[0].toLocaleTimeString([], {
             hour: "numeric",
           })}
@@ -70,12 +106,11 @@ const HourCell = React.forwardRef(
             onKeyUp: (e: React.KeyboardEvent) => {
               if (keyIsDown && e.key === selectTimeIntervalKey) {
                 keyIsDown = false;
-                onPointerUpHandler();
+                onPointerUpHandler?.();
               }
             },
-            onFocus: (e: React.FocusEvent) => {
-              if (keyIsDown) {
-                (e.target as HTMLElement).focus();
+            onFocus: () => {
+              if (keyIsDown || isReadOnly) {
                 onPointerEnterHandler(time.getHours(), time.getMinutes());
               }
             },
@@ -96,10 +131,14 @@ const HourCell = React.forwardRef(
             hour: "numeric",
             minute: "numeric",
           })}`;
+
           return (
             <div
               key={time.getTime()}
-              {...(isInitialFocusElement && { id: "initial-focus-element" })}
+              {...(isInitialFocusElement && {
+                id: "initial-focus-element",
+                ref: focusRef,
+              })}
               tabIndex={0}
               style={
                 colorMap
@@ -131,6 +170,7 @@ interface TimeSelectorProps {
   onPointerEnterHandler: ((hour: number, min: number) => void) | null;
   onPointerUpHandler: (() => void) | null;
   onPointerCancelHandler: (() => void) | null;
+  isReadOnly?: boolean;
   title: string;
   highlightClassName: (hour: number, min: number) => string;
   isSelectedClassName?: string;
@@ -148,6 +188,7 @@ const TimeSelector = ({
   onPointerLeaveHandler,
   onPointerUpHandler,
   onPointerCancelHandler,
+  isReadOnly = false,
   highlightClassName,
   isSelectedChild,
   isSelectedClassName,
@@ -168,15 +209,14 @@ const TimeSelector = ({
     times.push(hour);
   }
   const todaysDate = date?.toDateString() ?? "Multiple dates selected";
-  const startingHourCellRef = useRef<HTMLDivElement | null>(null);
-  useLayoutEffect(() => {
-    if (startingHourCellRef.current) {
-      startingHourCellRef.current.scrollIntoView();
-    }
-  }, []);
+  const hourCellRef = useRef<HourCellRef | null>(null);
 
   useLayoutEffect(() => {
-    document.getElementById("initial-focus-element").focus();
+    if (hourCellRef.current) {
+      hourCellRef.current.scrollIntoView();
+
+      hourCellRef.current.focus();
+    }
   }, []);
 
   return (
@@ -198,9 +238,10 @@ const TimeSelector = ({
               onPointerDownHandler={onPointerDownHandler}
               onPointerUpHandler={onPointerUpHandler}
               onPointerCancelHandler={onPointerCancelHandler}
+              isReadOnly={isReadOnly}
               {...(colorMap && { colorMap })}
               highlightClassName={highlightClassName}
-              ref={startingHourCellRef}
+              ref={hourCellRef}
               isSelectedChild={isSelectedChild}
               isSelectedClassName={isSelectedClassName}
             />

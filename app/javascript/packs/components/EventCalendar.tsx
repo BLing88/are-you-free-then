@@ -48,7 +48,10 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
             }`}
             key={date.getTime()}
             aria-label={date.toLocaleDateString()}
-            onPointerDown={() => onPointerDown(formattedDate)}
+            onPointerDown={(e: PointerEvent<HTMLSpanElement>) => {
+              e.preventDefault();
+              onPointerDown(formattedDate);
+            }}
             onKeyDown={(e: React.KeyboardEvent) => {
               if (e.key === clickDateKey) {
                 onPointerDown(formattedDate);
@@ -129,6 +132,7 @@ const EventTimesDisplay = ({
         onPointerEnterHandler={(hour: number, min: number) => {
           dispatch({ type: "SELECT_TIME_INTERVAL", hour, min });
         }}
+        isReadOnly={true}
         className={"event-times-display"}
         isSelectedClassName={"suggested-time-cell"}
         isSelectedChild={isSelectedChild}
