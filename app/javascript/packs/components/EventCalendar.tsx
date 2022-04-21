@@ -1,4 +1,9 @@
-import React, { useReducer, useMemo, CSSProperties } from "react";
+import React, {
+  useReducer,
+  useMemo,
+  CSSProperties,
+  useLayoutEffect,
+} from "react";
 import { scaleLinear } from "d3-scale";
 import { TimeSelector } from "./TimeSelector";
 import { BackButton } from "./BackButton";
@@ -191,6 +196,7 @@ interface CalendarState {
   cellsToHighlight: Map<string, boolean>;
   cellDown: string | null;
   fromDate: string | null;
+  dateToFocus: string | null;
   page: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   dateSelected: string | null;
   timeSelected: string | null;
@@ -263,6 +269,7 @@ const reducer = (
           ...state,
           dateSelected: action.date,
           selectDates: false,
+          dateToFocus: action.date,
           timeInputCellsToHighlight: newTimeInputCellsToHighlight,
         };
       } else if (state.selectDates) {
@@ -325,6 +332,7 @@ const initializeState = ({
     page: 0,
     dateSelected: null,
     timeSelected: null,
+    dateToFocus: null,
     timeInputCellsToHighlight: new Map<string, Map<string, string[]>>(),
     suggestedTimes: new Map<string, boolean>(),
     pointerDown: false,
@@ -563,11 +571,25 @@ const EventCalendar = (): JSX.Element => {
       )
     : [];
 
+  useLayoutEffect(() => {
+    if (state.dateToFocus && state.selectDates) {
+      (
+        document.querySelector(
+          `span[aria-label="${parseDate(
+            state.dateToFocus
+          ).toLocaleDateString()}"]`
+        ) as HTMLElement
+      )?.focus();
+    }
+  }, [state.dateToFocus, state.selectDates]);
+
   return (
     <>
       <div
         className="calendar-grid"
         aria-label="Calendar for selecting and viewing dates"
+        role="dialog"
+        aria-modal="true"
       >
         <p className="calendar-month">
           {dateRows[firstOfEachMonth[state.page]][6].toLocaleString("default", {
