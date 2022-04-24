@@ -102,6 +102,16 @@ const HourCell = React.forwardRef(
                 keyIsDown = true;
                 onPointerDownHandler(time.getHours(), time.getMinutes());
               }
+              // trap focus inside
+              if (
+                time.getHours() === 0 &&
+                time.getMinutes() === 0 &&
+                e.shiftKey &&
+                e.key === "Tab"
+              ) {
+                e.preventDefault();
+                document.querySelector(".select-date-btn")?.focus();
+              }
             },
             onKeyUp: (e: React.KeyboardEvent) => {
               if (keyIsDown && e.key === selectTimeIntervalKey) {

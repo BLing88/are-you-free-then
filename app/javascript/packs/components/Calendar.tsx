@@ -1046,6 +1046,12 @@ const Calendar = (): JSX.Element => {
               type="button"
               className="select-date-btn"
               onClick={() => dispatch({ type: actionTypes.selectDates })}
+              onKeyDown={(e: React.KeyboardEvent) => {
+                if (e.key === "Tab" && !e.shiftKey) {
+                  e.preventDefault();
+                  document.querySelector(".time-input-cell")?.focus();
+                }
+              }}
             >
               Close
             </button>
