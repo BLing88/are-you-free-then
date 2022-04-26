@@ -96,7 +96,9 @@ input[type='checkbox']:hover {
     background-color: var(--background-color);
     width: calc(100% - 2 * Min(10%, 75px) - 2rem);
     position: fixed;
-    top: 25vh;
+    top: 50vh;
+    left: 50vw;
+    transform: translateX(-50%) translateY(-50%);
     z-index: 1;
 }
 
@@ -112,12 +114,25 @@ input[type='checkbox']:hover {
     grid-area: message;
 }
 
+.flash-message-background {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  z-index: 1;
+}
+
 .close-btn {
     grid-area: close-btn;
     font-size: 2.5rem;
     cursor: pointer;
     justify-self: flex-end;
     align-self: center;
+    background: none;
+    color: inherit;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .debug_dump {
@@ -141,8 +156,7 @@ input[type='checkbox']:hover {
     }
     
     .flash-message-container {
-        position: static;
-        width: auto;  
+        max-width: 360px;  
         margin: 0.5rem 0;
     }
 }
