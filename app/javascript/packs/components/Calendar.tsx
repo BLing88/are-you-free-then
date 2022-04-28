@@ -47,6 +47,8 @@ interface RowProps {
 let keyIsDown = false;
 const startSelectionKey = "q";
 const clickDateKey = "w";
+const ctrlShiftSelectionKey = "Z";
+const ctrlShiftClickDateKey = "X";
 
 const Row = ({
   dates,
@@ -90,11 +92,19 @@ const Row = ({
               onPointerLeave(formattedDate);
             }}
             onKeyDown={(e: React.KeyboardEvent) => {
-              if (!keyIsDown && e.key === startSelectionKey) {
+              if (
+                !keyIsDown &&
+                (e.key === startSelectionKey ||
+                  (e.ctrlKey && e.shiftKey && e.key === ctrlShiftSelectionKey))
+              ) {
                 keyIsDown = true;
                 onKeyDownHandler(date, null);
               }
-              if (!keyIsDown && e.key === clickDateKey) {
+              if (
+                !keyIsDown &&
+                (e.key === clickDateKey ||
+                  (e.ctrlKey && e.shiftKey && e.key === ctrlShiftClickDateKey))
+              ) {
                 clickDateHandler(date);
               }
               if (
@@ -108,7 +118,10 @@ const Row = ({
               }
             }}
             onKeyUp={(e: React.KeyboardEvent) => {
-              if (e.key === startSelectionKey) {
+              if (
+                keyIsDown &&
+                (e.key === startSelectionKey || e.key === ctrlShiftSelectionKey)
+              ) {
                 keyIsDown = false;
                 onKeyUpHandler();
               }

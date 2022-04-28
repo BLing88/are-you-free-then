@@ -31,6 +31,7 @@ interface RowProps {
 }
 
 const clickDateKey = "w";
+const ctrlShiftClickDateKey = "X";
 
 const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
   return (
@@ -54,7 +55,10 @@ const Row = ({ dates, cellsToHighlight, onPointerDown }: RowProps) => {
               onPointerDown(formattedDate);
             }}
             onKeyDown={(e: React.KeyboardEvent) => {
-              if (e.key === clickDateKey) {
+              if (
+                e.key === clickDateKey ||
+                (e.ctrlKey && e.shiftKey && e.key === ctrlShiftClickDateKey)
+              ) {
                 onPointerDown(formattedDate);
               }
             }}
