@@ -8,7 +8,15 @@ export const CalendarInstructions = ({
   children,
 }: CalendarInstructionsProps): JSX.Element => {
   return (
-    <article className="calendar-instructions">
+    <article
+      className="calendar-instructions"
+      onClick={(e) => {
+        e.preventDefault();
+        document
+          .querySelector(".close-instructions-button")
+          .focus({ preventScroll: true });
+      }}
+    >
       <h1>How to edit times</h1>
       <h3>Selecting days</h3>
       <p>

@@ -198,6 +198,12 @@ input[type='submit'].submit-btn {
   align-items: center;
 }
 
+.instructions-background {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
 .close-icon {
   font-size: 2rem;
   margin-left: 0.25rem;

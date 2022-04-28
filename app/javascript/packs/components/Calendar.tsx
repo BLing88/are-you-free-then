@@ -989,7 +989,12 @@ const Calendar = (): JSX.Element => {
         ) as HTMLElement
       )?.focus();
     }
-  }, [state.dateToFocus, state.showTimes]);
+    if (state.showInstructions) {
+      document
+        .querySelector(".close-instructions-button")
+        .focus({ preventScroll: true });
+    }
+  }, [state.dateToFocus, state.showTimes, state.showInstructions]);
 
   return (
     <>
@@ -1120,15 +1125,34 @@ const Calendar = (): JSX.Element => {
       )}
 
       {state.showInstructions && (
-        <CalendarInstructions>
-          <button
-            type="button"
-            className="close-instructions-button"
-            onClick={() => dispatch({ type: actionTypes.toggleInstructions })}
-          >
-            Close <span className="close-icon">&times;</span>
-          </button>
-        </CalendarInstructions>
+        <>
+          <div
+            className="instructions-background"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .querySelector(".close-instructions-button")
+                .focus({ preventScroll: true });
+            }}
+          ></div>
+          <CalendarInstructions>
+            <button
+              type="button"
+              className="close-instructions-button"
+              onClick={() => dispatch({ type: actionTypes.toggleInstructions })}
+              onKeyPress={(e: React.KeyboardEvent) => {
+                if (e.key === "Tab") {
+                  e.currentTarget.focus({ preventScroll: true });
+                }
+              }}
+            >
+              Close{" "}
+              <span className="close-icon" aria-hidden="true">
+                &times;
+              </span>
+            </button>
+          </CalendarInstructions>
+        </>
       )}
 
       {newTimeIntervals.length > 0 &&
