@@ -28,6 +28,7 @@ interface HourCellRef {
 }
 
 const selectTimeIntervalKey = "q";
+const ctrlShiftKey = "z";
 let keyIsDown = false;
 
 const HourCell = React.forwardRef(
@@ -98,7 +99,11 @@ const HourCell = React.forwardRef(
             onPointerUp: onPointerUpHandler,
             onPointerCancel: onPointerCancelHandler,
             onKeyDown: (e: React.KeyboardEvent) => {
-              if (!keyIsDown && e.key === selectTimeIntervalKey) {
+              if (
+                !keyIsDown &&
+                (e.key === selectTimeIntervalKey ||
+                  (e.ctrlKey && e.shiftKey && e.key === ctrlShiftKey))
+              ) {
                 keyIsDown = true;
                 onPointerDownHandler(time.getHours(), time.getMinutes());
               }
@@ -114,7 +119,10 @@ const HourCell = React.forwardRef(
               }
             },
             onKeyUp: (e: React.KeyboardEvent) => {
-              if (keyIsDown && e.key === selectTimeIntervalKey) {
+              if (
+                keyIsDown &&
+                (e.key === selectTimeIntervalKey || e.key === ctrlShiftKey)
+              ) {
                 keyIsDown = false;
                 onPointerUpHandler?.();
               }
