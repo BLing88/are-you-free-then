@@ -1072,6 +1072,9 @@ const Calendar = (): JSX.Element => {
               }}
             >
               Close
+              <span className="close-icon" aria-hidden="true">
+                &times;
+              </span>
             </button>
           </div>
         </TimeSelector>

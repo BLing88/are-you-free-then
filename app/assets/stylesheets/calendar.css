@@ -196,6 +196,13 @@ input[type='submit'].submit-btn {
   align-self: center;
   display: inline-flex;
   align-items: center;
+  transition: background-color var(--transition-duration) ease-in;
+  border: 1px solid gray;
+}
+
+.close-instructions-button:active,
+.close-instructions-button:hover {
+  background-color: #dedede;
 }
 
 .instructions-background {

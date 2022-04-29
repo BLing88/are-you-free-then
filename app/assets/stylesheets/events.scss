@@ -136,6 +136,24 @@
   }
 }
 
+.event-display .time-input-back-btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  span {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
 .available-participants-list,
 .unavailable-participants-list {
   max-height: 220px;

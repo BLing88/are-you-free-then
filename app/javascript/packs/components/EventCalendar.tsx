@@ -183,12 +183,16 @@ const EventTimesDisplay = ({
         </li>
       </ul>
       <div className="time-input-back-btn">
+        <span>{isSelectedChild} &nbsp;- suggested or set by host</span>
         <button
           type="button"
           className="select-date-btn"
           onClick={() => dispatch({ type: SELECT_DATES })}
         >
           Close
+          <span className="close-icon" aria-hidden="true">
+            &times;
+          </span>
         </button>
       </div>
     </div>

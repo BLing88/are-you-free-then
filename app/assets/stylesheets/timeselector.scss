@@ -115,6 +115,18 @@
     color: var(--background-color);
     //margin-top: 0.5rem;
     cursor: pointer;
+    border: 1px solid gray;
+    transition: background-color var(--transition-duration) ease-in;
+    display: inline-flex;
+    align-items: center;
+}
+
+.select-date-btn:active, .select-date-btn:hover {
+  background-color: #dedede;
+}
+
+.time-selector .select-date-btn {
+  border: none;
 }
 
 .hour-cell {
