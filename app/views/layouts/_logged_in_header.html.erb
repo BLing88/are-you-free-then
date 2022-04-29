@@ -16,8 +16,10 @@
     <% end %>
   </li>
   
-  <li class="header-menu-li" aria-label="click for more options">
-    <%= render 'layouts/header_menu_icon' %>
+  <li class="header-menu-li" >
+    <button class='header-menu-btn' aria-label="click for more options">
+      <%= render 'layouts/header_menu_icon' %>
+    </button>
     <ul class="header-menu" style="visibility: hidden;">
       <li>
         <%= link_to "Edit account",  edit_user_path(@current_user) %>
