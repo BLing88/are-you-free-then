@@ -26,6 +26,12 @@ export const CalendarInstructions = ({
         appear blue.
       </p>
       <p>
+        For keyboard accessibility, you can focus on a date and press ‘w’, or
+        simultaneously control, shift, and ‘x’ to edit that date. To start a
+        multiple-date selection, press and hold ‘q’, or simultaneously control,
+        shift, and ‘z’, and use the arrow keys.
+      </p>
+      <p>
         To remove a date’s times, simply start a drag-selection with that date.
         Other dates in that selection will be removed as well. The selected
         dates to be removed will appear red.
@@ -42,6 +48,12 @@ export const CalendarInstructions = ({
       </p>
       <p>
         You can also click and drag to select a contiguous set of intervals.
+      </p>
+
+      <p>
+        For keyboard users, press and hold ‘q’ or control, shift, and ‘z’ to
+        start a selection. Press the tab key to select the next interval, or
+        shift and tab to select the previous time interval.
       </p>
 
       <p>
