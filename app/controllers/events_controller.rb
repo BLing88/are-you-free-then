@@ -30,7 +30,7 @@ class EventsController < ApplicationController
         start_time = interval[:start_time]
         end_time = interval[:end_time]
         if !@times["#{start_time}_#{end_time}"].nil?
-          @times["#{start_time}_#{end_time}"].participants << participant.name
+          @times["#{start_time}_#{end_time}"][:participants] << participant.name
         else
           @times["#{start_time}_#{end_time}"] = { start_time: start_time, end_time: end_time, participants: [participant.name]}
         end
