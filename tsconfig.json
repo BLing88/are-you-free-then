@@ -12,6 +12,12 @@
     "noEmit": true,
     "allowSyntheticDefaultImports": true
   },
-  "exclude": ["**/*.spec.ts", "node_modules", "vendor", "public"],
+  "exclude": [
+    "**/*.spec.ts",
+    "node_modules",
+    "vendor",
+    "public",
+    "app/javascript/test"
+  ],
   "compileOnSave": false
 }

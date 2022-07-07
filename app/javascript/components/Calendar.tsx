@@ -1003,9 +1003,9 @@ const Calendar = (): JSX.Element => {
       )?.focus();
     }
     if (state.showInstructions) {
-      document
-        .querySelector(".close-instructions-button")
-        .focus({ preventScroll: true });
+      (
+        document.querySelector(".close-instructions-button") as HTMLElement
+      ).focus({ preventScroll: true });
     }
   }, [state.dateToFocus, state.showTimes, state.showInstructions]);
 
@@ -1067,7 +1067,9 @@ const Calendar = (): JSX.Element => {
               onKeyDown={(e: React.KeyboardEvent) => {
                 if (e.key === "Tab" && !e.shiftKey) {
                   e.preventDefault();
-                  document.querySelector(".time-input-cell")?.focus();
+                  (
+                    document.querySelector(".time-input-cell") as HTMLElement
+                  )?.focus();
                 }
               }}
             >
@@ -1146,9 +1148,11 @@ const Calendar = (): JSX.Element => {
             className="instructions-background"
             onClick={(e) => {
               e.preventDefault();
-              document
-                .querySelector(".close-instructions-button")
-                .focus({ preventScroll: true });
+              (
+                document.querySelector(
+                  ".close-instructions-button"
+                ) as HTMLElement
+              ).focus({ preventScroll: true });
             }}
           ></div>
           <CalendarInstructions>
@@ -1158,7 +1162,9 @@ const Calendar = (): JSX.Element => {
               onClick={() => dispatch({ type: actionTypes.toggleInstructions })}
               onKeyPress={(e: React.KeyboardEvent) => {
                 if (e.key === "Tab") {
-                  e.currentTarget.focus({ preventScroll: true });
+                  (e.currentTarget as HTMLElement).focus({
+                    preventScroll: true,
+                  });
                 }
               }}
             >

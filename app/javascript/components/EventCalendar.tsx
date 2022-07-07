@@ -3,6 +3,7 @@ import React, {
   useMemo,
   CSSProperties,
   useLayoutEffect,
+  PointerEvent,
 } from "react";
 import { scaleLinear } from "d3-scale";
 import { TimeSelector } from "./TimeSelector";
@@ -250,7 +251,6 @@ interface SelectDatesAction {
 export type ReducerAction =
   | ChangeSelectionAction
   | EnterCellAction
-  | PointerUpAction
   | PaginateAction
   | SelectDatesAction
   | SelectTimeIntervalAction;

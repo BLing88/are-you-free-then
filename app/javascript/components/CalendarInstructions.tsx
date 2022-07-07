@@ -12,9 +12,9 @@ export const CalendarInstructions = ({
       className="calendar-instructions"
       onClick={(e) => {
         e.preventDefault();
-        document
-          .querySelector(".close-instructions-button")
-          .focus({ preventScroll: true });
+        (
+          document.querySelector(".close-instructions-button") as HTMLElement
+        ).focus({ preventScroll: true });
       }}
     >
       <h1>How to edit times</h1>

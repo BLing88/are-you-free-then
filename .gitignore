@@ -48,3 +48,6 @@ yarn-debug.log*
 !.yarn/versions
 
 **/*.swp
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

@@ -1,4 +1,4 @@
-function closeMessage(el: Element): void {
+function closeMessage(el: HTMLElement): void {
   el.remove();
 }
 
@@ -10,13 +10,17 @@ function trapFocus(event) {
 }
 
 document.addEventListener("turbolinks:load", () => {
-  const flashMessageContainer = document.querySelector(
+  const flashMessageContainer: HTMLElement = document.querySelector(
     ".flash-message-container"
   );
 
   if (flashMessageContainer) {
-    const closeBtn = document.querySelector(".close-btn");
+    const closeBtn: HTMLElement = document.querySelector(".close-btn");
     closeBtn.focus();
+
+    const flashBackground: HTMLElement = document.querySelector(
+      ".flash-message-background"
+    );
 
     closeBtn.addEventListener("click", function () {
       closeMessage(flashMessageContainer);

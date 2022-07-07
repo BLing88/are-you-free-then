@@ -115,7 +115,9 @@ const HourCell = React.forwardRef(
                 e.key === "Tab"
               ) {
                 e.preventDefault();
-                document.querySelector(".select-date-btn")?.focus();
+                (
+                  document.querySelector(".select-date-btn") as HTMLElement
+                )?.focus();
               }
             },
             onKeyUp: (e: React.KeyboardEvent) => {
