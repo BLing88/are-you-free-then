@@ -11,7 +11,6 @@ import "./CalendarInput";
 import "./closeFlashMessage";
 import "./toggleHeaderMenu";
 
-console.log("hi");
 Rails.start();
 Turbolinks.start();
 ActiveStorage.start();
