@@ -3,7 +3,7 @@
 
 <h1>Update your profile</h1>
 <div>
-  <%= render 'form' %>
+  <%= render 'form', url: user_path(@user) %>
   <%= link_to 'Delete account', @user, method: :delete, data: { 
                                                    confirm: "Are you sure?" } %>
 

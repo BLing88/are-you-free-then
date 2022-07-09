@@ -8,9 +8,8 @@ Rails.application.routes.draw do
   get '/login', to: 'sessions#new'
   post '/login', to: 'sessions#create'
   delete '/logout', to: 'sessions#destroy'
-  resources :users, except: [:index, :create]
   resources :free_times, only: [:new, :create, :destroy]
-  resources :users do 
+  resources :users, except: [:show, :index, :create] do 
     member do
       get :free_times
       get :free_times_json

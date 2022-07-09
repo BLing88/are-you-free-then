@@ -29,7 +29,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
                                               password: password,
                                               password_confirmation: password } }
     assert_not flash.empty?
-    assert_redirected_to @user
+    assert_redirected_to root_url
     follow_redirect!
     assert_select 'div', /profile updated successfully/i
     @user.reload
@@ -51,7 +51,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
                                               password: "",
                                               password_confirmation: "" } }
     assert_not flash.empty?
-    assert_redirected_to @user
+    assert_redirected_to root_url
     follow_redirect!
     assert_select 'div', /profile updated successfully/i
     @user.reload
