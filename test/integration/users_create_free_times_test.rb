@@ -54,4 +54,24 @@ class UsersCreateFreeTimesTest < ActionDispatch::IntegrationTest
     assert_not @user.reload.free_times.include?(free_times(:one))
     assert_not @user.free_times.where(["start_time = ? AND end_time = ?", start_time, end_time]).nil?
   end
+  
+  test "users can have same free times"  do
+    log_in_as @user
+    assert @user.free_times.include?(free_times(:one))
+
+    test_log_out
+    log_in_as @other_user
+    assert_difference 'FreeTime.count', 1 do
+      post free_times_path, params: {
+        create_intervals: ["#{free_times(:one).start_time}_#{free_times(:one).end_time}"] }
+    end
+    assert FreeTime.exists?(user: @other_user, 
+                            start_time: free_times(:one).start_time, 
+                            end_time:  free_times(:one).end_time)
+
+    assert_no_difference 'FreeTime.count' do
+      post free_times_path, params: {
+        create_intervals: ["#{free_times(:one).start_time}_#{free_times(:one).end_time}"] }
+    end
+  end
 end
