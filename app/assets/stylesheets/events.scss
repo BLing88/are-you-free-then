@@ -267,7 +267,8 @@
 }
 
 .share-event-link-section {
-  #share-event-link-error {
+  #share-event-link-error,
+  #share-event-link-success {
     margin-top: 0.5rem;
     display: grid;
     grid-template-areas: "message close-btn";
@@ -277,8 +278,10 @@
     background: var(--background-color);
     padding: 0.75rem;
     border-radius: 0.5rem;
+
     
-    .close-share-event-error-btn {
+    .close-share-event-error-btn,
+    .close-share-event-success-btn {
       background: none;
       color: inherit;
       font-size: 2.5rem;
@@ -287,6 +290,10 @@
       display: inline-flex;
       align-items: center;
     }
+  }
+
+  #share-event-link-success {
+    color: var(--foreground-color);
   }
 }
 

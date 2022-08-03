@@ -6,8 +6,23 @@
           errorMsg.remove()
       }
 
+      function closeSuccessMsg() {
+          const msg = document.getElementById("share-event-link-success")
+          msg.remove()
+      }
+
       navigator.clipboard.writeText(link).then(
         function() {
+            const section = document.querySelector(".share-event-link-section")
+            const template = document.getElementById("share-event-success-template")
+            section.appendChild(template.content.cloneNode(true))
+
+            const closeBtn = document.querySelector(".close-share-event-success-btn")
+            closeBtn.addEventListener("click", () => {
+                closeBtn.remove("click", closeSuccessMsg)
+                closeSuccessMsg()
+              })
+        }, function(){
             const section = document.querySelector(".share-event-link-section")
             const template = document.getElementById("share-event-error-template")
             section.appendChild(template.content.cloneNode(true))
@@ -17,16 +32,6 @@
                 closeBtn.remove("click", closeErrorMsg)
                 closeErrorMsg()
               })
-        }, function(){
-            const section = document.querySelector(".share-event-link-section")
-            const template = document.getElementById("share-event-error-template")
-            section.appendChild(template.content)
-
-            const closeBtn = document.querySelector(".close-share-event-error-btn")
-            const errorMsg = document.getElementById("share-event-link-error")
-            closeBtn.addEventListener("click", () => {
-              errorMsg.remove()
-            })
           })
 
   }
@@ -56,6 +61,14 @@
           >
             Copy link
           </button>
+          <template id="share-event-success-template">
+          <section id="share-event-link-success">
+            <strong>
+              The link was successfully copied to the clipboard.
+            </strong>
+            <button type="reset" class='close-share-event-success-btn' aria-label="Close">&times;</button>
+          </section>
+          </template>
           <template id="share-event-error-template">
           <section id="share-event-link-error">
             <strong>
