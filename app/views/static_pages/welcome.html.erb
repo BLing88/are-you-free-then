@@ -1,3 +1,19 @@
-<%= render 'shared/app_logo', width: 350, height: 72 %>
-<%= link_to "Sign up", signup_path, class: 'welcome-signup-link' %>
-<%= link_to 'Login', login_path, class: 'login-link' %>
+<main class="welcome-page">
+  <div class="welcome-page-info">
+    <%= render 'shared/app_logo', width: 350, height: 72 %>
+    <p>
+    Create events and quickly determine the best time to schedule them 
+    based on the participants times!
+    </p>
+    <p>
+    Users simply enter the times they are free.
+    When they join an event, their free times are automatically pulled into
+    a heat map that allows you to easily see what times might be best for that event.
+    </p>
+    <%= link_to 'Login', login_path, class: 'login-link' %>
+    <%= link_to "Sign up", signup_path, class: 'welcome-signup-link' %>
+  </div>
+
+  <%= image_tag "calendar.png", width:"50%", class: "calendar-img" %>
+  <%= image_tag "event-times.png", width:"50%", class: "event-times-img" %>
+</main>

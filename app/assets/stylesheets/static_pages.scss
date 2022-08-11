@@ -1,3 +1,63 @@
-// Place all the styles related to the StaticPages controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: https://sass-lang.com/
+.welcome-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  p {
+    margin-top: 0;
+  }
+}
+
+.welcome-page-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calendar-img,
+.event-times-img {
+  border: 1px solid gray;
+  width: 100%;
+  margin: 1em 0;
+}
+
+@media (min-width: 450px) {
+  .app-logo {
+      margin: 0 0;
+  }
+
+  .welcome-page {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas: "calendar info event-times";
+    justify-items: center;
+    align-items: start;
+
+    p {
+      margin-top: revert;
+    }
+  }
+
+  .welcome {
+    width: 100%;
+  }
+
+  .welcome-page-info {
+    grid-area: info;
+  }
+
+  .calendar-img {
+    grid-area: calendar;
+  }
+
+  .event-times-img {
+    grid-area: event-times;
+  }
+  
+  .calendar-img,
+  .event-times-img {
+    align-self: center;
+    width: calc(max(75%, 200px));
+  }
+}

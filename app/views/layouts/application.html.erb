@@ -11,7 +11,7 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
 
-  <body>
+  <body class="<%= current_page?('/') && !logged_in? ? 'welcome' : '' %>">
     <%= render 'layouts/header' unless !logged_in? %>
     <% flash.each do |message_type, message| %>
         <%= render 'layouts/flash_message', message: message, type: message_type %>
