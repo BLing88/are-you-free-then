@@ -5,6 +5,15 @@
     margin-top: 0;
 }
 
+.signup-page {
+  display: flex;
+  flex-direction: column;
+
+  .app-logo {
+    align-self: center;
+  }
+}
+
 .user-form {
   display: flex;
   flex-direction: column;
